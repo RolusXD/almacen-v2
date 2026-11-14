@@ -1,0 +1,563 @@
+/**
+ * Estilos Personalizados - Diseño Sobrio 2026
+ * Inspirado en diseño profesional tipo MikroWisp
+ */
+
+/* ============================================
+   VARIABLES DE COLOR
+   ============================================ */
+:root {
+    /* Colores principales - Tonos sobrios */
+    --toi-primary: #1e3a5f;
+    --toi-secondary: #2c5282;
+    --toi-accent: #4299e1;
+    --toi-dark: #1a202c;
+    --toi-gray: #4a5568;
+    --toi-light: #f7fafc;
+    
+    /* Colores de estado */
+    --toi-success: #38a169;
+    --toi-warning: #dd6b20;
+    --toi-danger: #e53e3e;
+    --toi-info: #3182ce;
+    
+    /* Fondos */
+    --bg-sidebar: #1a202c;
+    --bg-sidebar-hover: #2d3748;
+    --bg-main: #f1f5f9;
+    --bg-card: #ffffff;
+    --bg-table-head: #f8fafc;
+    
+    /* Bordes */
+    --border-color: #e2e8f0;
+    --border-light: #edf2f7;
+    
+    /* Sombras */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.07);
+    --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+    
+    /* Dimensiones */
+    --sidebar-width: 260px;
+    --header-height: 60px;
+    --row-height: 45px;
+}
+
+/* ============================================
+   RESET Y BASE
+   ============================================ */
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    color: #2d3748;
+    background: var(--bg-main);
+    line-height: 1.5;
+}
+
+/* ============================================
+   SIDEBAR COMPACTO
+   ============================================ */
+.sidebar {
+    width: var(--sidebar-width);
+    background: var(--bg-sidebar);
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+}
+
+.sidebar-brand {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    background: rgba(0,0,0,0.2);
+}
+
+.sidebar-brand i {
+    font-size: 1.75rem;
+    color: var(--toi-accent);
+}
+
+.sidebar-brand-text h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.sidebar-brand-text small {
+    font-size: 0.7rem;
+    opacity: 0.6;
+}
+
+.sidebar .nav-link {
+    padding: 0.65rem 1rem;
+    margin: 0.15rem 0.5rem;
+    font-size: 0.875rem;
+    color: rgba(255,255,255,0.7);
+    border-radius: 6px;
+}
+
+.sidebar .nav-link i {
+    font-size: 1rem;
+}
+
+.sidebar .nav-link:hover,
+.sidebar .nav-link.active {
+    background: var(--bg-sidebar-hover);
+    color: white;
+}
+
+.sidebar-user {
+    padding: 0.75rem 1rem;
+    background: rgba(0,0,0,0.3);
+}
+
+.user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+}
+
+.user-name {
+    font-size: 0.85rem;
+}
+
+.user-role {
+    font-size: 0.7rem;
+}
+
+/* ============================================
+   CONTENIDO PRINCIPAL
+   ============================================ */
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 1.25rem;
+}
+
+/* ============================================
+   NAVBAR SUPERIOR
+   ============================================ */
+.top-navbar {
+    background: var(--bg-card);
+    padding: 0.875rem 1.25rem;
+    margin-bottom: 1.25rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border-color);
+}
+
+.navbar-title h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--toi-dark);
+}
+
+.navbar-title small {
+    font-size: 0.75rem;
+    color: #718096;
+}
+
+.notification-btn {
+    width: 38px;
+    height: 38px;
+    border: 1px solid var(--border-color);
+}
+
+/* ============================================
+   TARJETAS (CARDS)
+   ============================================ */
+.card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 1rem;
+}
+
+.card-header {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    padding: 0.875rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--toi-dark);
+}
+
+.card-body {
+    padding: 1rem;
+}
+
+/* Stat Cards Compactas */
+.stat-card {
+    padding: 1rem;
+    border-radius: 8px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-left: 4px solid var(--toi-accent);
+}
+
+.stat-card .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--toi-dark);
+}
+
+.stat-card .stat-label {
+    font-size: 0.8rem;
+    color: #718096;
+}
+
+/* ============================================
+   TABLAS COMPACTAS Y SOBRIAS
+   ============================================ */
+.table-responsive {
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.table {
+    margin-bottom: 0;
+    font-size: 0.875rem;
+}
+
+.table thead th {
+    background: var(--bg-table-head);
+    color: var(--toi-gray);
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    padding: 0.75rem 1rem;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.table tbody td {
+    padding: 0.625rem 1rem;
+    vertical-align: middle;
+    border-color: var(--border-light);
+    color: #2d3748;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid var(--border-light);
+}
+
+.table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.table-sm th,
+.table-sm td {
+    padding: 0.5rem 0.75rem;
+}
+
+/* Celdas de estado */
+.table .badge {
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+/* ============================================
+   BOTONES
+   ============================================ */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.btn-primary {
+    background: var(--toi-primary);
+    border-color: var(--toi-primary);
+}
+
+.btn-primary:hover {
+    background: var(--toi-secondary);
+    border-color: var(--toi-secondary);
+}
+
+.btn-sm {
+    padding: 0.35rem 0.75rem;
+    font-size: 0.8rem;
+}
+
+.btn-outline-primary {
+    color: var(--toi-primary);
+    border-color: var(--toi-primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--toi-primary);
+    border-color: var(--toi-primary);
+}
+
+/* Grupos de botones en tablas */
+.btn-group .btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
+}
+
+/* ============================================
+   FORMULARIOS
+   ============================================ */
+.form-label {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--toi-dark);
+    margin-bottom: 0.4rem;
+}
+
+.form-control,
+.form-select {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--toi-accent);
+    box-shadow: 0 0 0 3px rgba(66,153,225,0.15);
+}
+
+.form-control-sm,
+.form-select-sm {
+    padding: 0.35rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+/* ============================================
+   BADGES DE ESTADO
+   ============================================ */
+.badge.bg-success {
+    background: #c6f6d5 !important;
+    color: #22543d;
+}
+
+.badge.bg-warning {
+    background: #feebc8 !important;
+    color: #7c2d12;
+}
+
+.badge.bg-info {
+    background: #bee3f8 !important;
+    color: #2c5282;
+}
+
+.badge.bg-danger {
+    background: #fed7d7 !important;
+    color: #742a2a;
+}
+
+.badge.bg-primary {
+    background: #c3dafe !important;
+    color: #2c5282;
+}
+
+/* ============================================
+   FILTROS Y BÚSQUEDA
+   ============================================ */
+.filter-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.filter-card h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--toi-gray);
+    margin-bottom: 0.75rem;
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.alert {
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    border: 1px solid;
+}
+
+.alert-success {
+    background: #f0fff4;
+    border-color: #c6f6d5;
+    color: #22543d;
+}
+
+.alert-danger {
+    background: #fff5f5;
+    border-color: #fed7d7;
+    color: #742a2a;
+}
+
+.alert-warning {
+    background: #fffaf0;
+    border-color: #feebc8;
+    color: #7c2d12;
+}
+
+.alert-info {
+    background: #ebf8ff;
+    border-color: #bee3f8;
+    color: #2c5282;
+}
+
+/* ============================================
+   MODALES
+   ============================================ */
+.modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+
+.modal-header {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-table-head);
+}
+
+.modal-title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.modal-body {
+    padding: 1.25rem;
+}
+
+.modal-footer {
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--border-color);
+    background: var(--bg-light);
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+.text-primary {
+    color: var(--toi-primary) !important;
+}
+
+.text-success {
+    color: var(--toi-success) !important;
+}
+
+.text-warning {
+    color: var(--toi-warning) !important;
+}
+
+.text-danger {
+    color: var(--toi-danger) !important;
+}
+
+.bg-primary {
+    background: var(--toi-primary) !important;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1000;
+    }
+
+    .sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+}
+
+/* ============================================
+   ANIMACIONES SUAVES
+   ============================================ */
+.fade-in {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ============================================
+   DATATABLES PERSONALIZADO
+   ============================================ */
+.dataTables_wrapper .dataTables_length,
+.dataTables_wrapper .dataTables_filter {
+    margin-bottom: 1rem;
+    font-size: 0.875rem;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    padding: 0.35rem 0.75rem;
+    margin: 0 2px;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current,
+.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+    background: var(--toi-primary);
+    color: white;
+    border-color: var(--toi-primary);
+}
+
+/* ============================================
+   SCROLLBARS PERSONALIZADOS
+   ============================================ */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cbd5e0;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a0aec0;
+}
+
+.sidebar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.2);
+}

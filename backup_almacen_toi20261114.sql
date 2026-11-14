@@ -1,0 +1,1745 @@
+--
+-- PostgreSQL database dump
+--
+
+\restrict 4W0gqcEHlNQB4R7GrnMXiMPTx8kkNJ7GdDq2064AJILQsg6KKtb63i8WJwINYMT
+
+-- Dumped from database version 14.24 (Ubuntu 14.24-0ubuntu0.22.04.1)
+-- Dumped by pg_dump version 14.24 (Ubuntu 14.24-0ubuntu0.22.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: set_updated_at(); Type: FUNCTION; Schema: public; Owner: almacen_toi
+--
+
+CREATE FUNCTION public.set_updated_at() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    NEW.updated_at = CURRENT_TIMESTAMP;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.set_updated_at() OWNER TO almacen_toi;
+
+--
+-- Name: sync_accesorio_stock_from_movimiento(); Type: FUNCTION; Schema: public; Owner: almacen_toi
+--
+
+CREATE FUNCTION public.sync_accesorio_stock_from_movimiento() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.tipo_movimiento = 'SALIDA' THEN
+        UPDATE accesorios SET cantidad = GREATEST(cantidad - NEW.cantidad, 0) WHERE id_accesorio = NEW.id_accesorio;
+    ELSIF NEW.tipo_movimiento = 'ENTRADA' THEN
+        UPDATE accesorios SET cantidad = cantidad + NEW.cantidad WHERE id_accesorio = NEW.id_accesorio;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.sync_accesorio_stock_from_movimiento() OWNER TO almacen_toi;
+
+--
+-- Name: sync_equipo_estado_from_movimiento(); Type: FUNCTION; Schema: public; Owner: almacen_toi
+--
+
+CREATE FUNCTION public.sync_equipo_estado_from_movimiento() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.tipo_movimiento = 'SALIDA' THEN
+        UPDATE equipos SET estado = 'OCUPADO' WHERE numero_serie_mac = NEW.numero_serie_mac;
+    ELSIF NEW.tipo_movimiento = 'ENTRADA' THEN
+        UPDATE equipos SET estado = 'DISPONIBLE' WHERE numero_serie_mac = NEW.numero_serie_mac;
+    ELSIF NEW.tipo_movimiento = 'MANTENIMIENTO' THEN
+        UPDATE equipos SET estado = 'MANTENIMIENTO' WHERE numero_serie_mac = NEW.numero_serie_mac;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.sync_equipo_estado_from_movimiento() OWNER TO almacen_toi;
+
+--
+-- Name: sync_equipo_estado_from_prestamo_insert(); Type: FUNCTION; Schema: public; Owner: almacen_toi
+--
+
+CREATE FUNCTION public.sync_equipo_estado_from_prestamo_insert() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    UPDATE equipos SET estado = 'OCUPADO' WHERE numero_serie_mac = NEW.numero_serie_mac;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.sync_equipo_estado_from_prestamo_insert() OWNER TO almacen_toi;
+
+--
+-- Name: sync_equipo_estado_from_prestamo_update(); Type: FUNCTION; Schema: public; Owner: almacen_toi
+--
+
+CREATE FUNCTION public.sync_equipo_estado_from_prestamo_update() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    IF NEW.estado = 'DEVUELTO' AND OLD.estado = 'PRESTADO' THEN
+        UPDATE equipos SET estado = 'DISPONIBLE' WHERE numero_serie_mac = NEW.numero_serie_mac;
+    END IF;
+    RETURN NEW;
+END;
+$$;
+
+
+ALTER FUNCTION public.sync_equipo_estado_from_prestamo_update() OWNER TO almacen_toi;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: accesorios; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.accesorios (
+    id_accesorio integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    id_categoria integer,
+    id_marca integer,
+    id_proveedor integer,
+    costo numeric(10,2),
+    codigo character varying(20),
+    cantidad integer DEFAULT 0 NOT NULL,
+    unidad_medida character varying(50),
+    modelo character varying(100),
+    marca character varying(100),
+    numero_serie_mac character varying(50),
+    fecha_entrada date NOT NULL,
+    estado character varying(20) DEFAULT 'DISPONIBLE'::character varying NOT NULL,
+    calidad character varying(20) DEFAULT 'BUENO'::character varying NOT NULL,
+    observaciones text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_accesorios_calidad CHECK (((calidad)::text = ANY (ARRAY[('NUEVO'::character varying)::text, ('BUENO'::character varying)::text, ('REGULAR'::character varying)::text, ('MALO'::character varying)::text]))),
+    CONSTRAINT chk_accesorios_cantidad CHECK ((cantidad >= 0)),
+    CONSTRAINT chk_accesorios_estado CHECK (((estado)::text = ANY (ARRAY[('DISPONIBLE'::character varying)::text, ('OCUPADO'::character varying)::text, ('MANTENIMIENTO'::character varying)::text, ('RETIRADO'::character varying)::text])))
+);
+
+
+ALTER TABLE public.accesorios OWNER TO almacen_toi;
+
+--
+-- Name: accesorios_id_accesorio_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.accesorios ALTER COLUMN id_accesorio ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.accesorios_id_accesorio_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: app_sessions; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.app_sessions (
+    id character varying(128) NOT NULL,
+    payload text NOT NULL,
+    last_activity integer NOT NULL
+);
+
+
+ALTER TABLE public.app_sessions OWNER TO almacen_toi;
+
+--
+-- Name: categorias; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.categorias (
+    id_categoria integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    descripcion text,
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.categorias OWNER TO almacen_toi;
+
+--
+-- Name: categorias_general; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.categorias_general (
+    id_categoria integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    descripcion text,
+    tipo character varying(20) DEFAULT 'EQUIPO'::character varying NOT NULL,
+    codigo_base character varying(20),
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_categorias_general_tipo CHECK (((tipo)::text = ANY (ARRAY[('EQUIPO'::character varying)::text, ('ACCESORIO'::character varying)::text, ('AMBOS'::character varying)::text])))
+);
+
+
+ALTER TABLE public.categorias_general OWNER TO almacen_toi;
+
+--
+-- Name: categorias_general_id_categoria_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.categorias_general ALTER COLUMN id_categoria ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.categorias_general_id_categoria_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: categorias_id_categoria_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.categorias ALTER COLUMN id_categoria ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.categorias_id_categoria_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: destinos; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.destinos (
+    id_destino integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    descripcion text,
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.destinos OWNER TO almacen_toi;
+
+--
+-- Name: destinos_id_destino_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.destinos ALTER COLUMN id_destino ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.destinos_id_destino_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: equipos; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.equipos (
+    id_equipo integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    id_categoria integer,
+    id_marca integer,
+    id_proveedor integer,
+    costo numeric(10,2),
+    numero_serie_mac character varying(50) NOT NULL,
+    codigo character varying(20),
+    id_tipo_equipo integer,
+    modelo character varying(100),
+    marca character varying(100),
+    fecha_entrada date,
+    estado character varying(20) DEFAULT 'DISPONIBLE'::character varying NOT NULL,
+    calidad character varying(20) DEFAULT 'BUENO'::character varying NOT NULL,
+    observaciones text,
+    precio numeric(10,2),
+    proveedor character varying(100),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_equipos_calidad CHECK (((calidad)::text = ANY (ARRAY[('NUEVO'::character varying)::text, ('BUENO'::character varying)::text, ('REGULAR'::character varying)::text, ('MALO'::character varying)::text]))),
+    CONSTRAINT chk_equipos_estado CHECK (((estado)::text = ANY (ARRAY[('DISPONIBLE'::character varying)::text, ('OCUPADO'::character varying)::text, ('MANTENIMIENTO'::character varying)::text, ('RETIRADO'::character varying)::text])))
+);
+
+
+ALTER TABLE public.equipos OWNER TO almacen_toi;
+
+--
+-- Name: equipos_id_equipo_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.equipos ALTER COLUMN id_equipo ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.equipos_id_equipo_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: mantenimientos; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.mantenimientos (
+    id_mantenimiento integer NOT NULL,
+    id_equipo integer,
+    numero_serie_mac character varying(50) NOT NULL,
+    tipo_mantenimiento character varying(20) NOT NULL,
+    descripcion text NOT NULL,
+    tecnico_responsable character varying(100) NOT NULL,
+    fecha_ingreso date NOT NULL,
+    fecha_entrega date,
+    estado character varying(20) DEFAULT 'EN_PROCESO'::character varying NOT NULL,
+    costo numeric(10,2),
+    repuestos_cambiados text,
+    observaciones text,
+    garantia_dias integer DEFAULT 0,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_mantenimientos_estado CHECK (((estado)::text = ANY (ARRAY[('EN_PROCESO'::character varying)::text, ('COMPLETADO'::character varying)::text, ('CANCELADO'::character varying)::text]))),
+    CONSTRAINT chk_mantenimientos_tipo CHECK (((tipo_mantenimiento)::text = ANY (ARRAY[('PREVENTIVO'::character varying)::text, ('CORRECTIVO'::character varying)::text, ('EVOLUTIVO'::character varying)::text])))
+);
+
+
+ALTER TABLE public.mantenimientos OWNER TO almacen_toi;
+
+--
+-- Name: mantenimientos_id_mantenimiento_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.mantenimientos ALTER COLUMN id_mantenimiento ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.mantenimientos_id_mantenimiento_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: marcas; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.marcas (
+    id_marca integer NOT NULL,
+    nombre character varying(100) NOT NULL,
+    pais_origen character varying(50),
+    pagina_web character varying(100),
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.marcas OWNER TO almacen_toi;
+
+--
+-- Name: marcas_id_marca_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.marcas ALTER COLUMN id_marca ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.marcas_id_marca_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: movimientos_accesorios; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.movimientos_accesorios (
+    id_movimiento integer NOT NULL,
+    id_accesorio integer NOT NULL,
+    tipo_movimiento character varying(20) NOT NULL,
+    cantidad integer NOT NULL,
+    asunto character varying(100) NOT NULL,
+    encargado character varying(100) NOT NULL,
+    destino character varying(100),
+    observaciones text,
+    observaciones_detalladas text,
+    fecha_movimiento date NOT NULL,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_movimientos_accesorios_cantidad CHECK ((cantidad > 0)),
+    CONSTRAINT chk_movimientos_accesorios_tipo CHECK (((tipo_movimiento)::text = ANY (ARRAY[('SALIDA'::character varying)::text, ('ENTRADA'::character varying)::text, ('MANTENIMIENTO'::character varying)::text, ('REVISION'::character varying)::text])))
+);
+
+
+ALTER TABLE public.movimientos_accesorios OWNER TO almacen_toi;
+
+--
+-- Name: movimientos_accesorios_id_movimiento_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.movimientos_accesorios ALTER COLUMN id_movimiento ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.movimientos_accesorios_id_movimiento_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: movimientos_equipos; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.movimientos_equipos (
+    id_movimiento integer NOT NULL,
+    id_equipo integer,
+    numero_serie_mac character varying(50) NOT NULL,
+    tipo_movimiento character varying(20) NOT NULL,
+    asunto character varying(100) NOT NULL,
+    encargado character varying(100) NOT NULL,
+    destino character varying(100),
+    observaciones text,
+    observaciones_detalladas text,
+    fecha_movimiento date NOT NULL,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_movimientos_equipos_tipo CHECK (((tipo_movimiento)::text = ANY (ARRAY[('SALIDA'::character varying)::text, ('ENTRADA'::character varying)::text, ('MANTENIMIENTO'::character varying)::text, ('REVISION'::character varying)::text])))
+);
+
+
+ALTER TABLE public.movimientos_equipos OWNER TO almacen_toi;
+
+--
+-- Name: movimientos_equipos_id_movimiento_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.movimientos_equipos ALTER COLUMN id_movimiento ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.movimientos_equipos_id_movimiento_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: prestamos; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.prestamos (
+    id_prestamo integer NOT NULL,
+    id_equipo integer,
+    numero_serie_mac character varying(50) NOT NULL,
+    id_usuario_solicita integer,
+    nombre_solicita character varying(100) NOT NULL,
+    cargo_solicita character varying(50),
+    departamento character varying(100),
+    telefono_contacto character varying(20),
+    email_contacto character varying(100),
+    fecha_prestamo date NOT NULL,
+    fecha_devolucion_esperada date NOT NULL,
+    fecha_devolucion_real date,
+    estado character varying(20) DEFAULT 'PRESTADO'::character varying NOT NULL,
+    motivo_prestamo text NOT NULL,
+    observaciones_salida text,
+    observaciones_devolucion text,
+    equipo_entregado_conforme smallint DEFAULT 1 NOT NULL,
+    equipo_recibido_conforme smallint DEFAULT 1 NOT NULL,
+    id_usuario_entrega integer,
+    id_usuario_recibe integer,
+    created_by integer,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_prestamos_estado CHECK (((estado)::text = ANY (ARRAY[('PRESTADO'::character varying)::text, ('DEVUELTO'::character varying)::text, ('ATRASADO'::character varying)::text, ('PERDIDO'::character varying)::text])))
+);
+
+
+ALTER TABLE public.prestamos OWNER TO almacen_toi;
+
+--
+-- Name: prestamos_id_prestamo_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.prestamos ALTER COLUMN id_prestamo ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.prestamos_id_prestamo_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: proveedores; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.proveedores (
+    id_proveedor integer NOT NULL,
+    nombre_empresa character varying(150) NOT NULL,
+    nit character varying(20),
+    nombre_contacto character varying(100),
+    cargo_contacto character varying(50),
+    telefono character varying(20),
+    celular character varying(20),
+    email character varying(100),
+    direccion character varying(200),
+    ciudad character varying(50),
+    pais character varying(50) DEFAULT 'Bolivia'::character varying,
+    pagina_web character varying(100),
+    productos text,
+    observaciones text,
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.proveedores OWNER TO almacen_toi;
+
+--
+-- Name: proveedores_id_proveedor_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.proveedores ALTER COLUMN id_proveedor ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.proveedores_id_proveedor_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: tipos_accesorios; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.tipos_accesorios (
+    id_tipo_accesorio integer NOT NULL,
+    codigo character varying(40) NOT NULL,
+    descripcion character varying(180) NOT NULL,
+    categoria character varying(80),
+    observaciones text,
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.tipos_accesorios OWNER TO almacen_toi;
+
+--
+-- Name: tipos_accesorios_id_tipo_accesorio_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.tipos_accesorios ALTER COLUMN id_tipo_accesorio ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.tipos_accesorios_id_tipo_accesorio_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: tipos_equipos; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.tipos_equipos (
+    id_codigo integer NOT NULL,
+    codigo character varying(20) NOT NULL,
+    prefijo character varying(10),
+    descripcion character varying(150) NOT NULL,
+    categoria character varying(20) DEFAULT 'OTRO'::character varying NOT NULL,
+    observaciones text,
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_tipos_equipos_categoria CHECK (((categoria)::text = ANY (ARRAY[('ROUTER'::character varying)::text, ('ONU'::character varying)::text, ('SWITCH'::character varying)::text, ('OTRO'::character varying)::text])))
+);
+
+
+ALTER TABLE public.tipos_equipos OWNER TO almacen_toi;
+
+--
+-- Name: tipos_equipos_id_codigo_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.tipos_equipos ALTER COLUMN id_codigo ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.tipos_equipos_id_codigo_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: unidades_medida; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.unidades_medida (
+    id_unidad integer NOT NULL,
+    nombre character varying(50) NOT NULL,
+    abreviatura character varying(10),
+    descripcion text,
+    activo smallint DEFAULT 1 NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.unidades_medida OWNER TO almacen_toi;
+
+--
+-- Name: unidades_medida_id_unidad_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.unidades_medida ALTER COLUMN id_unidad ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.unidades_medida_id_unidad_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: usuarios; Type: TABLE; Schema: public; Owner: almacen_toi
+--
+
+CREATE TABLE public.usuarios (
+    id_usuario integer NOT NULL,
+    nombre_completo character varying(150) NOT NULL,
+    usuario character varying(50) NOT NULL,
+    password_hash character varying(255) NOT NULL,
+    carnet character varying(20) NOT NULL,
+    email character varying(100) NOT NULL,
+    fecha_nacimiento date NOT NULL,
+    rol character varying(20) DEFAULT 'usuario'::character varying NOT NULL,
+    activo smallint DEFAULT 1 NOT NULL,
+    ultimo_acceso timestamp without time zone,
+    reset_token character varying(128),
+    reset_token_expires timestamp without time zone,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT chk_usuarios_rol CHECK (((rol)::text = ANY (ARRAY[('admin'::character varying)::text, ('usuario'::character varying)::text])))
+);
+
+
+ALTER TABLE public.usuarios OWNER TO almacen_toi;
+
+--
+-- Name: usuarios_id_usuario_seq; Type: SEQUENCE; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE public.usuarios ALTER COLUMN id_usuario ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME public.usuarios_id_usuario_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+
+--
+-- Name: vista_accesorios_stock_bajo; Type: VIEW; Schema: public; Owner: almacen_toi
+--
+
+CREATE VIEW public.vista_accesorios_stock_bajo AS
+ SELECT accesorios.id_accesorio,
+    accesorios.nombre,
+    accesorios.cantidad,
+    accesorios.unidad_medida,
+    accesorios.estado
+   FROM public.accesorios
+  WHERE (accesorios.cantidad < 10)
+  ORDER BY accesorios.cantidad;
+
+
+ALTER TABLE public.vista_accesorios_stock_bajo OWNER TO almacen_toi;
+
+--
+-- Name: vista_equipos_completo; Type: VIEW; Schema: public; Owner: almacen_toi
+--
+
+CREATE VIEW public.vista_equipos_completo AS
+ SELECT e.id_equipo,
+    e.nombre,
+    e.id_categoria,
+    e.id_marca,
+    e.id_proveedor,
+    e.costo,
+    e.numero_serie_mac,
+    e.codigo,
+    e.id_tipo_equipo,
+    e.modelo,
+    e.marca,
+    e.fecha_entrada,
+    e.estado,
+    e.calidad,
+    e.observaciones,
+    e.precio,
+    e.proveedor,
+    e.created_at,
+    e.updated_at,
+    c.nombre AS categoria_nombre,
+    m.nombre AS marca_nombre,
+    p.nombre_empresa AS proveedor_nombre
+   FROM (((public.equipos e
+     LEFT JOIN public.categorias c ON ((e.id_categoria = c.id_categoria)))
+     LEFT JOIN public.marcas m ON ((e.id_marca = m.id_marca)))
+     LEFT JOIN public.proveedores p ON ((e.id_proveedor = p.id_proveedor)));
+
+
+ALTER TABLE public.vista_equipos_completo OWNER TO almacen_toi;
+
+--
+-- Name: vista_equipos_disponibles; Type: VIEW; Schema: public; Owner: almacen_toi
+--
+
+CREATE VIEW public.vista_equipos_disponibles AS
+ SELECT equipos.id_equipo,
+    equipos.nombre,
+    equipos.codigo,
+    equipos.numero_serie_mac,
+    equipos.modelo,
+    equipos.marca,
+    equipos.calidad,
+    equipos.precio,
+    equipos.fecha_entrada,
+    (CURRENT_DATE - equipos.fecha_entrada) AS dias_almacenado
+   FROM public.equipos
+  WHERE ((equipos.estado)::text = 'DISPONIBLE'::text)
+  ORDER BY equipos.nombre, equipos.fecha_entrada;
+
+
+ALTER TABLE public.vista_equipos_disponibles OWNER TO almacen_toi;
+
+--
+-- Name: vista_resumen_equipos_por_codigo; Type: VIEW; Schema: public; Owner: almacen_toi
+--
+
+CREATE VIEW public.vista_resumen_equipos_por_codigo AS
+ SELECT e.codigo,
+    t.descripcion,
+    count(*) AS total,
+    sum(
+        CASE
+            WHEN ((e.estado)::text = 'DISPONIBLE'::text) THEN 1
+            ELSE 0
+        END) AS disponibles,
+    sum(
+        CASE
+            WHEN ((e.estado)::text = 'OCUPADO'::text) THEN 1
+            ELSE 0
+        END) AS ocupados,
+    sum(
+        CASE
+            WHEN ((e.estado)::text = 'MANTENIMIENTO'::text) THEN 1
+            ELSE 0
+        END) AS mantenimiento,
+    sum(
+        CASE
+            WHEN ((e.calidad)::text = 'NUEVO'::text) THEN 1
+            ELSE 0
+        END) AS nuevos,
+    avg(e.precio) AS precio_promedio
+   FROM (public.equipos e
+     LEFT JOIN public.tipos_equipos t ON (((e.codigo)::text = (t.codigo)::text)))
+  GROUP BY e.codigo, t.descripcion
+  ORDER BY (count(*)) DESC;
+
+
+ALTER TABLE public.vista_resumen_equipos_por_codigo OWNER TO almacen_toi;
+
+--
+-- Name: vista_resumen_movimientos_mes; Type: VIEW; Schema: public; Owner: almacen_toi
+--
+
+CREATE VIEW public.vista_resumen_movimientos_mes AS
+ SELECT to_char((movimientos_equipos.fecha_movimiento)::timestamp with time zone, 'YYYY-MM'::text) AS mes,
+    movimientos_equipos.tipo_movimiento,
+    count(*) AS total_movimientos
+   FROM public.movimientos_equipos
+  GROUP BY (to_char((movimientos_equipos.fecha_movimiento)::timestamp with time zone, 'YYYY-MM'::text)), movimientos_equipos.tipo_movimiento;
+
+
+ALTER TABLE public.vista_resumen_movimientos_mes OWNER TO almacen_toi;
+
+--
+-- Data for Name: accesorios; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.accesorios (id_accesorio, nombre, id_categoria, id_marca, id_proveedor, costo, codigo, cantidad, unidad_medida, modelo, marca, numero_serie_mac, fecha_entrada, estado, calidad, observaciones, created_at, updated_at) FROM stdin;
+15	SPLITTER 1 X2	\N	\N	\N	\N	SPL	0	UNIDADES	GENERICO	GENERICO	000000	2026-04-10	DISPONIBLE	NUEVO	SPL-PLC-1X2-SCAPC-001	2026-04-10 16:52:24	2026-04-10 18:07:12
+1	ROSETAS	\N	\N	\N	\N	\N	73	UNIDADES	-	-	\N	2025-02-06	DISPONIBLE	REGULAR	-	2026-03-31 16:50:08	2026-04-22 19:01:45.83179
+3	CONECTORES RJ45	\N	\N	\N	\N	\N	199	UNIDADES	-	-	\N	2025-02-04	DISPONIBLE	NUEVO	\N	2026-03-31 16:50:08	2026-04-22 19:03:40.943443
+\.
+
+
+--
+-- Data for Name: app_sessions; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.app_sessions (id, payload, last_activity) FROM stdin;
+\.
+
+
+--
+-- Data for Name: categorias; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.categorias (id_categoria, nombre, descripcion, activo, created_at, updated_at) FROM stdin;
+1	Router	Equipos de enrutamiento de red	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+2	Switch	Conmutadores de red	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+3	ONT	Optical Network Terminal	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+4	Cable	Cables de red y fibra optica	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+5	Conector	Conectores y adaptadores	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+6	Accesorio	Accesorios diversos de red	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+7	ANTENA CLIENTE	Para antenas clientes SXT, SQ, LHG	1	2026-05-08 15:49:10.769397	2026-05-08 15:49:10.769397
+\.
+
+
+--
+-- Data for Name: categorias_general; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.categorias_general (id_categoria, nombre, descripcion, tipo, codigo_base, activo, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: destinos; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.destinos (id_destino, nombre, descripcion, activo, created_at) FROM stdin;
+1	INSTALACIONES	Equipos para instalaciones de red	1	2026-03-31 16:50:08
+2	INFRAESTRUCTURA	Equipos para infraestructura	1	2026-03-31 16:50:08
+3	MANTENIMIENTO VEHICULOS	Equipos para mantenimiento de vehiculos	1	2026-03-31 16:50:08
+4	MANTENIMIENTO RED	Equipos para mantenimiento de red	1	2026-03-31 16:50:08
+5	ADMINISTRACION	Equipos administrativos	1	2026-03-31 16:50:08
+6	SOPORTE TECNICO	Equipos para soporte tecnico	1	2026-03-31 16:50:08
+\.
+
+
+--
+-- Data for Name: equipos; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.equipos (id_equipo, nombre, id_categoria, id_marca, id_proveedor, costo, numero_serie_mac, codigo, id_tipo_equipo, modelo, marca, fecha_entrada, estado, calidad, observaciones, precio, proveedor, created_at, updated_at) FROM stdin;
+62	ONU	\N	\N	\N	\N	GPON0073D15E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.415167	2026-04-28 15:28:30.415167
+63	ONU	\N	\N	\N	\N	GPON0073DD4E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.448104	2026-04-28 15:28:30.448104
+64	ONU	\N	\N	\N	\N	GPON0073D98E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.455686	2026-04-28 15:28:30.455686
+65	ONU	\N	\N	\N	\N	GPON0073DDDE	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.464006	2026-04-28 15:28:30.464006
+70	ONU	\N	\N	\N	\N	GPON0073DAEE	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.555908	2026-04-28 15:28:30.555908
+71	ONU	\N	\N	\N	\N	GPON0073DCAE	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.564291	2026-04-28 15:28:30.564291
+72	ONU	\N	\N	\N	\N	GPON0073DBAE	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.572456	2026-04-28 15:28:30.572456
+74	ONU	\N	\N	\N	\N	GPON0073DE7E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.588993	2026-04-28 15:28:30.588993
+75	ONU	\N	\N	\N	\N	GPON0073E2BE	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.59728	2026-04-28 15:28:30.59728
+76	ONU	\N	\N	\N	\N	GPON0073DACE	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.60554	2026-04-28 15:28:30.60554
+77	ONU	\N	\N	\N	\N	1CEF0373D72E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	DISPONIBLE	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.613917	2026-04-28 15:28:30.613917
+78	ONU	\N	\N	\N	\N	GPON00709320	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:57.301607	2026-05-08 15:05:57.301607
+79	ONU	\N	\N	\N	\N	GPON00709938	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:57.377249	2026-05-08 15:05:57.377249
+80	ONU	\N	\N	\N	\N	GPON00709810	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:57.633496	2026-05-08 15:05:57.633496
+81	ONU	\N	\N	\N	\N	GPON007097B8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:57.71135	2026-05-08 15:05:57.71135
+82	ONU	\N	\N	\N	\N	GPON007097E8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:57.864076	2026-05-08 15:05:57.864076
+83	ONU	\N	\N	\N	\N	GPON007092E0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:57.985123	2026-05-08 15:05:57.985123
+86	ONU	\N	\N	\N	\N	GPON007092C8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:58.338277	2026-05-08 15:05:58.338277
+87	ONU	\N	\N	\N	\N	GPON007093C8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:58.519437	2026-05-08 15:05:58.519437
+90	ONU	\N	\N	\N	\N	GPON007093A0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:59.249381	2026-05-08 15:05:59.249381
+91	ONU	\N	\N	\N	\N	GPON007097C0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:59.476673	2026-05-08 15:05:59.476673
+92	ONU	\N	\N	\N	\N	GPON00709900	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:59.694707	2026-05-08 15:05:59.694707
+93	ONU	\N	\N	\N	\N	GPON007096F8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:59.933563	2026-05-08 15:05:59.933563
+94	ONU	\N	\N	\N	\N	GPON00709420	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:00.169965	2026-05-08 15:06:00.169965
+95	ONU	\N	\N	\N	\N	GPON007097D8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:00.321502	2026-05-08 15:06:00.321502
+96	ONU	\N	\N	\N	\N	GPON00709BF8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:00.396478	2026-05-08 15:06:00.396478
+97	ONU	\N	\N	\N	\N	GPON007093A8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:00.541639	2026-05-08 15:06:00.541639
+98	ONU	\N	\N	\N	\N	GPON00708630	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:00.652159	2026-05-08 15:06:00.652159
+99	ONU	\N	\N	\N	\N	GPON00708798	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:00.824342	2026-05-08 15:06:00.824342
+100	ONU	\N	\N	\N	\N	GPON00708480	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:00.961292	2026-05-08 15:06:00.961292
+101	ONU	\N	\N	\N	\N	GPON007087D8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.032234	2026-05-08 15:06:01.032234
+102	ONU	\N	\N	\N	\N	GPON007086A0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.108613	2026-05-08 15:06:01.108613
+103	ONU	\N	\N	\N	\N	GPON0070A7D8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.173456	2026-05-08 15:06:01.173456
+104	ONU	\N	\N	\N	\N	GPON0070A490	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.280727	2026-05-08 15:06:01.280727
+105	ONU	\N	\N	\N	\N	GPON00708700	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.472658	2026-05-08 15:06:01.472658
+106	ONU	\N	\N	\N	\N	GPON007086F0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.592503	2026-05-08 15:06:01.592503
+107	ONU	\N	\N	\N	\N	GPON00707ED8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.691387	2026-05-08 15:06:01.691387
+108	ONU	\N	\N	\N	\N	GPON0070A4C0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:01.740305	2026-05-08 15:06:01.740305
+109	ONU	\N	\N	\N	\N	GPON00708608	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:02.02746	2026-05-08 15:06:02.02746
+110	ONU	\N	\N	\N	\N	GPON007088F8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:02.267385	2026-05-08 15:06:02.267385
+111	ONU	\N	\N	\N	\N	GPON00708720	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:02.603986	2026-05-08 15:06:02.603986
+112	ONU	\N	\N	\N	\N	GPON00708728	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:02.99231	2026-05-08 15:06:02.99231
+113	ONU	\N	\N	\N	\N	GPON00709D90	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:03.184617	2026-05-08 15:06:03.184617
+114	ONU	\N	\N	\N	\N	GPON00709CC8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:03.543454	2026-05-08 15:06:03.543454
+115	ONU	\N	\N	\N	\N	GPON00708740	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:03.804741	2026-05-08 15:06:03.804741
+116	ONU	\N	\N	\N	\N	GPON007085F0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:04.131403	2026-05-08 15:06:04.131403
+117	ONU	\N	\N	\N	\N	GPON007088F0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	DISPONIBLE	NUEVO	0	219.00	Digicorp	2026-05-08 15:06:04.414624	2026-05-08 15:06:04.414624
+89	ONU	\N	\N	\N	\N	GPON007093E8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	OCUPADO	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:59.115783	2026-05-08 15:13:18.140399
+88	ONU	\N	\N	\N	\N	GPON007092A0	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	OCUPADO	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:58.769332	2026-05-08 15:26:50.533247
+118	ONU	\N	\N	\N	\N	GPON0073D17E	ONUDUAL	4	V2802DAC	V-SOL	2026-04-28	OCUPADO	NUEVO		501.00	Digicorp	2026-05-08 15:29:04.991133	2026-05-08 15:30:01.412198
+73	ONU	\N	\N	\N	\N	GPON0073DB3E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	OCUPADO	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.580711	2026-05-08 17:43:47.888129
+69	ONU	\N	\N	\N	\N	GPON0073D57E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	OCUPADO	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.547489	2026-05-08 18:15:47.385827
+68	ONU	\N	\N	\N	\N	GPON0073D39E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	OCUPADO	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.539122	2026-05-08 18:16:31.711199
+67	ONU	\N	\N	\N	\N	GPON0073D94E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	OCUPADO	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.530888	2026-05-08 18:19:23.143111
+66	ONU	\N	\N	\N	\N	GPON0073DF4E	ONUDUAL	\N	V2802DAC	V-SOL	2026-07-04	OCUPADO	NUEVO	S/N	501.00	Digicorp	2026-04-28 15:28:30.522883	2026-05-08 18:41:09.070393
+84	ONU	\N	\N	\N	\N	GPON007092D8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	OCUPADO	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:58.120205	2026-07-03 13:15:09.317102
+85	ONU	\N	\N	\N	\N	GPON00709CB8	ONU2.4	\N	V2802GW	V-SOL	2026-05-07	OCUPADO	NUEVO	0	219.00	Digicorp	2026-05-08 15:05:58.220982	2026-07-03 13:16:01.654849
+119	SXT LITE 5* CPE INALAMBRICO WIFI 4* FRECUENCIA 5 GHZ* AP/CPE* ANTENA 10 DBI	\N	\N	\N	\N	6C3B6B597387	ANTCL-SXT	25	RB SXT5NDR2	MIKROTIK	2026-05-08	OCUPADO	REGULAR		621.00	DIGICORP	2026-05-08 16:06:05.27019	2026-05-08 16:12:16.153382
+120	ROUTER WIFI 2.4	\N	\N	\N	\N	00EBD849D180	ROT2.4	1	MW305R	MERCUSYS	2026-05-08	OCUPADO	REGULAR		199.00	DIGICORP	2026-05-08 16:11:31.185874	2026-05-08 16:13:08.623484
+121	ONU	\N	\N	\N	\N	GPON0073D8DE	ONUDUAL	4	V2802DAC	V-SOL	2026-05-08	OCUPADO	NUEVO		501.00	Digicorp	2026-05-08 17:39:55.866236	2026-05-08 17:40:56.08926
+123	ONU	\N	\N	\N	\N	GPON006CE048	ONU2.4	3	V2802GW	V-SOL	2026-04-28	OCUPADO	NUEVO		219.00	Digicorp	2026-05-08 18:30:49.529181	2026-05-08 18:31:44.339126
+122	ONU	\N	\N	\N	\N	GPON006CD110	ONU2.4	3	V2802GW	V-SOL	2026-04-28	OCUPADO	NUEVO		219.00	Digicorp	2026-05-08 18:29:57.586568	2026-05-08 18:33:16.194434
+124	ONU	\N	\N	\N	\N	GPON006CD0F8	ONU2.4	3	V2802GW	V-SOL	2026-04-28	OCUPADO	NUEVO		219.00	Digicorp	2026-05-08 18:46:33.579121	2026-05-08 18:47:22.549059
+125	ONU	\N	\N	\N	\N	GPON006CE060	ONU2.4	3	V2802GW	V-SOL	2026-04-28	OCUPADO	NUEVO		219.00	Digicorp	2026-05-08 19:02:27.591264	2026-05-08 19:03:27.810889
+126	ONU	\N	\N	\N	\N	GPON0073D97E	ONUDUAL	4	V2802DAC	V-SOL	2026-04-28	DISPONIBLE	NUEVO		501.00	Digicorp	2026-05-08 19:33:12.93677	2026-05-08 19:33:12.93677
+127	ONU	\N	\N	\N	\N	GPON0073D83E	ONUDUAL	4	V2802DAC	V-SOL	2026-04-28	DISPONIBLE	NUEVO		501.00	Digicorp	2026-05-08 19:34:03.123715	2026-05-08 19:34:03.123715
+128	ONU	\N	\N	\N	\N	GPON0073D0FE	ONUDUAL	4	V2802DAC	V-SOL	2026-04-28	DISPONIBLE	NUEVO		501.00	Digicorp	2026-05-08 19:34:42.750406	2026-05-08 19:34:42.750406
+129	ONU	\N	\N	\N	\N	GPON0073E0BE	ONUDUAL	4	V2802DAC	V-SOL	2026-05-08	DISPONIBLE	NUEVO		501.00	Digicorp	2026-05-08 19:35:32.85554	2026-05-08 19:35:32.85554
+130	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J2W7H	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:40:30.915667	2026-10-21 19:40:30.915667
+131	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JJ7L7H	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:44:48.29848	2026-10-21 19:44:48.29848
+132	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J6P028	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:47:52.785359	2026-10-21 19:47:52.785359
+133	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J2P76K	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:50:09.06368	2026-10-21 19:50:09.06368
+134	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J2PM0F	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:53:30.37034	2026-10-21 19:53:30.37034
+135	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JN22A6	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:56:02.891631	2026-10-21 19:56:02.891631
+136	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JK7AKK	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:57:49.474039	2026-10-21 19:57:49.474039
+137	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J223MK	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 19:59:51.787727	2026-10-21 19:59:51.787727
+139	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J928PL	ROTWIFI6	26	HX15	IMOU	2026-10-21	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-21 20:04:24.880915	2026-10-21 20:04:24.880915
+140	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JZ76DC	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:29:20.830216	2026-10-23 19:29:20.830216
+141	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JZHCFL	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:31:18.556586	2026-10-23 19:31:18.556586
+142	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JU2DKE	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:33:22.225558	2026-10-23 19:33:22.225558
+143	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JTP96Q	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:35:36.04006	2026-10-23 19:35:36.04006
+144	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JU2Q58	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:37:21.193623	2026-10-23 19:37:21.193623
+145	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JY7F6W	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:39:00.399856	2026-10-23 19:39:00.399856
+146	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JN7YJW	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:40:33.694049	2026-10-23 19:40:33.694049
+147	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J72KQK	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:42:34.975245	2026-10-23 19:42:34.975245
+148	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JM77Z1	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:44:26.055275	2026-10-23 19:44:26.055275
+149	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JGPL56	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 19:46:11.683389	2026-10-23 19:46:11.683389
+150	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J725Z1	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:18:37.095548	2026-10-23 20:18:37.095548
+151	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JLPQ1F	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:19:15.061657	2026-10-23 20:19:15.061657
+152	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J9PTWQ	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:19:52.727471	2026-10-23 20:19:52.727471
+153	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JN2P10	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:20:31.614706	2026-10-23 20:20:31.614706
+154	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J6PWXC	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:21:34.286398	2026-10-23 20:21:34.286398
+155	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J8PPCP	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:22:17.981969	2026-10-23 20:22:17.981969
+156	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JZPEKP	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:22:59.049608	2026-10-23 20:22:59.049608
+157	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JZPZ6L	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:23:37.75004	2026-10-23 20:23:37.75004
+158	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5J72BHP	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:24:21.99177	2026-10-23 20:24:21.99177
+159	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	CDAADX5JL7J46	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:25:01.959819	2026-10-23 20:25:01.959819
+160	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PFCTQ5	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:27:47.258633	2026-10-23 20:27:47.258633
+161	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5P7C6AD	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:28:42.816566	2026-10-23 20:28:42.816566
+162	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PSCAWA	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:29:34.74289	2026-10-23 20:29:34.74289
+163	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PZRGGZ	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:30:14.032857	2026-10-23 20:30:14.032857
+164	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5P4CHGT	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:31:20.607364	2026-10-23 20:31:20.607364
+165	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PHCM1Y	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:32:29.059652	2026-10-23 20:32:29.059652
+166	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PTCHK3	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:33:09.924754	2026-10-23 20:33:09.924754
+167	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PQC5CX	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:33:52.958581	2026-10-23 20:33:52.958581
+168	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PCCMQ2	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:35:21.929657	2026-10-23 20:35:21.929657
+169	Doble banda de 2,4 y 5 GHz | Wi-Fi 6 |	\N	\N	\N	\N	BGAADX5PXRL65	ROTWIFI6	26	HX15	IMOU	2026-10-23	DISPONIBLE	NUEVO	FIDELIZACION	408.00	UYUSTUS	2026-10-23 20:36:42.284971	2026-10-23 20:36:42.284971
+\.
+
+
+--
+-- Data for Name: mantenimientos; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.mantenimientos (id_mantenimiento, id_equipo, numero_serie_mac, tipo_mantenimiento, descripcion, tecnico_responsable, fecha_ingreso, fecha_entrega, estado, costo, repuestos_cambiados, observaciones, garantia_dias, created_by, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: marcas; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.marcas (id_marca, nombre, pais_origen, pagina_web, activo, created_at, updated_at) FROM stdin;
+1	TP-Link	China	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+2	Huawei	China	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+3	ZTE	China	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+4	Cisco	Estados Unidos	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+5	Nokia	Finlandia	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+6	FiberHome	China	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+7	XPON	China	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+8	Generico	Varios	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+\.
+
+
+--
+-- Data for Name: movimientos_accesorios; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.movimientos_accesorios (id_movimiento, id_accesorio, tipo_movimiento, cantidad, asunto, encargado, destino, observaciones, observaciones_detalladas, fecha_movimiento, created_by, created_at) FROM stdin;
+1	1	SALIDA	10	INSTALACION	OTROS	\N			2026-04-09	1	2026-04-09 04:36:42
+2	15	SALIDA	1	INSTALACION	EQUIPO 1	MATILDE			2026-04-10	1	2026-04-10 18:07:12
+3	1	SALIDA	1	INSTALACIÓN	REYNALDO SANCHEZ	\N	Aurelia Duran Gemio		2026-04-22	1	2026-04-22 19:01:24.029539
+4	1	SALIDA	1	RCA	REYNALDO SANCHEZ	\N	Aurelia Duran Gemio		2026-04-22	1	2026-04-22 19:01:45.83179
+5	3	SALIDA	1	INSTALACIÓN	REYNALDO SANCHEZ	\N	Aurelia Duran Gemio		2026-04-22	1	2026-04-22 19:03:40.943443
+\.
+
+
+--
+-- Data for Name: movimientos_equipos; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.movimientos_equipos (id_movimiento, id_equipo, numero_serie_mac, tipo_movimiento, asunto, encargado, destino, observaciones, observaciones_detalladas, fecha_movimiento, created_by, created_at) FROM stdin;
+8	\N	GPON007093E8	SALIDA	MANTENIMIENTO	EQUIPO 2	SOPORTE TECNICO	cambio de equipo cliente	pedro perez	2026-05-08	1	2026-05-08 15:13:18.140399
+9	\N	GPON007092A0	SALIDA	MANTENIMIENTO	EQUIPO 2	SOPORTE TECNICO	PARA MANTENIMIENTO EN UNIDAD EDUCATIVA		2026-05-08	1	2026-05-08 15:26:50.533247
+10	\N	GPON0073D17E	SALIDA	MANTENIMIENTO	EQUIPO 2	SOPORTE TECNICO	PARA MANTENIMIENTO EN UNIDAD EDUCATIVA		2026-05-08	1	2026-05-08 15:30:01.412198
+11	\N	6C3B6B597387	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA PRUEBA DE ANTENA		2026-05-08	1	2026-05-08 16:12:16.153382
+12	\N	00EBD849D180	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA PRUEBA DE ANTENA		2026-05-08	1	2026-05-08 16:13:08.623484
+13	\N	GPON0073D8DE	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA CLIENTE REBECA MAYTA CHOQUE		2026-05-07	1	2026-05-08 17:40:56.08926
+14	\N	GPON0073DB3E	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA CLIENTE BERTHA YANA CHURATA		2026-05-04	1	2026-05-08 17:43:47.888129
+15	\N	GPON0073D57E	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA CLIENTE SERGIO CONDORI		2026-05-06	1	2026-05-08 18:15:47.385827
+16	\N	GPON0073D39E	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA INSTALACION		2026-05-06	1	2026-05-08 18:16:31.711199
+17	\N	GPON0073D94E	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA CLIENTE ISABEL HORTENCIA LUQUE		2026-05-04	1	2026-05-08 18:19:23.143111
+18	\N	GPON006CE048	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA CLIENTE WILLIAM FLORES CHOQUE		2026-04-30	1	2026-05-08 18:31:44.339126
+19	\N	GPON006CD110	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA CLIENTE ILDA IRMA MAMANI HINOJOSA		2026-04-30	1	2026-05-08 18:33:16.194434
+20	\N	GPON0073DF4E	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA CLIENTE DAVID VILLALOBOS		2026-04-29	1	2026-05-08 18:41:09.070393
+21	\N	GPON006CD0F8	SALIDA	INSTALACIÓN	EQUIPO 2	INSTALACIONES	PARA INSTALACION HOMAR LAURA VARGAS		2026-04-29	1	2026-05-08 18:47:22.549059
+22	\N	GPON006CE060	SALIDA	INSTALACIÓN	EQUIPO 1	INSTALACIONES	PARA CLIENTE SINDICATO DE TRABAJADORES DE LA UPEA		2026-04-28	1	2026-05-08 19:03:27.810889
+23	\N	GPON007092D8	SALIDA	INSTALACIÓN	REYNALDO SANCHEZ	INSTALACIONES			2026-07-03	1	2026-07-03 13:15:09.317102
+24	\N	GPON00709CB8	SALIDA	REEMPLAZO	REYNALDO SANCHEZ	SOPORTE TECNICO			2026-07-03	1	2026-07-03 13:16:01.654849
+\.
+
+
+--
+-- Data for Name: prestamos; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.prestamos (id_prestamo, id_equipo, numero_serie_mac, id_usuario_solicita, nombre_solicita, cargo_solicita, departamento, telefono_contacto, email_contacto, fecha_prestamo, fecha_devolucion_esperada, fecha_devolucion_real, estado, motivo_prestamo, observaciones_salida, observaciones_devolucion, equipo_entregado_conforme, equipo_recibido_conforme, id_usuario_entrega, id_usuario_recibe, created_by, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- Data for Name: proveedores; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.proveedores (id_proveedor, nombre_empresa, nit, nombre_contacto, cargo_contacto, telefono, celular, email, direccion, ciudad, pais, pagina_web, productos, observaciones, activo, created_at, updated_at) FROM stdin;
+1	Importadora de Equipos de Red S.R.L.	1234567890	Juan Perez	Gerente de Ventas	2222222	\N	ventas@importadorared.bo	Av. Banzer Km 5.5	Santa Cruz	Bolivia	\N	Routers, Switches, ONTs	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+2	TecnoComunicaciones S.A.	9876543210	Maria Garcia	Ejecutiva de Cuenta	3333333	\N	maria.garcia@tecnocom.bo	Calle Loayza 456	La Paz	Bolivia	\N	Cables, Conectores, Accesorios	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+3	Distribuidora Nacional de Tecnologia	5555555555	Carlos Lopez	Supervisor	4444444	\N	carlos@distritec.bo	Av. America 789	Cochabamba	Bolivia	\N	Equipos de red variados	\N	1	2026-03-31 16:58:41	2026-03-31 16:58:41
+\.
+
+
+--
+-- Data for Name: tipos_accesorios; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.tipos_accesorios (id_tipo_accesorio, codigo, descripcion, categoria, observaciones, activo, created_at, updated_at) FROM stdin;
+1	FASU	FIBRA ASU	METROS		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+2	FPCS3APC	PATCH CORD SIMPLEX 3 METRO APC	UNIDADES		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+3	FPCS3UPC	PATCH CORD SIMPLEX 3 METRO UPC	UNIDADES		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+4	sasdas	sdadas	UNIDADES	adasdasd	1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+5	SPL	SPLITTER 1 X2	UNIDADES	SPL-PLC-1X2-SCAPC-001	1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+6	FD1H	FIBRA DROP 1H	METROS		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+7	SPL-1X2-SCAPC	SPLITTER OPTIC PLC MINI TUBE S.M.  1*2 CABLE 900um SC/APC	UNIDADES		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+8	FPCD3UPC	PATCH CORD DUPLEX 3 METRO UPC	UNIDADES		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+9	FPCD3APC	PATCH CORD DUPLEX 3 METRO APC	UNIDADES		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+10	SPL-PLC-1X2-SCAPC	SPLITTER OPTIC PLC MINI TUBE S.M.  1*2 CABLE 900um SC/APC	UNIDADES		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+11	SPL-PLC-1X4-SCAPC	SPLITER 1X4	UNIDADES		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+12	FD4H	FIBRA DROP 4H	METROS		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+13	FD2H	FIBRA DROP 2H	METROS		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+14	asdadas	adasd	METROS	asdadadasd	1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+15	FADD	FIBRA ADSS	METROS		1	2026-04-17 04:52:31.917887	2026-04-17 04:52:31.917887
+294	ALM	ALAMBRE 	UNIDAD	ALAMBRE	1	2026-04-27 20:05:52.018083	2026-04-27 20:05:52.018083
+\.
+
+
+--
+-- Data for Name: tipos_equipos; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.tipos_equipos (id_codigo, codigo, prefijo, descripcion, categoria, observaciones, activo, created_at, updated_at) FROM stdin;
+1	ROT2.4	ROT	ROUTER WIFI 2.4	ROUTER	\N	1	2026-03-31 16:50:08	2026-03-31 20:14:35
+2	ROT52.4	ROT	ROUTER DUAL BAND 2.4-5G	ROUTER	\N	1	2026-03-31 16:50:08	2026-03-31 20:14:35
+3	ONU2.4	ONU	ONU WIFI 2.4	ONU	\N	1	2026-03-31 16:50:08	2026-03-31 20:14:35
+4	ONUDUAL	ONU	ONU WIFI 2.4-5G	ONU	\N	1	2026-03-31 16:50:08	2026-03-31 20:14:35
+5	ONUR	ONU	ONU ROUTER	ONU	\N	1	2026-03-31 16:50:08	2026-03-31 20:14:35
+6	ONUB	ONU	ONUBRIDGED	ONU	\N	1	2026-03-31 16:50:08	2026-03-31 20:14:35
+7	SASD	SAS	adasd	SWITCH	adasdsa	1	2026-04-08 17:31:54	2026-04-08 21:31:54
+8	QWEW	QWE	asdas	ROUTER	testsetes	1	2026-04-09 16:14:09	2026-04-09 20:14:09
+9	SDFD	SDF	xggdf	SWITCH	yaraararara	1	2026-04-09 16:15:15	2026-04-09 20:15:15
+10	SDFSDF	ASASD	asdasfa	ROUTER	sfsdfsdfsdgsd	1	2026-04-09 16:15:46	2026-04-09 20:15:46
+11	ROUTER PRUEBA	ROU	ruter de prueba	ROUTER	es solo para prueba	1	2026-04-09 16:18:46	2026-04-09 20:18:46
+12	EQ-RB	EQ	Router potente con 10 puertos Gigabit	OTRO	enrutador	1	2026-04-10 09:36:05	2026-04-10 13:36:05
+13	SPL-PLC-1X2-SCAPC	SPL	SPLITTER OPTIC PLC MINI TUBE S.M.  1*2 CABLE 900um SC/APC	OTRO	MATERIAL	1	2026-04-13 11:17:09	2026-04-13 15:17:09
+14	TRANSCEIVER	MC	POWERLINK MEDIA CONVERTER GIGA SC SM 20Km 1 HILO WDM (PAR)	OTRO		1	2026-04-23 13:07:45	2026-04-23 17:07:45.630181
+15	WIFIDUAL	WF	ROUTER INALAMBRICO WIFI 5* AC1200* 4 PUERTOS 10/100* 4 ANTENAS EXTERNAS 5 DBI* TECNOLOGIA SD-LAN* DETENCION ONVIF* CLOUD MANAGEMENT* MULTIMODO*	ROUTER		1	2026-04-23 14:37:46	2026-04-23 18:37:46.572643
+17	WIFI2,4	WF	ROUTER INALAMBRICO DE ESCRITORIO *IEEE 802.11b/g/n *FREC. DE OP 2.412 GHz–2.484 GHz	ROUTER		1	2026-04-23 14:40:06	2026-04-23 18:40:06.861367
+18	ROUTERBOARD	RB	ROUTER BOARD*8 PUERTO GIGA*1SFP 2.5G*CPU DUAL CORE 800MHZ* RAM 512MB* SOPORTA POE IN/OUT * PUERTO CONSOLA* USB 3.0 *RACKEABLE *LIC 5 *	OTRO		1	2026-04-23 14:40:47	2026-04-23 18:40:47.755106
+19	OLTGPON	OLT	GPON OLT*1 GPON*GE+2*GE(SFP)/10GE(SFP+)/USB*SOPORTA TRIPLE-PLAY&quot;*C/4 PIEZAS*C++/C+++*19&quot;/1U	OTRO		1	2026-04-23 14:41:27	2026-04-23 18:41:27.877281
+20	PC	PC	PC HP Z240 C/ ACCESORIOS /MONITOR/TECLADO/MOUSE	OTRO		1	2026-04-23 14:42:24	2026-04-23 18:42:24.303912
+21	ROUTER	ROU	ROUTER BOARD*10 PUERTOS GIGABIT*CPU CORTEX 15 4 NUCLEOS* RAM 1GB* SOPORTA POE 8-30VDC* 10 ETH GIGABIT* 1SFP* USB 3.0 ALMACENAMIENTO	OTRO		1	2026-04-23 14:43:04	2026-04-23 18:43:04.56873
+22	WIFI6	WF6	hAP ax S WIFI 6*AX2400* CPU 2 CORE* 950 MHZ* *RAM 512MB* 802.11 A/N/AC/AX *USB 2,0* 5 PUERTOS GIGAS/* SFP 2,5 G* ROUTER OS V7*	ROUTER		1	2026-04-23 14:43:29	2026-04-23 18:43:29.51091
+23	COREROUTER	COR	CLOUD CORE ROUTER 2116*CPU 16 CORE*12 PUERTOS GIGA*16GB RAM*4SFP+*PUERTO CONSOLA* 2 FUENTES REDUNDANTES	OTRO		1	2026-04-23 14:43:57	2026-04-23 18:43:57.746332
+24	SWITCH ADM	SW	SWITCH GIGABIT EKIT ADMINISTRABLE* SERIE S220S* 24 PUERTOS GIGAS* 2 SFP 2.5G/2 SFP+* CAPA 2* (QoS)* RACK 1U* CARCASA METALICA*	SWITCH		1	2026-04-23 14:44:27	2026-04-23 18:44:27.833568
+16	ANTCL-LHG	ANT	LHG 5 *FREC. 5GHZ *GANANCIA 24.5DBI*POTENCIA 25DBM * 802.1 A/N *1ETH 10/100MBPS	OTRO		1	2026-04-23 14:39:07	2026-05-08 16:07:46.935852
+25	ANTCL-SXT	ANT	SXT LITE 5* CPE INALAMBRICO WIFI 4* FRECUENCIA 5 GHZ* AP/CPE* ANTENA 10 DBI* 1ETH 10/100MBPS	OTRO	Para antenas clientes SXT	1	2026-05-08 11:53:16	2026-05-08 16:08:12.746004
+26	ROTWIFI6	ROT	Doble banda de 2,4 y 5 GHz | Wi-Fi 6	ROUTER		1	2026-10-21 15:34:02	2026-10-21 19:42:21.157751
+\.
+
+
+--
+-- Data for Name: unidades_medida; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.unidades_medida (id_unidad, nombre, abreviatura, descripcion, activo, created_at) FROM stdin;
+1	METROS	m	Metro lineal	1	2026-03-31 16:50:08
+2	UNIDADES	ud	Unidad individual	1	2026-03-31 16:50:08
+3	CAJAS	caja	Caja contenedora	1	2026-03-31 16:50:08
+4	KILOS	kg	Kilogramo	1	2026-03-31 16:50:08
+5	LITROS	l	Litro	1	2026-03-31 16:50:08
+6	PARES	par	Par de elementos	1	2026-03-31 16:50:08
+\.
+
+
+--
+-- Data for Name: usuarios; Type: TABLE DATA; Schema: public; Owner: almacen_toi
+--
+
+COPY public.usuarios (id_usuario, nombre_completo, usuario, password_hash, carnet, email, fecha_nacimiento, rol, activo, ultimo_acceso, reset_token, reset_token_expires, created_at, updated_at) FROM stdin;
+2	Raul Choque Paco	rchoque	$2y$10$1N.ro3SFTHup5C0/LfBOeOUtgB7dpOgf3j9dfLrm774R1TlQ1Ixeu	7003229	rchoque@toi.bo	1985-08-02	usuario	1	2026-04-01 21:40:42	\N	\N	2026-03-31 22:42:02	2026-04-01 21:40:42
+1	Administrador Principal TOI	admin	$2y$10$vUQVRy7l6a5Owxf0swlZyelDj3pnJM2iT/B2Q9ckt.38MzvurAllC	00000000	admin@toi.bo	1990-01-01	admin	1	2026-11-14 20:56:54.206973	\N	\N	2026-03-31 16:50:07	2026-11-14 20:56:54.206973
+\.
+
+
+--
+-- Name: accesorios_id_accesorio_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.accesorios_id_accesorio_seq', 21, true);
+
+
+--
+-- Name: categorias_general_id_categoria_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.categorias_general_id_categoria_seq', 1, true);
+
+
+--
+-- Name: categorias_id_categoria_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.categorias_id_categoria_seq', 7, true);
+
+
+--
+-- Name: destinos_id_destino_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.destinos_id_destino_seq', 6, true);
+
+
+--
+-- Name: equipos_id_equipo_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.equipos_id_equipo_seq', 169, true);
+
+
+--
+-- Name: mantenimientos_id_mantenimiento_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.mantenimientos_id_mantenimiento_seq', 1, true);
+
+
+--
+-- Name: marcas_id_marca_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.marcas_id_marca_seq', 8, true);
+
+
+--
+-- Name: movimientos_accesorios_id_movimiento_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.movimientos_accesorios_id_movimiento_seq', 5, true);
+
+
+--
+-- Name: movimientos_equipos_id_movimiento_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.movimientos_equipos_id_movimiento_seq', 24, true);
+
+
+--
+-- Name: prestamos_id_prestamo_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.prestamos_id_prestamo_seq', 1, true);
+
+
+--
+-- Name: proveedores_id_proveedor_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.proveedores_id_proveedor_seq', 3, true);
+
+
+--
+-- Name: tipos_accesorios_id_tipo_accesorio_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.tipos_accesorios_id_tipo_accesorio_seq', 296, true);
+
+
+--
+-- Name: tipos_equipos_id_codigo_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.tipos_equipos_id_codigo_seq', 26, true);
+
+
+--
+-- Name: unidades_medida_id_unidad_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.unidades_medida_id_unidad_seq', 6, true);
+
+
+--
+-- Name: usuarios_id_usuario_seq; Type: SEQUENCE SET; Schema: public; Owner: almacen_toi
+--
+
+SELECT pg_catalog.setval('public.usuarios_id_usuario_seq', 3, true);
+
+
+--
+-- Name: accesorios accesorios_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.accesorios
+    ADD CONSTRAINT accesorios_pkey PRIMARY KEY (id_accesorio);
+
+
+--
+-- Name: app_sessions app_sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.app_sessions
+    ADD CONSTRAINT app_sessions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: categorias_general categorias_general_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.categorias_general
+    ADD CONSTRAINT categorias_general_pkey PRIMARY KEY (id_categoria);
+
+
+--
+-- Name: categorias categorias_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.categorias
+    ADD CONSTRAINT categorias_pkey PRIMARY KEY (id_categoria);
+
+
+--
+-- Name: destinos destinos_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.destinos
+    ADD CONSTRAINT destinos_pkey PRIMARY KEY (id_destino);
+
+
+--
+-- Name: equipos equipos_numero_serie_mac_key; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.equipos
+    ADD CONSTRAINT equipos_numero_serie_mac_key UNIQUE (numero_serie_mac);
+
+
+--
+-- Name: equipos equipos_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.equipos
+    ADD CONSTRAINT equipos_pkey PRIMARY KEY (id_equipo);
+
+
+--
+-- Name: mantenimientos mantenimientos_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.mantenimientos
+    ADD CONSTRAINT mantenimientos_pkey PRIMARY KEY (id_mantenimiento);
+
+
+--
+-- Name: marcas marcas_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.marcas
+    ADD CONSTRAINT marcas_pkey PRIMARY KEY (id_marca);
+
+
+--
+-- Name: movimientos_accesorios movimientos_accesorios_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.movimientos_accesorios
+    ADD CONSTRAINT movimientos_accesorios_pkey PRIMARY KEY (id_movimiento);
+
+
+--
+-- Name: movimientos_equipos movimientos_equipos_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.movimientos_equipos
+    ADD CONSTRAINT movimientos_equipos_pkey PRIMARY KEY (id_movimiento);
+
+
+--
+-- Name: prestamos prestamos_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.prestamos
+    ADD CONSTRAINT prestamos_pkey PRIMARY KEY (id_prestamo);
+
+
+--
+-- Name: proveedores proveedores_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.proveedores
+    ADD CONSTRAINT proveedores_pkey PRIMARY KEY (id_proveedor);
+
+
+--
+-- Name: tipos_accesorios tipos_accesorios_codigo_key; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.tipos_accesorios
+    ADD CONSTRAINT tipos_accesorios_codigo_key UNIQUE (codigo);
+
+
+--
+-- Name: tipos_accesorios tipos_accesorios_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.tipos_accesorios
+    ADD CONSTRAINT tipos_accesorios_pkey PRIMARY KEY (id_tipo_accesorio);
+
+
+--
+-- Name: tipos_equipos tipos_equipos_codigo_key; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.tipos_equipos
+    ADD CONSTRAINT tipos_equipos_codigo_key UNIQUE (codigo);
+
+
+--
+-- Name: tipos_equipos tipos_equipos_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.tipos_equipos
+    ADD CONSTRAINT tipos_equipos_pkey PRIMARY KEY (id_codigo);
+
+
+--
+-- Name: unidades_medida unidades_medida_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.unidades_medida
+    ADD CONSTRAINT unidades_medida_pkey PRIMARY KEY (id_unidad);
+
+
+--
+-- Name: usuarios usuarios_carnet_key; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.usuarios
+    ADD CONSTRAINT usuarios_carnet_key UNIQUE (carnet);
+
+
+--
+-- Name: usuarios usuarios_email_key; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.usuarios
+    ADD CONSTRAINT usuarios_email_key UNIQUE (email);
+
+
+--
+-- Name: usuarios usuarios_pkey; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.usuarios
+    ADD CONSTRAINT usuarios_pkey PRIMARY KEY (id_usuario);
+
+
+--
+-- Name: usuarios usuarios_usuario_key; Type: CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.usuarios
+    ADD CONSTRAINT usuarios_usuario_key UNIQUE (usuario);
+
+
+--
+-- Name: idx_accesorios_codigo; Type: INDEX; Schema: public; Owner: almacen_toi
+--
+
+CREATE INDEX idx_accesorios_codigo ON public.accesorios USING btree (codigo);
+
+
+--
+-- Name: idx_app_sessions_last_activity; Type: INDEX; Schema: public; Owner: almacen_toi
+--
+
+CREATE INDEX idx_app_sessions_last_activity ON public.app_sessions USING btree (last_activity);
+
+
+--
+-- Name: idx_equipos_codigo; Type: INDEX; Schema: public; Owner: almacen_toi
+--
+
+CREATE INDEX idx_equipos_codigo ON public.equipos USING btree (codigo);
+
+
+--
+-- Name: idx_equipos_estado; Type: INDEX; Schema: public; Owner: almacen_toi
+--
+
+CREATE INDEX idx_equipos_estado ON public.equipos USING btree (estado);
+
+
+--
+-- Name: idx_movimientos_accesorios_fecha; Type: INDEX; Schema: public; Owner: almacen_toi
+--
+
+CREATE INDEX idx_movimientos_accesorios_fecha ON public.movimientos_accesorios USING btree (fecha_movimiento);
+
+
+--
+-- Name: idx_movimientos_equipos_fecha; Type: INDEX; Schema: public; Owner: almacen_toi
+--
+
+CREATE INDEX idx_movimientos_equipos_fecha ON public.movimientos_equipos USING btree (fecha_movimiento);
+
+
+--
+-- Name: accesorios trg_accesorios_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_accesorios_updated_at BEFORE UPDATE ON public.accesorios FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: categorias_general trg_categorias_general_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_categorias_general_updated_at BEFORE UPDATE ON public.categorias_general FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: categorias trg_categorias_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_categorias_updated_at BEFORE UPDATE ON public.categorias FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: equipos trg_equipos_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_equipos_updated_at BEFORE UPDATE ON public.equipos FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: mantenimientos trg_mantenimientos_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_mantenimientos_updated_at BEFORE UPDATE ON public.mantenimientos FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: marcas trg_marcas_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_marcas_updated_at BEFORE UPDATE ON public.marcas FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: movimientos_accesorios trg_movimiento_accesorio_insert; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_movimiento_accesorio_insert AFTER INSERT ON public.movimientos_accesorios FOR EACH ROW EXECUTE FUNCTION public.sync_accesorio_stock_from_movimiento();
+
+
+--
+-- Name: movimientos_equipos trg_movimiento_equipo_insert; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_movimiento_equipo_insert AFTER INSERT ON public.movimientos_equipos FOR EACH ROW EXECUTE FUNCTION public.sync_equipo_estado_from_movimiento();
+
+
+--
+-- Name: prestamos trg_prestamo_insert; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_prestamo_insert AFTER INSERT ON public.prestamos FOR EACH ROW EXECUTE FUNCTION public.sync_equipo_estado_from_prestamo_insert();
+
+
+--
+-- Name: prestamos trg_prestamo_update; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_prestamo_update AFTER UPDATE ON public.prestamos FOR EACH ROW EXECUTE FUNCTION public.sync_equipo_estado_from_prestamo_update();
+
+
+--
+-- Name: prestamos trg_prestamos_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_prestamos_updated_at BEFORE UPDATE ON public.prestamos FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: proveedores trg_proveedores_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_proveedores_updated_at BEFORE UPDATE ON public.proveedores FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: tipos_equipos trg_tipos_equipos_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_tipos_equipos_updated_at BEFORE UPDATE ON public.tipos_equipos FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: usuarios trg_usuarios_updated_at; Type: TRIGGER; Schema: public; Owner: almacen_toi
+--
+
+CREATE TRIGGER trg_usuarios_updated_at BEFORE UPDATE ON public.usuarios FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+
+--
+-- Name: accesorios accesorios_id_categoria_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.accesorios
+    ADD CONSTRAINT accesorios_id_categoria_fkey FOREIGN KEY (id_categoria) REFERENCES public.categorias(id_categoria) ON DELETE SET NULL;
+
+
+--
+-- Name: accesorios accesorios_id_marca_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.accesorios
+    ADD CONSTRAINT accesorios_id_marca_fkey FOREIGN KEY (id_marca) REFERENCES public.marcas(id_marca) ON DELETE SET NULL;
+
+
+--
+-- Name: accesorios accesorios_id_proveedor_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.accesorios
+    ADD CONSTRAINT accesorios_id_proveedor_fkey FOREIGN KEY (id_proveedor) REFERENCES public.proveedores(id_proveedor) ON DELETE SET NULL;
+
+
+--
+-- Name: equipos equipos_codigo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.equipos
+    ADD CONSTRAINT equipos_codigo_fkey FOREIGN KEY (codigo) REFERENCES public.tipos_equipos(codigo) ON UPDATE CASCADE ON DELETE SET NULL;
+
+
+--
+-- Name: equipos equipos_id_categoria_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.equipos
+    ADD CONSTRAINT equipos_id_categoria_fkey FOREIGN KEY (id_categoria) REFERENCES public.categorias(id_categoria) ON DELETE SET NULL;
+
+
+--
+-- Name: equipos equipos_id_marca_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.equipos
+    ADD CONSTRAINT equipos_id_marca_fkey FOREIGN KEY (id_marca) REFERENCES public.marcas(id_marca) ON DELETE SET NULL;
+
+
+--
+-- Name: equipos equipos_id_proveedor_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.equipos
+    ADD CONSTRAINT equipos_id_proveedor_fkey FOREIGN KEY (id_proveedor) REFERENCES public.proveedores(id_proveedor) ON DELETE SET NULL;
+
+
+--
+-- Name: equipos equipos_id_tipo_equipo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.equipos
+    ADD CONSTRAINT equipos_id_tipo_equipo_fkey FOREIGN KEY (id_tipo_equipo) REFERENCES public.tipos_equipos(id_codigo) ON DELETE SET NULL;
+
+
+--
+-- Name: mantenimientos mantenimientos_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.mantenimientos
+    ADD CONSTRAINT mantenimientos_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL;
+
+
+--
+-- Name: mantenimientos mantenimientos_id_equipo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.mantenimientos
+    ADD CONSTRAINT mantenimientos_id_equipo_fkey FOREIGN KEY (id_equipo) REFERENCES public.equipos(id_equipo) ON DELETE SET NULL;
+
+
+--
+-- Name: mantenimientos mantenimientos_numero_serie_mac_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.mantenimientos
+    ADD CONSTRAINT mantenimientos_numero_serie_mac_fkey FOREIGN KEY (numero_serie_mac) REFERENCES public.equipos(numero_serie_mac) ON UPDATE CASCADE;
+
+
+--
+-- Name: movimientos_accesorios movimientos_accesorios_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.movimientos_accesorios
+    ADD CONSTRAINT movimientos_accesorios_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL;
+
+
+--
+-- Name: movimientos_accesorios movimientos_accesorios_id_accesorio_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.movimientos_accesorios
+    ADD CONSTRAINT movimientos_accesorios_id_accesorio_fkey FOREIGN KEY (id_accesorio) REFERENCES public.accesorios(id_accesorio) ON DELETE RESTRICT;
+
+
+--
+-- Name: movimientos_equipos movimientos_equipos_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.movimientos_equipos
+    ADD CONSTRAINT movimientos_equipos_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL;
+
+
+--
+-- Name: movimientos_equipos movimientos_equipos_id_equipo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.movimientos_equipos
+    ADD CONSTRAINT movimientos_equipos_id_equipo_fkey FOREIGN KEY (id_equipo) REFERENCES public.equipos(id_equipo) ON DELETE SET NULL;
+
+
+--
+-- Name: movimientos_equipos movimientos_equipos_numero_serie_mac_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.movimientos_equipos
+    ADD CONSTRAINT movimientos_equipos_numero_serie_mac_fkey FOREIGN KEY (numero_serie_mac) REFERENCES public.equipos(numero_serie_mac) ON UPDATE CASCADE;
+
+
+--
+-- Name: prestamos prestamos_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.prestamos
+    ADD CONSTRAINT prestamos_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL;
+
+
+--
+-- Name: prestamos prestamos_id_equipo_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.prestamos
+    ADD CONSTRAINT prestamos_id_equipo_fkey FOREIGN KEY (id_equipo) REFERENCES public.equipos(id_equipo) ON DELETE SET NULL;
+
+
+--
+-- Name: prestamos prestamos_id_usuario_entrega_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.prestamos
+    ADD CONSTRAINT prestamos_id_usuario_entrega_fkey FOREIGN KEY (id_usuario_entrega) REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL;
+
+
+--
+-- Name: prestamos prestamos_id_usuario_recibe_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.prestamos
+    ADD CONSTRAINT prestamos_id_usuario_recibe_fkey FOREIGN KEY (id_usuario_recibe) REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL;
+
+
+--
+-- Name: prestamos prestamos_id_usuario_solicita_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.prestamos
+    ADD CONSTRAINT prestamos_id_usuario_solicita_fkey FOREIGN KEY (id_usuario_solicita) REFERENCES public.usuarios(id_usuario) ON DELETE SET NULL;
+
+
+--
+-- Name: prestamos prestamos_numero_serie_mac_fkey; Type: FK CONSTRAINT; Schema: public; Owner: almacen_toi
+--
+
+ALTER TABLE ONLY public.prestamos
+    ADD CONSTRAINT prestamos_numero_serie_mac_fkey FOREIGN KEY (numero_serie_mac) REFERENCES public.equipos(numero_serie_mac) ON UPDATE CASCADE;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\unrestrict 4W0gqcEHlNQB4R7GrnMXiMPTx8kkNJ7GdDq2064AJILQsg6KKtb63i8WJwINYMT
+

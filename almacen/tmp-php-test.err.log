@@ -1,0 +1,17 @@
+[Tue Apr 21 16:47:56 2026] PHP 8.2.12 Development Server (http://127.0.0.1:8080) started
+[Tue Apr 21 16:47:58 2026] 127.0.0.1:47255 Accepted
+[Tue Apr 21 16:47:58 2026] PHP Warning:  session_start(): open(C:\xampp\tmp\sess_7sc9r4t86shg1ko1ns1f6jcka5, O_RDWR) failed: Permission denied (13) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:47:58 2026] PHP Warning:  session_start(): Failed to read session data: files (path: C:\xampp\tmp) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:47:59 2026] 127.0.0.1:47255 Closing
+[Tue Apr 21 16:47:59 2026] 127.0.0.1:47257 Accepted
+[Tue Apr 21 16:47:59 2026] PHP Warning:  session_start(): open(C:\xampp\tmp\sess_0ds0c513nfhga18argktqqeltf, O_RDWR) failed: Permission denied (13) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:47:59 2026] PHP Warning:  session_start(): Failed to read session data: files (path: C:\xampp\tmp) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:48:00 2026] 127.0.0.1:47257 Closing
+[Tue Apr 21 16:48:00 2026] 127.0.0.1:47259 Accepted
+[Tue Apr 21 16:48:00 2026] PHP Warning:  session_start(): open(C:\xampp\tmp\sess_rar284c6gnm2roa6hd6u2c936s, O_RDWR) failed: Permission denied (13) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:48:00 2026] PHP Warning:  session_start(): Failed to read session data: files (path: C:\xampp\tmp) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:48:00 2026] 127.0.0.1:47259 Closing
+[Tue Apr 21 16:48:00 2026] 127.0.0.1:47260 Accepted
+[Tue Apr 21 16:48:00 2026] PHP Warning:  session_start(): open(C:\xampp\tmp\sess_er9sttgdcgi6db6tccei6rspj1, O_RDWR) failed: Permission denied (13) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:48:00 2026] PHP Warning:  session_start(): Failed to read session data: files (path: C:\xampp\tmp) in C:\Users\raul1\.lmstudio\conversations\almacen\config\config.php on line 153
+[Tue Apr 21 16:48:00 2026] 127.0.0.1:47260 Closing

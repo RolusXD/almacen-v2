@@ -1,0 +1,15 @@
+.git
+.qwen
+.vscode
+fallas
+skills
+scripts
+database
+node_modules
+*.md
+*.xlsx
+*.docx
+.htaccess
+test_*.php
+diagnostico.php
+configurar.php
