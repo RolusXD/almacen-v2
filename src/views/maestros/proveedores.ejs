@@ -1,0 +1,102 @@
+<%- include('../layouts/header', { title: 'Proveedores', activeNav: 'proveedores' }) %>
+
+<div class="row g-3">
+  <!-- Formulario de Nuevo Proveedor -->
+  <div class="col-12 col-xl-4">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-truck text-primary"></i> Registrar Proveedor</span>
+      </div>
+      <div class="mw-card-body">
+        <form method="POST" action="/maestros/proveedores">
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NOMBRE DE LA EMPRESA <span class="text-danger">*</span></label>
+            <input type="text" name="nombre_empresa" class="mw-input w-100" placeholder="Ej: DIGICORP S.R.L. o COMRADE" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NIT (BOLIVIA)</label>
+            <input type="text" name="nit" class="mw-input w-100" placeholder="Ej: 1028374029">
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CONTACTO</label>
+              <input type="text" name="contacto" class="mw-input w-100" placeholder="Nombre contacto">
+            </div>
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TELÉFONO</label>
+              <input type="text" name="telefono" class="mw-input w-100" placeholder="70012345">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CORREO ELECTRÓNICO</label>
+            <input type="email" name="email" class="mw-input w-100" placeholder="ventas@proveedor.com">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DIRECCIÓN</label>
+            <input type="text" name="direccion" class="mw-input w-100" placeholder="Ciudad, calle o zona">
+          </div>
+
+          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
+            <i class="bi bi-save"></i> Guardar Proveedor
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de Proveedores -->
+  <div class="col-12 col-xl-8">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-buildings text-primary"></i> Proveedores Registrados</span>
+        <span class="text-muted" style="font-size: 11.5px;">Total: <strong><%= proveedores.length %></strong></span>
+      </div>
+      <div class="mw-card-body p-0">
+        <div class="mw-table-container">
+          <table class="mw-table">
+            <thead>
+              <tr>
+                <th>EMPRESA</th>
+                <th>NIT</th>
+                <th>CONTACTO</th>
+                <th>TELÉFONO</th>
+                <th>CORREO</th>
+                <th>DIRECCIÓN</th>
+                <th class="actions-cell">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (proveedores && proveedores.length > 0) { %>
+                <% proveedores.forEach(p => { %>
+                  <tr>
+                    <td><strong><%= p.nombre_empresa %></strong></td>
+                    <td><span class="badge-mw badge-neutral"><%= p.nit || '-' %></span></td>
+                    <td><%= p.contacto || '-' %></td>
+                    <td><%= p.telefono || '-' %></td>
+                    <td><%= p.email || '-' %></td>
+                    <td><small class="text-muted"><%= p.direccion || '-' %></small></td>
+                    <td class="actions-cell">
+                      <a href="/maestros/proveedores/eliminar/<%= p.id_proveedor %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-danger" title="Desactivar" onclick="return confirm('¿Desactivar proveedor?');">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">No hay proveedores registrados.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>

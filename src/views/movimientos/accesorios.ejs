@@ -1,0 +1,237 @@
+<%- include('../layouts/header', { title: 'Movimientos de Accesorios', activeNav: 'mov-accesorios' }) %>
+
+<div class="row g-3">
+  <!-- Panel de Registro -->
+  <div class="col-12 col-xl-4">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title">
+          <i class="bi bi-box-arrow-up-right text-primary"></i> Asignar / Mover Accesorio
+        </span>
+      </div>
+      <div class="mw-card-body">
+        <form method="POST" action="/movimientos/accesorios" id="formMovAccesorio">
+          
+          <!-- Selección de Accesorio -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+              <i class="bi bi-tools me-1 text-primary"></i> ACCESORIO / MATERIAL <span class="text-danger">*</span>
+            </label>
+            <select name="id_accesorio" id="selectAccesorio" class="mw-select w-100" required>
+              <option value="">Seleccione accesorio...</option>
+              <% accesoriosDisponibles.forEach(acc => { %>
+                <option value="<%= acc.id_accesorio %>" data-stock="<%= acc.cantidad %>" data-unidad="<%= acc.unidad_medida %>" <%= selectedId == acc.id_accesorio ? 'selected' : '' %>>
+                  <%= acc.nombre %> <%= acc.codigo ? '(' + acc.codigo + ')' : '' %> [Disp: <%= acc.cantidad %> <%= acc.unidad_medida %>]
+                </option>
+              <% }); %>
+            </select>
+            <div id="infoStock" class="mt-1" style="font-size: 11.5px; color: #0284c7; font-weight: 600;"></div>
+          </div>
+
+          <!-- Tipo de Movimiento -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
+            <select name="tipo_movimiento" id="tipoMovAcc" class="mw-select w-100" required>
+              <option value="SALIDA">SALIDA (Egreso de almacén / Asignación a técnico)</option>
+              <option value="ENTRADA">ENTRADA (Retorno / Reingreso a almacén)</option>
+            </select>
+          </div>
+
+          <!-- Cantidad a Mover -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CANTIDAD A ASIGNAR / MOVER <span class="text-danger">*</span></label>
+            <input type="number" name="cantidad" id="inputCantidad" class="mw-input w-100" min="1" step="1" value="1" required>
+            <small id="alertaStockExcedido" class="text-danger fw-bold d-none" style="font-size: 11px;">
+              <i class="bi bi-exclamation-triangle"></i> La cantidad supera el stock disponible en almacén.
+            </small>
+          </div>
+
+          <!-- Campo Destino (El requisito explícito solicitado por almacén) -->
+          <div class="mb-3" id="campoDestinoAcc">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+              <i class="bi bi-geo-alt me-1 text-danger"></i> DESTINO <span class="text-danger">*</span>
+            </label>
+            <select name="destino" id="selectDestinoAcc" class="mw-select w-100" required>
+              <option value="">Seleccione destino...</option>
+              <option value="INSTALACIONES">INSTALACIONES (Clientes)</option>
+              <option value="INFRAESTRUCTURA">INFRAESTRUCTURA (Nodos/Torres)</option>
+              <option value="MANTENIMIENTO RED">MANTENIMIENTO DE RED</option>
+              <option value="MANTENIMIENTO VEHICULOS">MANTENIMIENTO VEHÍCULOS</option>
+              <option value="ADMINISTRACION">ADMINISTRACIÓN</option>
+              <option value="SOPORTE TECNICO">SOPORTE TÉCNICO</option>
+              <option value="OTROS">OTROS</option>
+            </select>
+            <small class="text-muted" style="font-size: 11px;">Lugar o proyecto donde se destinará el material.</small>
+          </div>
+
+          <!-- Asunto -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
+            <select name="asunto" class="mw-select w-100" required>
+              <option value="RCA">RCA (Requerimiento de Cambio/Alta)</option>
+              <option value="INSTALACIÓN">INSTALACIÓN</option>
+              <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+              <option value="AMPLIACION">AMPLIACIÓN DE RED</option>
+              <option value="OTROS">OTROS</option>
+            </select>
+          </div>
+
+          <!-- Encargado -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+              <i class="bi bi-person me-1"></i> TÉCNICO / ENCARGADO <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="encargado" class="mw-input w-100" placeholder="Nombre de quien retira o recibe..." required>
+          </div>
+
+          <!-- Fecha -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">FECHA <span class="text-danger">*</span></label>
+            <input type="date" name="fecha_movimiento" class="mw-input w-100" value="<%= new Date().toISOString().split('T')[0] %>" required>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">OBSERVACIONES</label>
+            <textarea name="observaciones" rows="2" class="mw-input w-100" placeholder="Metraje cortado, número de orden o notas..."></textarea>
+          </div>
+
+          <button type="submit" id="btnGuardarMovAcc" class="mw-btn mw-btn-primary w-100" style="padding: 0.6rem; justify-content: center;">
+            <i class="bi bi-check2-circle"></i> Registrar Movimiento de Accesorio
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial de Movimientos de Accesorios -->
+  <div class="col-12 col-xl-8">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title">
+          <i class="bi bi-list-columns-reverse text-primary"></i> Historial de Movimientos de Materiales
+        </span>
+        <div class="d-flex gap-2">
+          <a href="/reportes/exportar/movimientos-accesorios" class="mw-btn mw-btn-outline mw-btn-sm" title="Descargar Excel">
+            <i class="bi bi-file-earmark-excel text-success"></i> Exportar
+          </a>
+        </div>
+      </div>
+
+      <div class="mw-card-body">
+        <!-- Filtros Rápidos -->
+        <form method="GET" action="/movimientos/accesorios" class="mw-toolbar">
+          <div class="mw-toolbar-group">
+            <label class="text-muted" style="font-size: 11.5px;">Destino:</label>
+            <select name="destino" class="mw-select" onchange="this.form.submit()">
+              <option value="">Todos los destinos</option>
+              <% destinos.forEach(d => { %>
+                <option value="<%= d %>" <%= destinoFiltro === d ? 'selected' : '' %>><%= d %></option>
+              <% }); %>
+            </select>
+
+            <div class="d-flex align-items-center gap-1">
+              <input type="text" name="filtro" class="mw-input" placeholder="Buscar material, técnico, asunto..." value="<%= filtro || '' %>" style="min-width: 200px;">
+              <button type="submit" class="mw-btn mw-btn-primary mw-btn-sm"><i class="bi bi-search"></i></button>
+              <% if (filtro || destinoFiltro) { %>
+                <a href="/movimientos/accesorios" class="mw-btn mw-btn-outline mw-btn-sm"><i class="bi bi-x-lg"></i></a>
+              <% } %>
+            </div>
+          </div>
+          <div class="text-muted" style="font-size: 11.5px;">
+            Total: <strong><%= movimientos.length %></strong> movimientos
+          </div>
+        </form>
+
+        <!-- Tabla de Movimientos Sin Desbordes -->
+        <div class="mw-table-container">
+          <table class="mw-table">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>TIPO</th>
+                <th>ACCESORIO / MATERIAL</th>
+                <th>CANTIDAD</th>
+                <th>DESTINO</th>
+                <th>ENCARGADO</th>
+                <th>ASUNTO</th>
+                <th>OBSERVACIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (movimientos && movimientos.length > 0) { %>
+                <% movimientos.forEach(m => { %>
+                  <tr>
+                    <td><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
+                    <td>
+                      <span class="badge-mw <%= m.tipo_movimiento === 'SALIDA' ? 'badge-salida' : 'badge-disponible' %>">
+                        <%= m.tipo_movimiento %>
+                      </span>
+                    </td>
+                    <td><strong><%= m.nombre_accesorio || '-' %></strong></td>
+                    <td>
+                      <span class="badge-mw badge-neutral fw-bold">
+                        <%= m.cantidad %> <%= m.unidad_medida || 'UNIDADES' %>
+                      </span>
+                    </td>
+                    <td><span class="badge-mw badge-disponible text-dark"><%= m.destino || '-' %></span></td>
+                    <td><%= m.encargado %></td>
+                    <td><small><%= m.asunto %></small></td>
+                    <td><small class="text-muted"><%= m.observaciones || '-' %></small></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-4">No hay movimientos registrados.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script de Validación Dinámica de Existencias -->
+<script>
+  const selectAcc = document.getElementById('selectAccesorio');
+  const inputCant = document.getElementById('inputCantidad');
+  const tipoMovAcc = document.getElementById('tipoMovAcc');
+  const infoStock = document.getElementById('infoStock');
+  const alertaStock = document.getElementById('alertaStockExcedido');
+  const btnGuardar = document.getElementById('btnGuardarMovAcc');
+
+  function validarStock() {
+    const opt = selectAcc.options[selectAcc.selectedIndex];
+    if (!opt || !opt.dataset.stock) {
+      infoStock.textContent = '';
+      alertaStock.classList.add('d-none');
+      btnGuardar.disabled = false;
+      return;
+    }
+
+    const stock = parseInt(opt.dataset.stock, 10);
+    const unidad = opt.dataset.unidad || '';
+    const cant = parseInt(inputCant.value, 10) || 0;
+    const esSalida = tipoMovAcc.value === 'SALIDA';
+
+    infoStock.textContent = 'Stock actual disponible: ' + stock + ' ' + unidad;
+
+    if (esSalida && cant > stock) {
+      alertaStock.classList.remove('d-none');
+      btnGuardar.disabled = true;
+    } else {
+      alertaStock.classList.add('d-none');
+      btnGuardar.disabled = false;
+    }
+  }
+
+  selectAcc.addEventListener('change', validarStock);
+  inputCant.addEventListener('input', validarStock);
+  tipoMovAcc.addEventListener('change', validarStock);
+
+  validarStock();
+</script>
+
+<%- include('../layouts/footer') %>

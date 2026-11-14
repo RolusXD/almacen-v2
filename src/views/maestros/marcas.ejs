@@ -1,0 +1,90 @@
+<%- include('../layouts/header', { title: 'Marcas', activeNav: 'marcas' }) %>
+
+<div class="row g-3">
+  <!-- Formulario -->
+  <div class="col-12 col-xl-4">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-bookmark-plus text-primary"></i> Registrar Marca</span>
+      </div>
+      <div class="mw-card-body">
+        <form method="POST" action="/maestros/marcas">
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NOMBRE DE LA MARCA <span class="text-danger">*</span></label>
+            <input type="text" name="nombre" class="mw-input w-100" placeholder="Ej: TP-LINK, MIKROTIK, HUAWEI, VSOL" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PAÍS DE ORIGEN</label>
+            <input type="text" name="pais_origen" class="mw-input w-100" placeholder="Ej: China, Letonia, EE.UU.">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">SITIO WEB OFICIAL</label>
+            <input type="url" name="pagina_web" class="mw-input w-100" placeholder="https://www.marca.com">
+          </div>
+
+          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
+            <i class="bi bi-save"></i> Guardar Marca
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado -->
+  <div class="col-12 col-xl-8">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-bookmark-star text-primary"></i> Marcas Registradas</span>
+        <span class="text-muted" style="font-size: 11.5px;">Total: <strong><%= marcas.length %></strong></span>
+      </div>
+      <div class="mw-card-body p-0">
+        <div class="mw-table-container">
+          <table class="mw-table">
+            <thead>
+              <tr>
+                <th>NOMBRE</th>
+                <th>PAÍS</th>
+                <th>SITIO WEB</th>
+                <th>EQUIPOS ASOCIADOS</th>
+                <th class="actions-cell">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (marcas && marcas.length > 0) { %>
+                <% marcas.forEach(m => { %>
+                  <tr>
+                    <td><strong><%= m.nombre %></strong></td>
+                    <td><%= m.pais_origen || '-' %></td>
+                    <td>
+                      <% if (m.pagina_web) { %>
+                        <a href="<%= m.pagina_web %>" target="_blank" rel="noopener" class="text-primary text-decoration-none">
+                          <i class="bi bi-box-arrow-up-right me-1"></i>Web
+                        </a>
+                      <% } else { %>
+                        <span class="text-muted">-</span>
+                      <% } %>
+                    </td>
+                    <td><span class="badge-mw badge-disponible text-dark"><%= m.total_equipos || 0 %> equipos</span></td>
+                    <td class="actions-cell">
+                      <a href="/maestros/marcas/eliminar/<%= m.id_marca %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-danger" title="Desactivar" onclick="return confirm('¿Desactivar marca?');">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="5" class="text-center text-muted py-4">No hay marcas registradas.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>

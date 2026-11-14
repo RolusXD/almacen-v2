@@ -1,0 +1,75 @@
+<%- include('../layouts/header', { title: 'Categorías', activeNav: 'categorias' }) %>
+
+<div class="row g-3">
+  <!-- Formulario -->
+  <div class="col-12 col-xl-4">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-folder-plus text-primary"></i> Nueva Categoría</span>
+      </div>
+      <div class="mw-card-body">
+        <form method="POST" action="/maestros/categorias">
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NOMBRE DE LA CATEGORÍA <span class="text-danger">*</span></label>
+            <input type="text" name="nombre" class="mw-input w-100" placeholder="Ej: ROUTERS, FIBRA ÓPTICA, HERRAMIENTAS" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DESCRIPCIÓN</label>
+            <textarea name="descripcion" rows="3" class="mw-input w-100" placeholder="Descripción del grupo o rubro..."></textarea>
+          </div>
+
+          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
+            <i class="bi bi-save"></i> Guardar Categoría
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado -->
+  <div class="col-12 col-xl-8">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-folder2-open text-primary"></i> Categorías Registradas</span>
+        <span class="text-muted" style="font-size: 11.5px;">Total: <strong><%= categorias.length %></strong></span>
+      </div>
+      <div class="mw-card-body p-0">
+        <div class="mw-table-container">
+          <table class="mw-table">
+            <thead>
+              <tr>
+                <th>NOMBRE</th>
+                <th>DESCRIPCIÓN</th>
+                <th>EQUIPOS VINCULADOS</th>
+                <th class="actions-cell">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (categorias && categorias.length > 0) { %>
+                <% categorias.forEach(c => { %>
+                  <tr>
+                    <td><strong><%= c.nombre %></strong></td>
+                    <td><small class="text-muted"><%= c.descripcion || '-' %></small></td>
+                    <td><span class="badge-mw badge-disponible text-dark"><%= c.total_equipos || 0 %> equipos</span></td>
+                    <td class="actions-cell">
+                      <a href="/maestros/categorias/eliminar/<%= c.id_categoria %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-danger" title="Desactivar" onclick="return confirm('¿Desactivar categoría?');">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="4" class="text-center text-muted py-4">No hay categorías registradas.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>

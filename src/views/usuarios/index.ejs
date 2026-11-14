@@ -1,0 +1,105 @@
+<%- include('../layouts/header', { title: 'Gestión de Usuarios', activeNav: 'usuarios' }) %>
+
+<div class="row g-3">
+  <!-- Formulario de Nuevo Usuario -->
+  <div class="col-12 col-xl-4">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-person-plus text-primary"></i> Registrar Nuevo Usuario</span>
+      </div>
+      <div class="mw-card-body">
+        <form method="POST" action="/usuarios/nuevo">
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NOMBRE COMPLETO <span class="text-danger">*</span></label>
+            <input type="text" name="nombre_completo" class="mw-input w-100" placeholder="Ej: Juan Perez" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NOMBRE DE USUARIO <span class="text-danger">*</span></label>
+            <input type="text" name="usuario" class="mw-input w-100" placeholder="Ej: jperez" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CONTRASEÑA INICIAL <span class="text-danger">*</span></label>
+            <input type="password" name="password" class="mw-input w-100" placeholder="••••••••" required>
+          </div>
+
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CARNET / CI <span class="text-danger">*</span></label>
+              <input type="text" name="carnet" class="mw-input w-100" placeholder="1234567" required>
+            </div>
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">ROL <span class="text-danger">*</span></label>
+              <select name="rol" class="mw-select w-100" required>
+                <option value="usuario">Operador (Usuario)</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
+            <input type="email" name="email" class="mw-input w-100" placeholder="jperez@toi.bo" required>
+          </div>
+
+          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
+            <i class="bi bi-save"></i> Guardar Usuario
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Listado de Usuarios -->
+  <div class="col-12 col-xl-8">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-people text-primary"></i> Usuarios del Sistema</span>
+        <span class="text-muted" style="font-size: 11.5px;">Total: <strong><%= usuarios.length %></strong></span>
+      </div>
+      <div class="mw-card-body p-0">
+        <div class="mw-table-container">
+          <table class="mw-table">
+            <thead>
+              <tr>
+                <th>NOMBRE</th>
+                <th>USUARIO</th>
+                <th>ROL</th>
+                <th>CARNET</th>
+                <th>CORREO</th>
+                <th>ÚLTIMO ACCESO</th>
+                <th>ESTADO</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (usuarios && usuarios.length > 0) { %>
+                <% usuarios.forEach(u => { %>
+                  <tr>
+                    <td><strong><%= u.nombre_completo %></strong></td>
+                    <td><span class="badge-mw badge-neutral" style="font-family: monospace;"><%= u.usuario %></span></td>
+                    <td><span class="badge-mw <%= u.rol === 'admin' ? 'badge-disponible text-dark' : 'badge-neutral' %>"><%= u.rol %></span></td>
+                    <td><%= u.carnet %></td>
+                    <td><%= u.email %></td>
+                    <td><small class="text-muted"><%= u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-BO') : 'Nunca' %></small></td>
+                    <td>
+                      <span class="badge-mw <%= u.activo ? 'badge-disponible' : 'badge-baja' %>">
+                        <%= u.activo ? 'ACTIVO' : 'INACTIVO' %>
+                      </span>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">No hay usuarios registrados.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>

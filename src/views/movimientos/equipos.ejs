@@ -1,0 +1,243 @@
+<%- include('../layouts/header', { title: 'Movimientos de Equipos', activeNav: 'mov-equipos' }) %>
+
+<div class="row g-3">
+  <!-- Panel de Registro -->
+  <div class="col-12 col-xl-4">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title">
+          <i class="bi bi-box-arrow-right text-primary"></i> Registrar Movimiento
+        </span>
+      </div>
+      <div class="mw-card-body">
+        <form method="POST" action="/movimientos/equipos" id="formMovEquipo">
+          
+          <!-- Búsqueda Instantánea por Serie / MAC -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+              <i class="bi bi-upc-scan me-1 text-primary"></i> N° DE SERIE O MAC <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="numero_serie_mac" id="inputSerie" class="mw-input w-100" list="equipos_disponibles_list" placeholder="Escriba o elija una serie..." required autocomplete="off">
+            <datalist id="equipos_disponibles_list">
+              <% equiposDisponibles.forEach(eq => { %>
+                <option value="<%= eq.numero_serie_mac %>"><%= eq.codigo %> - <%= eq.nombre %> (<%= eq.modelo || 'Sin mod' %>) [<%= eq.estado %>]</option>
+              <% }); %>
+            </datalist>
+            <small class="text-muted" style="font-size: 11px;">Al seleccionar la serie se mostrará la ficha del equipo abajo.</small>
+          </div>
+
+          <!-- Ficha de Verificación del Equipo Seleccionado -->
+          <div class="p-2 mb-3 rounded" id="fichaEquipo" style="background: #f8fafc; border: 1px dashed #cbd5e1; font-size: 12px;">
+            <div class="text-muted text-uppercase" style="font-size: 10px; font-weight: 700;">Equipo Identificado:</div>
+            <div id="fichaNombre" class="fw-bold text-primary">Sin selección</div>
+            <div class="text-muted" id="fichaDetalles">Modelo: - | Marca: - | Estado actual: -</div>
+          </div>
+
+          <!-- Tipo de Movimiento -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
+            <select name="tipo_movimiento" id="tipoMovimiento" class="mw-select w-100" required>
+              <option value="SALIDA">SALIDA (Egreso de almacén / Asignación)</option>
+              <option value="ENTRADA">ENTRADA (Retorno / Devolución a almacén)</option>
+              <option value="MANTENIMIENTO">MANTENIMIENTO (Envío a taller / revisión)</option>
+              <option value="REVISION">REVISIÓN TÉCNICA</option>
+            </select>
+          </div>
+
+          <!-- Destino (Requisito clave) -->
+          <div class="mb-3" id="campoDestino">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+              <i class="bi bi-geo-alt me-1 text-danger"></i> DESTINO / ÁREA <span class="text-danger">*</span>
+            </label>
+            <select name="destino" id="selectDestino" class="mw-select w-100" required>
+              <option value="">Seleccione destino...</option>
+              <option value="INSTALACIONES">INSTALACIONES (Clientes)</option>
+              <option value="INFRAESTRUCTURA">INFRAESTRUCTURA (Nodos/Torres)</option>
+              <option value="MANTENIMIENTO RED">MANTENIMIENTO RED</option>
+              <option value="MANTENIMIENTO VEHICULOS">MANTENIMIENTO VEHÍCULOS</option>
+              <option value="ADMINISTRACION">ADMINISTRACIÓN</option>
+              <option value="SOPORTE TECNICO">SOPORTE TÉCNICO</option>
+              <option value="OTROS">OTROS</option>
+            </select>
+          </div>
+
+          <!-- Asunto -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
+            <select name="asunto" class="mw-select w-100" required>
+              <option value="RCA">RCA (Requerimiento de Cambio/Alta)</option>
+              <option value="INSTALACIÓN">INSTALACIÓN NUEVA</option>
+              <option value="MANTENIMIENTO">MANTENIMIENTO PREVENTIVO/CORRECTIVO</option>
+              <option value="AMPLIACION">AMPLIACIÓN DE RED</option>
+              <option value="REEMPLAZO">REEMPLAZO DE EQUIPO</option>
+              <option value="OTROS">OTROS</option>
+            </select>
+          </div>
+
+          <!-- Encargado -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+              <i class="bi bi-person me-1"></i> TÉCNICO / ENCARGADO <span class="text-danger">*</span>
+            </label>
+            <input type="text" name="encargado" class="mw-input w-100" placeholder="Nombre del responsable que retira o entrega..." required>
+          </div>
+
+          <!-- Fecha -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">FECHA <span class="text-danger">*</span></label>
+            <input type="date" name="fecha_movimiento" class="mw-input w-100" value="<%= new Date().toISOString().split('T')[0] %>" required>
+          </div>
+
+          <!-- Observaciones -->
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">OBSERVACIONES / DETALLES</label>
+            <textarea name="observaciones" rows="2" class="mw-input w-100" placeholder="Número de ticket, cliente o motivo específico..."></textarea>
+          </div>
+
+          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.6rem; justify-content: center;">
+            <i class="bi bi-check2-circle"></i> Registrar Movimiento
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Historial de Movimientos de Equipos -->
+  <div class="col-12 col-xl-8">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title">
+          <i class="bi bi-list-columns-reverse text-primary"></i> Historial de Movimientos
+        </span>
+        <div class="d-flex gap-2">
+          <a href="/reportes/exportar/movimientos-equipos" class="mw-btn mw-btn-outline mw-btn-sm" title="Descargar Excel">
+            <i class="bi bi-file-earmark-excel text-success"></i> Exportar
+          </a>
+        </div>
+      </div>
+
+      <div class="mw-card-body">
+        <!-- Filtros Rápidos -->
+        <form method="GET" action="/movimientos/equipos" class="mw-toolbar">
+          <div class="mw-toolbar-group">
+            <label class="text-muted" style="font-size: 11.5px;">Destino:</label>
+            <select name="destino" class="mw-select" onchange="this.form.submit()">
+              <option value="">Todos los destinos</option>
+              <% destinos.forEach(d => { %>
+                <option value="<%= d %>" <%= destinoFiltro === d ? 'selected' : '' %>><%= d %></option>
+              <% }); %>
+            </select>
+
+            <div class="d-flex align-items-center gap-1">
+              <input type="text" name="filtro" class="mw-input" placeholder="Buscar serie, técnico, asunto..." value="<%= filtro || '' %>" style="min-width: 200px;">
+              <button type="submit" class="mw-btn mw-btn-primary mw-btn-sm"><i class="bi bi-search"></i></button>
+              <% if (filtro || destinoFiltro) { %>
+                <a href="/movimientos/equipos" class="mw-btn mw-btn-outline mw-btn-sm"><i class="bi bi-x-lg"></i></a>
+              <% } %>
+            </div>
+          </div>
+          <div class="text-muted" style="font-size: 11.5px;">
+            Total: <strong><%= movimientos.length %></strong> registros
+          </div>
+        </form>
+
+        <!-- Tabla de Historial Sin Cortes -->
+        <div class="mw-table-container">
+          <table class="mw-table">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>TIPO</th>
+                <th>N° SERIE / MAC</th>
+                <th>PRODUCTO</th>
+                <th>DESTINO</th>
+                <th>ENCARGADO</th>
+                <th>ASUNTO</th>
+                <th>OBSERVACIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (movimientos && movimientos.length > 0) { %>
+                <% movimientos.forEach(m => { %>
+                  <tr>
+                    <td><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
+                    <td>
+                      <span class="badge-mw <%= m.tipo_movimiento === 'SALIDA' ? 'badge-salida' : (m.tipo_movimiento === 'ENTRADA' ? 'badge-disponible' : 'badge-mantenimiento') %>">
+                        <%= m.tipo_movimiento %>
+                      </span>
+                    </td>
+                    <td><span class="badge-mw badge-neutral" style="font-family: monospace;"><%= m.numero_serie_mac %></span></td>
+                    <td><strong><%= m.nombre_equipo || '-' %></strong> <small class="text-muted">(<%= m.modelo_equipo || '-' %>)</small></td>
+                    <td><span class="badge-mw badge-disponible text-dark"><%= m.destino || '-' %></span></td>
+                    <td><%= m.encargado %></td>
+                    <td><small><%= m.asunto %></small></td>
+                    <td><small class="text-muted"><%= m.observaciones || '-' %></small></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="8" class="text-center text-muted py-4">No hay movimientos registrados con los filtros aplicados.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script de Sincronización en Tiempo Real de Serie -->
+<script>
+  const catalogoSeries = {
+    <% equiposDisponibles.forEach(eq => { %>
+      "<%= eq.numero_serie_mac.toLowerCase().trim() %>": {
+        serie: "<%= eq.numero_serie_mac %>",
+        nombre: "<%= eq.nombre %>",
+        modelo: "<%= eq.modelo || 'N/A' %>",
+        marca: "<%= eq.marca || 'N/A' %>",
+        codigo: "<%= eq.codigo || 'N/A' %>",
+        estado: "<%= eq.estado %>"
+      },
+    <% }); %>
+  };
+
+  const inputSerie = document.getElementById('inputSerie');
+  const fichaNombre = document.getElementById('fichaNombre');
+  const fichaDetalles = document.getElementById('fichaDetalles');
+  const tipoMov = document.getElementById('tipoMovimiento');
+  const campoDestino = document.getElementById('campoDestino');
+  const selectDestino = document.getElementById('selectDestino');
+
+  function actualizarFicha() {
+    const val = inputSerie.value.toLowerCase().trim();
+    const eq = catalogoSeries[val];
+    if (eq) {
+      fichaNombre.textContent = eq.nombre + ' (' + eq.codigo + ')';
+      fichaDetalles.textContent = 'Modelo: ' + eq.modelo + ' | Marca: ' + eq.marca + ' | Estado actual: ' + eq.estado;
+      fichaNombre.className = 'fw-bold text-success';
+    } else if (val.length > 2) {
+      fichaNombre.textContent = 'Serie manual: ' + inputSerie.value;
+      fichaDetalles.textContent = 'Verifique si el equipo existe en catálogo.';
+      fichaNombre.className = 'fw-bold text-warning';
+    } else {
+      fichaNombre.textContent = 'Sin selección';
+      fichaDetalles.textContent = 'Modelo: - | Marca: - | Estado actual: -';
+      fichaNombre.className = 'fw-bold text-muted';
+    }
+  }
+
+  inputSerie.addEventListener('input', actualizarFicha);
+  inputSerie.addEventListener('change', actualizarFicha);
+
+  tipoMov.addEventListener('change', function () {
+    if (this.value === 'SALIDA') {
+      selectDestino.required = true;
+      campoDestino.style.opacity = '1';
+    } else {
+      selectDestino.required = false;
+    }
+  });
+</script>
+
+<%- include('../layouts/footer') %>

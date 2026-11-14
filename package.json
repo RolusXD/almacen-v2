@@ -1,0 +1,52 @@
+{
+  "name": "almacen-toi-v4",
+  "version": "4.0.0",
+  "description": "Sistema Modernizado de Gestión de Almacén TOI para Telecomunicaciones",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc && copyfiles -u 1 \"src/views/**/*\" \"src/public/**/*\" dist/",
+    "start": "node dist/server.js"
+  },
+  "keywords": [
+    "inventory",
+    "warehouse",
+    "telecom",
+    "almacen",
+    "express",
+    "typescript",
+    "postgresql"
+  ],
+  "author": "TOI",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "connect-pg-simple": "^10.0.0",
+    "cookie-parser": "^1.4.7",
+    "csv-parse": "^5.5.6",
+    "dotenv": "^16.4.7",
+    "ejs": "^3.1.10",
+    "exceljs": "^4.4.0",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0",
+    "multer": "^1.4.5-lts.1",
+    "pdfkit": "^0.15.2",
+    "pdfkit-table": "^0.1.99",
+    "pg": "^8.13.1"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/connect-pg-simple": "^7.0.3",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/express": "^4.17.21",
+    "@types/express-session": "^1.18.1",
+    "@types/multer": "^1.4.12",
+    "@types/node": "^22.10.1",
+    "@types/pdfkit": "^0.13.7",
+    "@types/pg": "^8.11.10",
+    "copyfiles": "^2.4.1",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.7.2"
+  }
+}

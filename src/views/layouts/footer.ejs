@@ -1,0 +1,31 @@
+      </main>
+    </div>
+  </div>
+
+  <!-- Client-side script for sidebar toggle and simple table filtering -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const toggle = document.getElementById('sidebarToggle');
+      const sidebar = document.getElementById('sidebar');
+      if (toggle && sidebar) {
+        toggle.addEventListener('click', function () {
+          sidebar.classList.toggle('show');
+        });
+      }
+
+      // Quick in-page table search
+      const quickSearch = document.getElementById('quickTableSearch');
+      if (quickSearch) {
+        quickSearch.addEventListener('input', function () {
+          const val = this.value.toLowerCase().trim();
+          const rows = document.querySelectorAll('.mw-table tbody tr');
+          rows.forEach(row => {
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(val) ? '' : 'none';
+          });
+        });
+      }
+    });
+  </script>
+</body>
+</html>

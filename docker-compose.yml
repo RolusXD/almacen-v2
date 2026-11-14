@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # SERVICIO DE APLICACIÓN (Node.js + TS)
+  # ==========================================
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: toi_almacen_app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - APP_NAME=Sistema de Almacén TOI
+      - APP_URL=${APP_URL:-http://localhost:3000}
+      - SESSION_SECRET=${SESSION_SECRET:-toi_almacen_session_secret_production_2026_xyz}
+      - DATABASE_URL=postgresql://${DB_USER:-almacen_toi}:${DB_PASS:-almacen_secure_password_2026}@db:5432/${DB_NAME:-almacen_toi}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - toi_network
+
+  # ==========================================
+  # SERVICIO DE BASE DE DATOS (PostgreSQL 14)
+  # ==========================================
+  db:
+    image: postgres:14-alpine
+    container_name: toi_almacen_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=${DB_NAME:-almacen_toi}
+      - POSTGRES_USER=${DB_USER:-almacen_toi}
+      - POSTGRES_PASSWORD=${DB_PASS:-almacen_secure_password_2026}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # Si la base de datos está vacía, PostgreSQL importa automáticamente el backup
+      - ./backup_almacen_toi20261114.sql:/docker-entrypoint-initdb.d/01_backup_almacen.sql:ro
+    networks:
+      - toi_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-almacen_toi} -d ${DB_NAME:-almacen_toi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  pgdata:
+    name: toi_almacen_pgdata
+
+networks:
+  toi_network:
+    name: toi_almacen_net

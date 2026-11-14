@@ -1,0 +1,93 @@
+<%- include('../layouts/header', { title: accesorio ? 'Editar Accesorio' : 'Nuevo Accesorio', activeNav: 'accesorios' }) %>
+
+<div class="row justify-content-center">
+  <div class="col-12 col-xl-8">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title">
+          <i class="bi <%= accesorio ? 'bi-pencil-square' : 'bi-plus-circle' %> text-primary"></i>
+          <%= accesorio ? 'Editar Accesorio: ' + accesorio.nombre : 'Registro de Nuevo Accesorio / Material' %>
+        </span>
+        <a href="/accesorios" class="mw-btn mw-btn-outline mw-btn-sm">
+          <i class="bi bi-arrow-left"></i> Volver a Accesorios
+        </a>
+      </div>
+
+      <div class="mw-card-body">
+        <form method="POST" action="<%= accesorio ? '/accesorios/editar/' + accesorio.id_accesorio : '/accesorios/nuevo' %>">
+          
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DESCRIPCIÓN / NOMBRE DEL MATERIAL <span class="text-danger">*</span></label>
+              <input type="text" name="nombre" class="mw-input w-100" placeholder="Ej: FIBRA ADSS 6 HILOS o CONECTOR SC/APC" value="<%= accesorio ? accesorio.nombre : '' %>" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CÓDIGO REFERENCIAL</label>
+              <input type="text" name="codigo" class="mw-input w-100" placeholder="Ej: FADD-6H, CON-APC" value="<%= accesorio ? accesorio.codigo : '' %>">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CANTIDAD EN STOCK <span class="text-danger">*</span></label>
+              <input type="number" name="cantidad" class="mw-input w-100" min="0" step="1" value="<%= accesorio ? accesorio.cantidad : 1 %>" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">UNIDAD DE MEDIDA <span class="text-danger">*</span></label>
+              <select name="unidad_medida" class="mw-select w-100" required>
+                <% const unidades = ['METROS', 'UNIDADES', 'CAJAS', 'KILOS', 'LITROS', 'PARES']; %>
+                <% unidades.forEach(u => { %>
+                  <option value="<%= u %>" <%= accesorio && accesorio.unidad_medida === u ? 'selected' : (u === 'UNIDADES' && !accesorio ? 'selected' : '') %>><%= u %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PRECIO / COSTO UNIT. (Bs.)</label>
+              <input type="number" step="0.01" name="costo" class="mw-input w-100" placeholder="0.00" value="<%= accesorio ? accesorio.costo : '0.00' %>">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PROVEEDOR</label>
+              <select name="id_proveedor" class="mw-select w-100">
+                <option value="">Seleccione proveedor...</option>
+                <% proveedores.forEach(p => { %>
+                  <option value="<%= p.id_proveedor %>" <%= accesorio && accesorio.id_proveedor === p.id_proveedor ? 'selected' : '' %>>
+                    <%= p.nombre_empresa %> <%= p.nit ? '(NIT: ' + p.nit + ')' : '' %>
+                  </option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <!-- Requisito Estricto: Calidad bloqueada a NUEVO -->
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CALIDAD</label>
+              <input type="text" class="mw-input w-100" value="NUEVO" readonly style="background-color: #f8fafc; font-weight: 700; color: #0284c7; cursor: not-allowed;">
+              <input type="hidden" name="calidad" value="NUEVO">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">OBSERVACIONES</label>
+            <textarea name="observaciones" rows="3" class="mw-input w-100" placeholder="Detalles de bobina, lote, características especiales..."><%= accesorio ? accesorio.observaciones : '' %></textarea>
+          </div>
+
+          <div class="d-flex gap-2 pt-3 border-top mt-4">
+            <button type="submit" class="mw-btn mw-btn-primary" style="padding: 0.55rem 1.4rem;">
+              <i class="bi bi-save"></i> <%= accesorio ? 'Guardar Cambios' : 'Registrar Accesorio' %>
+            </button>
+            <a href="/accesorios" class="mw-btn mw-btn-outline" style="padding: 0.55rem 1rem;">
+              Cancelar
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>

@@ -1,0 +1,126 @@
+<%- include('../layouts/header', { title: 'Dashboard General', activeNav: 'dashboard' }) %>
+
+<!-- Grid de Tarjetas Estadísticas -->
+<div class="stat-grid">
+  <div class="stat-card">
+    <div>
+      <div class="stat-label">Equipos Registrados</div>
+      <div class="stat-number"><%= statsEquipos.total %></div>
+      <small class="text-muted"><%= statsEquipos.disponibles %> disponibles en stock</small>
+    </div>
+    <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">
+      <i class="bi bi-router"></i>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div>
+      <div class="stat-label">Equipos Asignados</div>
+      <div class="stat-number" style="color: #b45309;"><%= statsEquipos.asignados %></div>
+      <small class="text-muted">En campo o clientes</small>
+    </div>
+    <div class="stat-icon" style="background: #fef3c7; color: #b45309;">
+      <i class="bi bi-box-arrow-up-right"></i>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div>
+      <div class="stat-label">Accesorios Totales</div>
+      <div class="stat-number"><%= statsAccesorios.totalItems %></div>
+      <small class="text-muted"><%= statsAccesorios.totalUnidades %> unidades en total</small>
+    </div>
+    <div class="stat-icon" style="background: #dcfce7; color: #15803d;">
+      <i class="bi bi-tools"></i>
+    </div>
+  </div>
+
+  <div class="stat-card">
+    <div>
+      <div class="stat-label">Stock Crítico (< 10)</div>
+      <div class="stat-number" style="color: <%= statsAccesorios.stockBajo > 0 ? '#b91c1c' : '#15803d' %>;">
+        <%= statsAccesorios.stockBajo %>
+      </div>
+      <small class="text-muted">Accesorios por reponer</small>
+    </div>
+    <div class="stat-icon" style="background: <%= statsAccesorios.stockBajo > 0 ? '#fee2e2' : '#f1f5f9' %>; color: <%= statsAccesorios.stockBajo > 0 ? '#b91c1c' : '#64748b' %>;">
+      <i class="bi bi-exclamation-triangle"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Accesos Rápidos -->
+<div class="mw-card">
+  <div class="mw-card-header">
+    <span class="mw-card-title"><i class="bi bi-lightning-charge text-warning"></i> Operaciones Frecuentes</span>
+  </div>
+  <div class="mw-card-body d-flex gap-2 flex-wrap">
+    <a href="/movimientos/equipos" class="mw-btn mw-btn-primary">
+      <i class="bi bi-arrow-left-right"></i> Mover Equipo (Egreso / Ingreso)
+    </a>
+    <a href="/movimientos/accesorios" class="mw-btn mw-btn-primary">
+      <i class="bi bi-box-arrow-up-right"></i> Asignar Accesorio con Destino
+    </a>
+    <a href="/equipos/nuevo" class="mw-btn mw-btn-success">
+      <i class="bi bi-plus-circle"></i> Nuevo Equipo
+    </a>
+    <a href="/accesorios/nuevo" class="mw-btn mw-btn-success">
+      <i class="bi bi-plus-circle"></i> Nuevo Accesorio
+    </a>
+    <a href="/reportes/exportar/equipos" class="mw-btn mw-btn-outline">
+      <i class="bi bi-file-earmark-excel"></i> Exportar Equipos (.xlsx)
+    </a>
+  </div>
+</div>
+
+<!-- Últimos Movimientos -->
+<div class="row">
+  <div class="col-12">
+    <div class="mw-card">
+      <div class="mw-card-header">
+        <span class="mw-card-title"><i class="bi bi-clock-history text-primary"></i> Últimos Movimientos de Equipos</span>
+        <a href="/movimientos/equipos" class="mw-btn mw-btn-outline mw-btn-sm">Ver todos</a>
+      </div>
+      <div class="mw-table-container">
+        <table class="mw-table">
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Tipo</th>
+              <th>N° Serie / MAC</th>
+              <th>Equipo</th>
+              <th>Destino</th>
+              <th>Encargado</th>
+              <th>Asunto</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (ultimosMovimientos && ultimosMovimientos.length > 0) { %>
+              <% ultimosMovimientos.forEach(m => { %>
+                <tr>
+                  <td><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
+                  <td>
+                    <span class="badge-mw <%= m.tipo_movimiento === 'SALIDA' ? 'badge-salida' : (m.tipo_movimiento === 'ENTRADA' ? 'badge-disponible' : 'badge-mantenimiento') %>">
+                      <%= m.tipo_movimiento %>
+                    </span>
+                  </td>
+                  <td><strong><%= m.numero_serie_mac %></strong></td>
+                  <td><%= m.nombre_equipo || '-' %> <small class="text-muted">(<%= m.modelo_equipo || '-' %>)</small></td>
+                  <td><%= m.destino || '-' %></td>
+                  <td><%= m.encargado %></td>
+                  <td><small><%= m.asunto %></small></td>
+                </tr>
+              <% }); %>
+            <% } else { %>
+              <tr>
+                <td colspan="7" class="text-center text-muted py-3">No hay movimientos recientes registrados.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>
