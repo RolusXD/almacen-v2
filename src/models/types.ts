@@ -16,16 +16,20 @@ export interface Usuario {
 export interface Equipo {
   id_equipo: number;
   id_tipo_equipo?: number | null;
+  id_categoria?: number | null;
+  id_marca?: number | null;
+  id_proveedor?: number | null;
   codigo?: string | null;
   nombre: string;
   marca?: string | null;
   modelo?: string | null;
   numero_serie_mac: string;
   precio?: number | null;
+  costo?: number | null;
   proveedor?: string | null;
   fecha_entrada?: string | null;
-  estado: string;
-  calidad: string;
+  estado: 'DISPONIBLE' | 'OCUPADO' | 'MANTENIMIENTO' | 'RETIRADO' | string;
+  calidad: 'NUEVO' | 'BUENO' | 'REGULAR' | 'MALO' | string;
   observaciones?: string | null;
   created_at?: string;
   updated_at?: string;
@@ -36,20 +40,26 @@ export interface Equipo {
 
 export interface Accesorio {
   id_accesorio: number;
-  id_tipo_accesorio?: number | null;
+  id_categoria?: number | null;
+  id_marca?: number | null;
   id_proveedor?: number | null;
   codigo?: string | null;
   nombre: string;
   cantidad: number;
   unidad_medida: string;
   costo?: number | null;
-  calidad: string;
-  estado?: string | null;
+  modelo?: string | null;
+  marca?: string | null;
+  numero_serie_mac?: string | null;
+  fecha_entrada: string;
+  calidad: 'NUEVO' | 'BUENO' | 'REGULAR' | 'MALO' | string;
+  estado: 'DISPONIBLE' | 'OCUPADO' | 'MANTENIMIENTO' | 'RETIRADO' | string;
   observaciones?: string | null;
   created_at?: string;
   updated_at?: string;
   // Joins
   nombre_proveedor?: string;
+  nombre_categoria?: string;
 }
 
 export interface MovimientoEquipo {
@@ -125,6 +135,7 @@ export interface Categoria {
   descripcion?: string | null;
   activo: number;
   created_at?: string;
+  updated_at?: string;
   total_equipos?: number;
   total_accesorios?: number;
 }
@@ -136,6 +147,7 @@ export interface Marca {
   pagina_web?: string | null;
   activo: number;
   created_at?: string;
+  updated_at?: string;
   total_equipos?: number;
   total_accesorios?: number;
 }
@@ -144,15 +156,19 @@ export interface Mantenimiento {
   id_mantenimiento: number;
   id_equipo?: number | null;
   numero_serie_mac: string;
-  tipo_falla: string;
-  diagnostico?: string | null;
-  solucion?: string | null;
+  tipo_mantenimiento: 'PREVENTIVO' | 'CORRECTIVO' | 'EVOLUTIVO';
+  descripcion: string;
   tecnico_responsable: string;
-  costo_reparacion?: number | null;
-  estado: string;
+  costo?: number | null;
+  estado: 'EN_PROCESO' | 'COMPLETADO' | 'CANCELADO';
   fecha_ingreso: string;
-  fecha_salida?: string | null;
+  fecha_entrega?: string | null;
+  repuestos_cambiados?: string | null;
+  observaciones?: string | null;
+  garantia_dias?: number;
+  created_by?: number | null;
   created_at?: string;
+  updated_at?: string;
   // Joins
   nombre_equipo?: string;
 }
@@ -161,15 +177,24 @@ export interface Prestamo {
   id_prestamo: number;
   id_equipo?: number | null;
   numero_serie_mac: string;
-  solicitante: string;
-  departamento: string;
-  motivo: string;
+  id_usuario_solicita?: number | null;
+  nombre_solicita: string;
+  cargo_solicita?: string | null;
+  departamento?: string | null;
+  telefono_contacto?: string | null;
+  email_contacto?: string | null;
   fecha_prestamo: string;
-  fecha_devolucion_esperada?: string | null;
+  fecha_devolucion_esperada: string;
   fecha_devolucion_real?: string | null;
-  estado: string;
-  observaciones?: string | null;
+  estado: 'PRESTADO' | 'DEVUELTO' | 'ATRASADO' | 'PERDIDO';
+  motivo_prestamo: string;
+  observaciones_salida?: string | null;
+  observaciones_devolucion?: string | null;
+  equipo_entregado_conforme?: number;
+  equipo_recibido_conforme?: number;
+  created_by?: number | null;
   created_at?: string;
+  updated_at?: string;
   // Joins
   nombre_equipo?: string;
 }

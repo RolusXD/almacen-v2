@@ -53,7 +53,10 @@
     <div class="mw-card">
       <div class="mw-card-header">
         <span class="mw-card-title"><i class="bi bi-tags text-primary"></i> Catálogo de Tipos de Equipos</span>
-        <span class="text-muted" style="font-size: 11.5px;">Total: <strong><%= tipos.length %></strong></span>
+        <div class="d-flex align-items-center gap-2">
+          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar tipos..." style="width: 200px;">
+          <span class="badge-mw badge-neutral"><%= tipos.length %> activos</span>
+        </div>
       </div>
       <div class="mw-card-body p-0">
         <div class="mw-table-container">
@@ -73,14 +76,21 @@
               <% if (tipos && tipos.length > 0) { %>
                 <% tipos.forEach(t => { %>
                   <tr>
-                    <td><small class="text-muted">#<%= t.id_codigo %></small></td>
-                    <td><span class="badge-mw badge-disponible text-dark fw-bold"><%= t.codigo %></span></td>
+                    <td class="font-tabular"><small class="text-muted">#<%= t.id_codigo %></small></td>
+                    <td>
+                      <span class="font-mono">
+                        <%= t.codigo %>
+                        <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= t.codigo %>', 'Código')" title="Copiar código">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                      </span>
+                    </td>
                     <td><strong><%= t.descripcion %></strong></td>
                     <td><span class="badge-mw badge-neutral"><%= t.categoria %></span></td>
                     <td><%= t.prefijo || '-' %></td>
                     <td><small class="text-muted"><%= t.observaciones || '-' %></small></td>
                     <td class="actions-cell">
-                      <a href="/maestros/tipos/eliminar/<%= t.id_codigo %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-danger" title="Desactivar" onclick="return confirm('¿Desactivar tipo <%= t.codigo %>?');">
+                      <a href="/maestros/tipos/eliminar/<%= t.id_codigo %>" class="mw-btn mw-btn-danger-outline mw-btn-sm mw-btn-icon" title="Desactivar" onclick="return confirm('¿Desactivar tipo <%= t.codigo %>?');">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>

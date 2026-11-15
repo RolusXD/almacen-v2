@@ -79,8 +79,10 @@ export class MaestrosController {
     try {
       const categorias = await maestroRepo.getCategorias();
       res.render('maestros/categorias', { categorias });
-    } catch (err) {
-      res.status(500).send('Error listando categorías');
+    } catch (err: any) {
+      console.error('Error listando categorías:', err);
+      req.session.flash = { type: 'error', message: 'Error listando categorías: ' + (err.message || '') };
+      res.render('maestros/categorias', { categorias: [] });
     }
   }
 
@@ -145,26 +147,58 @@ export class MaestrosController {
     try {
       const mantenimientos = await maestroRepo.getMantenimientos();
       res.render('maestros/mantenimientos', { mantenimientos });
-    } catch (err) {
-      res.status(500).send('Error listando mantenimientos');
+    } catch (err: any) {
+      console.error('Error en mantenimientosIndex:', err);
+      req.session.flash = { type: 'error', message: 'Error cargando historial de mantenimientos: ' + err.message };
+      res.render('maestros/mantenimientos', { mantenimientos: [] });
     }
   }
 
   static async mantenimientosSubmit(req: Request, res: Response) {
     try {
-      const { numero_serie_mac, tipo_falla, diagnostico, tecnico_responsable, costo_reparacion, fecha_ingreso } = req.body;
-      await maestroRepo.createMantenimiento({
+      const {
         numero_serie_mac,
+        tipo_mantenimiento,
         tipo_falla,
+        descripcion,
         diagnostico,
         tecnico_responsable,
-        costo_reparacion: parseFloat(costo_reparacion || '0'),
+        costo,
+        costo_reparacion,
         fecha_ingreso,
+        repuestos_cambiados,
+        observaciones,
+      } = req.body;
+
+      await maestroRepo.createMantenimiento({
+        numero_serie_mac: (numero_serie_mac || '').trim(),
+        tipo_mantenimiento: tipo_mantenimiento || (tipo_falla === 'PREVENTIVO' ? 'PREVENTIVO' : 'CORRECTIVO'),
+        descripcion: descripcion || diagnostico || tipo_falla || 'Mantenimiento registrado',
+        tecnico_responsable: tecnico_responsable || 'Técnico de Laboratorio',
+        costo: parseFloat(costo || costo_reparacion || '0') || 0,
+        fecha_ingreso: fecha_ingreso || new Date().toISOString().split('T')[0],
+        repuestos_cambiados,
+        observaciones,
       });
-      req.session.flash = { type: 'success', message: 'Mantenimiento registrado.' };
+
+      req.session.flash = { type: 'success', message: 'Mantenimiento registrado e ingresado al taller.' };
       res.redirect('/maestros/mantenimientos');
     } catch (err: any) {
-      req.session.flash = { type: 'error', message: err.message };
+      console.error('Error en mantenimientosSubmit:', err);
+      req.session.flash = { type: 'error', message: 'Error al registrar mantenimiento: ' + err.message };
+      res.redirect('/maestros/mantenimientos');
+    }
+  }
+
+  static async mantenimientosCompletar(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const { fecha_entrega, observaciones } = req.body;
+      await maestroRepo.completeMantenimiento(id, fecha_entrega, observaciones);
+      req.session.flash = { type: 'success', message: 'Mantenimiento completado y equipo devuelto a DISPONIBLE.' };
+      res.redirect('/maestros/mantenimientos');
+    } catch (err: any) {
+      req.session.flash = { type: 'error', message: 'Error completando mantenimiento: ' + err.message };
       res.redirect('/maestros/mantenimientos');
     }
   }
@@ -174,26 +208,60 @@ export class MaestrosController {
     try {
       const prestamos = await maestroRepo.getPrestamos();
       res.render('maestros/prestamos', { prestamos });
-    } catch (err) {
-      res.status(500).send('Error listando préstamos');
+    } catch (err: any) {
+      console.error('Error en prestamosIndex:', err);
+      req.session.flash = { type: 'error', message: 'Error cargando préstamos: ' + err.message };
+      res.render('maestros/prestamos', { prestamos: [] });
     }
   }
 
   static async prestamosSubmit(req: Request, res: Response) {
     try {
-      const { numero_serie_mac, solicitante, departamento, motivo, fecha_prestamo, fecha_devolucion_esperada } = req.body;
-      await maestroRepo.createPrestamo({
+      const {
         numero_serie_mac,
+        nombre_solicita,
         solicitante,
+        cargo_solicita,
         departamento,
+        telefono_contacto,
+        motivo_prestamo,
         motivo,
         fecha_prestamo,
         fecha_devolucion_esperada,
+        observaciones_salida,
+        observaciones,
+      } = req.body;
+
+      await maestroRepo.createPrestamo({
+        numero_serie_mac: (numero_serie_mac || '').trim(),
+        nombre_solicita: (nombre_solicita || solicitante || '').trim(),
+        cargo_solicita,
+        departamento: departamento || 'Operaciones',
+        telefono_contacto,
+        motivo_prestamo: motivo_prestamo || motivo || 'Préstamo operativo temporal',
+        fecha_prestamo: fecha_prestamo || new Date().toISOString().split('T')[0],
+        fecha_devolucion_esperada: fecha_devolucion_esperada || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+        observaciones_salida: observaciones_salida || observaciones,
       });
-      req.session.flash = { type: 'success', message: 'Préstamo registrado.' };
+
+      req.session.flash = { type: 'success', message: 'Préstamo registrado y equipo marcado como OCUPADO.' };
       res.redirect('/maestros/prestamos');
     } catch (err: any) {
-      req.session.flash = { type: 'error', message: err.message };
+      console.error('Error en prestamosSubmit:', err);
+      req.session.flash = { type: 'error', message: 'Error al registrar préstamo: ' + err.message };
+      res.redirect('/maestros/prestamos');
+    }
+  }
+
+  static async prestamosDevolver(req: Request, res: Response) {
+    try {
+      const id = parseInt(req.params.id, 10);
+      const { fecha_devolucion_real, observaciones_devolucion } = req.body;
+      await maestroRepo.returnPrestamo(id, fecha_devolucion_real, observaciones_devolucion);
+      req.session.flash = { type: 'success', message: 'Préstamo devuelto con éxito y equipo marcado como DISPONIBLE.' };
+      res.redirect('/maestros/prestamos');
+    } catch (err: any) {
+      req.session.flash = { type: 'error', message: 'Error devolviendo préstamo: ' + err.message };
       res.redirect('/maestros/prestamos');
     }
   }

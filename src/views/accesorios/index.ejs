@@ -3,26 +3,26 @@
 <div class="mw-card">
   <div class="mw-card-header">
     <div class="mw-card-title">
-      <i class="bi bi-tools text-primary"></i> Catálogo de Accesorios y Materiales
+      <i class="bi bi-tools text-primary"></i> Catálogo y Existencias de Materiales / Accesorios
     </div>
     <div class="d-flex gap-2">
-      <a href="/accesorios/nuevo" class="mw-btn mw-btn-success">
-        <i class="bi bi-plus-lg"></i> + Nuevo Accesorio
+      <a href="/accesorios/nuevo" class="mw-btn mw-btn-primary mw-btn-touch">
+        <i class="bi bi-plus-lg"></i> + Nuevo Material
       </a>
-      <a href="/movimientos/accesorios" class="mw-btn mw-btn-primary mw-btn-sm">
-        <i class="bi bi-box-arrow-up-right"></i> Mover Stock
+      <a href="/movimientos/accesorios" class="mw-btn mw-btn-outline mw-btn-touch">
+        <i class="bi bi-box-arrow-up-right text-primary"></i> Despachar Material
       </a>
-      <a href="/reportes/exportar/accesorios" class="mw-btn mw-btn-outline mw-btn-sm" title="Descargar Excel">
-        <i class="bi bi-file-earmark-excel text-success"></i> Exportar
+      <a href="/reportes/exportar/accesorios" class="mw-btn mw-btn-outline mw-btn-touch" title="Descargar Excel (.xlsx)">
+        <i class="bi bi-file-earmark-excel text-success"></i> Exportar (.xlsx)
       </a>
     </div>
   </div>
 
   <div class="mw-card-body">
-    <!-- Toolbar de Filtros -->
+    <!-- Toolbar de Filtros WMS UI PRO -->
     <div class="mw-toolbar">
       <form method="GET" action="/accesorios" class="mw-toolbar-group">
-        <label class="text-muted" style="font-size: 11.5px;">Unidad:</label>
+        <label class="text-muted" style="font-size: 11.5px; font-weight: 600;">Unidad:</label>
         <select name="unidad" class="mw-select" onchange="this.form.submit()">
           <option value="Todas" <%= unidadFiltro === 'Todas' ? 'selected' : '' %>>Todas las unidades</option>
           <option value="METROS" <%= unidadFiltro === 'METROS' ? 'selected' : '' %>>METROS</option>
@@ -34,12 +34,12 @@
 
         <div class="form-check d-inline-flex align-items-center gap-1 ms-2" style="font-size: 12px;">
           <input type="checkbox" name="stockBajo" id="checkStockBajo" value="1" <%= stockBajoFiltro ? 'checked' : '' %> onchange="this.form.submit()" class="form-check-input">
-          <label for="checkStockBajo" class="form-check-label text-danger fw-semibold">Solo Stock Crítico (< 10)</label>
+          <label for="checkStockBajo" class="form-check-label text-danger fw-bold">Solo Stock Crítico (< 10)</label>
         </div>
 
         <div class="d-flex align-items-center gap-1 ms-2">
-          <input type="text" name="filtro" class="mw-input" placeholder="Buscar material o código..." value="<%= filtro || '' %>" style="min-width: 220px;">
-          <button type="submit" class="mw-btn mw-btn-primary mw-btn-sm"><i class="bi bi-search"></i></button>
+          <input type="text" name="filtro" class="mw-input" placeholder="Buscar material o SKU..." value="<%= filtro || '' %>" style="min-width: 220px;">
+          <button type="submit" class="mw-btn mw-btn-primary mw-btn-sm" title="Buscar"><i class="bi bi-search"></i></button>
           <% if (filtro || (unidadFiltro && unidadFiltro !== 'Todas') || stockBajoFiltro) { %>
             <a href="/accesorios" class="mw-btn mw-btn-outline mw-btn-sm" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
           <% } %>
@@ -47,21 +47,21 @@
       </form>
 
       <div class="text-muted" style="font-size: 11.5px;">
-        Mostrando <strong><%= accesorios.length %></strong> ítem(s)
+        Mostrando <strong class="text-dark font-tabular"><%= accesorios.length %></strong> ítem(s)
       </div>
     </div>
 
-    <!-- Tabla Compacta de Accesorios -->
+    <!-- Tabla Compacta de Accesorios WMS UI PRO -->
     <div class="mw-table-container">
       <table class="mw-table">
         <thead>
           <tr>
             <th>ID</th>
-            <th>CÓDIGO</th>
-            <th>DESCRIPCIÓN / NOMBRE</th>
-            <th>STOCK DISPONIBLE</th>
+            <th>CÓDIGO / SKU</th>
+            <th>DESCRIPCIÓN / MATERIAL</th>
+            <th class="col-number">STOCK ACTUAL</th>
             <th>UNIDAD</th>
-            <th>COSTO UNIT.</th>
+            <th class="col-number">COSTO UNIT. (Bs.)</th>
             <th>PROVEEDOR</th>
             <th>CALIDAD</th>
             <th class="actions-cell">ACCIONES</th>
@@ -71,30 +71,53 @@
           <% if (accesorios && accesorios.length > 0) { %>
             <% accesorios.forEach(a => { %>
               <tr>
-                <td><small class="text-muted">#<%= a.id_accesorio %></small></td>
-                <td><span class="badge-mw badge-neutral" style="font-family: monospace;"><%= a.codigo || '-' %></span></td>
-                <td><strong><%= a.nombre %></strong></td>
+                <td class="font-tabular"><small class="text-muted">#<%= a.id_accesorio %></small></td>
                 <td>
-                  <% if (a.cantidad <= 0) { %>
-                    <span class="badge-mw badge-baja"><i class="bi bi-x-circle me-1"></i>0 AGOTADO</span>
-                  <% } else if (a.cantidad < 10) { %>
-                    <span class="badge-mw badge-asignado"><i class="bi bi-exclamation-triangle me-1"></i><%= a.cantidad %> (BAJO)</span>
+                  <% if (a.codigo) { %>
+                    <span class="font-mono">
+                      <%= a.codigo %>
+                      <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= a.codigo %>', 'Código SKU')" title="Copiar código">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </span>
                   <% } else { %>
-                    <span class="badge-mw badge-disponible"><i class="bi bi-check2 me-1"></i><%= a.cantidad %></span>
+                    <span class="text-muted">-</span>
                   <% } %>
                 </td>
-                <td><small class="badge-mw badge-neutral"><%= a.unidad_medida %></small></td>
-                <td>Bs. <%= Number(a.costo || 0).toFixed(2) %></td>
+                <td><strong><%= a.nombre %></strong></td>
+                <td class="col-number font-tabular">
+                  <% if (a.cantidad <= 0) { %>
+                    <span class="badge-mw badge-wms-critico font-tabular">
+                      <i class="bi bi-x-circle me-1"></i>0 AGOTADO
+                    </span>
+                  <% } else if (a.cantidad < 10) { %>
+                    <span class="badge-mw badge-wms-bajo font-tabular">
+                      <i class="bi bi-exclamation-triangle me-1"></i><%= a.cantidad %> CRÍTICO
+                    </span>
+                  <% } else { %>
+                    <span class="badge-mw badge-wms-optimo font-tabular">
+                      <i class="bi bi-check2 me-1"></i><%= a.cantidad %>
+                    </span>
+                  <% } %>
+                </td>
+                <td>
+                  <span class="badge-mw badge-neutral"><%= a.unidad_medida %></span>
+                </td>
+                <td class="col-number font-tabular">
+                  Bs. <%= Number(a.costo || 0).toFixed(2) %>
+                </td>
                 <td><%= a.nombre_proveedor || '-' %></td>
-                <td><span class="badge-mw badge-neutral text-primary">NUEVO</span></td>
+                <td>
+                  <span class="badge-mw badge-neutral text-primary" style="font-size: 10px;">NUEVO</span>
+                </td>
                 <td class="actions-cell">
-                  <a href="/movimientos/accesorios?id_accesorio=<%= a.id_accesorio %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-success" title="Registrar Egreso/Ingreso">
+                  <a href="/movimientos/accesorios?id_accesorio=<%= a.id_accesorio %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-success" title="Registrar Egreso o Ingreso">
                     <i class="bi bi-arrow-left-right"></i>
                   </a>
                   <a href="/accesorios/editar/<%= a.id_accesorio %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-primary" title="Editar">
                     <i class="bi bi-pencil-square"></i>
                   </a>
-                  <a href="/accesorios/eliminar/<%= a.id_accesorio %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-danger" title="Eliminar" onclick="return confirm('¿Seguro que desea eliminar <%= a.nombre %>?');">
+                  <a href="/accesorios/eliminar/<%= a.id_accesorio %>" class="mw-btn mw-btn-danger-outline mw-btn-sm mw-btn-icon" title="Eliminar" onclick="return confirm('¿Seguro que desea eliminar <%= a.nombre %>?');">
                     <i class="bi bi-trash"></i>
                   </a>
                 </td>
@@ -102,8 +125,9 @@
             <% }); %>
           <% } else { %>
             <tr>
-              <td colspan="9" class="text-center text-muted py-4">
-                No se encontraron accesorios registrados con los filtros aplicados.
+              <td colspan="9" class="text-center text-muted py-5">
+                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                No se encontraron materiales que coincidan con la búsqueda.
               </td>
             </tr>
           <% } %>

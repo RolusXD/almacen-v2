@@ -17,25 +17,25 @@
         <form method="POST" action="<%= accesorio ? '/accesorios/editar/' + accesorio.id_accesorio : '/accesorios/nuevo' %>">
           
           <div class="row g-3 mb-3">
-            <div class="col-md-8">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DESCRIPCIÓN / NOMBRE DEL MATERIAL <span class="text-danger">*</span></label>
-              <input type="text" name="nombre" class="mw-input w-100" placeholder="Ej: FIBRA ADSS 6 HILOS o CONECTOR SC/APC" value="<%= accesorio ? accesorio.nombre : '' %>" required>
+            <div class="col-md-8 form-group-wms">
+              <label class="form-label-wms">DESCRIPCIÓN / NOMBRE DEL MATERIAL <span class="text-danger">*</span></label>
+              <input type="text" name="nombre" class="mw-input w-100" placeholder="Ej: FIBRA ADSS 6 HILOS o CONECTOR SC/APC" value="<%= accesorio ? accesorio.nombre : '' %>" required autofocus>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CÓDIGO REFERENCIAL</label>
-              <input type="text" name="codigo" class="mw-input w-100" placeholder="Ej: FADD-6H, CON-APC" value="<%= accesorio ? accesorio.codigo : '' %>">
+            <div class="col-md-4 form-group-wms">
+              <label class="form-label-wms">CÓDIGO REFERENCIAL / SKU</label>
+              <input type="text" name="codigo" class="mw-input w-100 font-mono" placeholder="Ej: FADD-6H, CON-APC" value="<%= accesorio ? accesorio.codigo : '' %>">
             </div>
           </div>
 
           <div class="row g-3 mb-3">
-            <div class="col-md-4">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CANTIDAD EN STOCK <span class="text-danger">*</span></label>
-              <input type="number" name="cantidad" class="mw-input w-100" min="0" step="1" value="<%= accesorio ? accesorio.cantidad : 1 %>" required>
+            <div class="col-md-4 form-group-wms">
+              <label class="form-label-wms">CANTIDAD EN STOCK <span class="text-danger">*</span></label>
+              <input type="number" name="cantidad" class="mw-input w-100 font-tabular text-right" min="0" step="1" value="<%= accesorio ? accesorio.cantidad : 1 %>" required>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">UNIDAD DE MEDIDA <span class="text-danger">*</span></label>
+            <div class="col-md-4 form-group-wms">
+              <label class="form-label-wms">UNIDAD DE MEDIDA <span class="text-danger">*</span></label>
               <select name="unidad_medida" class="mw-select w-100" required>
                 <% const unidades = ['METROS', 'UNIDADES', 'CAJAS', 'KILOS', 'LITROS', 'PARES']; %>
                 <% unidades.forEach(u => { %>
@@ -44,15 +44,29 @@
               </select>
             </div>
 
-            <div class="col-md-4">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PRECIO / COSTO UNIT. (Bs.)</label>
-              <input type="number" step="0.01" name="costo" class="mw-input w-100" placeholder="0.00" value="<%= accesorio ? accesorio.costo : '0.00' %>">
+            <div class="col-md-4 form-group-wms">
+              <label class="form-label-wms">PRECIO / COSTO UNIT. (Bs.)</label>
+              <input type="number" step="0.01" name="costo" class="mw-input w-100 font-tabular text-right" placeholder="0.00" value="<%= accesorio ? accesorio.costo : '0.00' %>">
             </div>
           </div>
 
           <div class="row g-3 mb-3">
-            <div class="col-md-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PROVEEDOR</label>
+            <div class="col-md-4 form-group-wms">
+              <label class="form-label-wms">CATEGORÍA</label>
+              <select name="id_categoria" class="mw-select w-100">
+                <option value="">Sin categoría...</option>
+                <% if (typeof categorias !== 'undefined' && categorias) { %>
+                  <% categorias.forEach(c => { %>
+                    <option value="<%= c.id_categoria %>" <%= accesorio && accesorio.id_categoria === c.id_categoria ? 'selected' : '' %>>
+                      <%= c.nombre %>
+                    </option>
+                  <% }); %>
+                <% } %>
+              </select>
+            </div>
+
+            <div class="col-md-4 form-group-wms">
+              <label class="form-label-wms">PROVEEDOR</label>
               <select name="id_proveedor" class="mw-select w-100">
                 <option value="">Seleccione proveedor...</option>
                 <% proveedores.forEach(p => { %>
@@ -63,24 +77,31 @@
               </select>
             </div>
 
-            <div class="col-md-6">
-              <!-- Requisito Estricto: Calidad bloqueada a NUEVO -->
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CALIDAD</label>
-              <input type="text" class="mw-input w-100" value="NUEVO" readonly style="background-color: #f8fafc; font-weight: 700; color: #0284c7; cursor: not-allowed;">
-              <input type="hidden" name="calidad" value="NUEVO">
+            <div class="col-md-4 form-group-wms">
+              <label class="form-label-wms">FECHA ENTRADA <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_entrada" class="mw-input w-100 font-tabular" value="<%= accesorio && accesorio.fecha_entrada ? new Date(accesorio.fecha_entrada).toISOString().split('T')[0] : new Date().toISOString().split('T')[0] %>" required>
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">OBSERVACIONES</label>
-            <textarea name="observaciones" rows="3" class="mw-input w-100" placeholder="Detalles de bobina, lote, características especiales..."><%= accesorio ? accesorio.observaciones : '' %></textarea>
+          <div class="row g-3 mb-3">
+            <div class="col-md-6 form-group-wms">
+              <!-- Requisito Estricto: Calidad fijada a NUEVO -->
+              <label class="form-label-wms">CALIDAD ESTÁNDAR</label>
+              <input type="text" class="mw-input w-100" value="NUEVO (Calidad Garantizada)" readonly style="background-color: #F8FAFC; font-weight: 700; color: #166534; cursor: not-allowed;">
+              <input type="hidden" name="calidad" value="NUEVO">
+            </div>
+
+            <div class="col-md-6 form-group-wms">
+              <label class="form-label-wms">OBSERVACIONES</label>
+              <input type="text" name="observaciones" class="mw-input w-100" placeholder="Detalles de bobina, lote, características especiales..." value="<%= accesorio ? accesorio.observaciones : '' %>">
+            </div>
           </div>
 
           <div class="d-flex gap-2 pt-3 border-top mt-4">
-            <button type="submit" class="mw-btn mw-btn-primary" style="padding: 0.55rem 1.4rem;">
-              <i class="bi bi-save"></i> <%= accesorio ? 'Guardar Cambios' : 'Registrar Accesorio' %>
+            <button type="submit" class="mw-btn mw-btn-primary mw-btn-touch">
+              <i class="bi bi-save"></i> <%= accesorio ? 'Guardar Cambios' : 'Registrar Accesorio en Bodega' %>
             </button>
-            <a href="/accesorios" class="mw-btn mw-btn-outline" style="padding: 0.55rem 1rem;">
+            <a href="/accesorios" class="mw-btn mw-btn-outline mw-btn-touch">
               Cancelar
             </a>
           </div>

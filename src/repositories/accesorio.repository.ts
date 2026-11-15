@@ -57,22 +57,30 @@ export class AccesorioRepository {
     unidad_medida: string;
     costo?: number;
     id_proveedor?: number;
+    id_categoria?: number;
+    fecha_entrada?: string;
     observaciones?: string;
   }): Promise<Accesorio> {
+    const fecha = data.fecha_entrada && data.fecha_entrada.trim() !== ''
+      ? data.fecha_entrada.trim()
+      : new Date().toISOString().split('T')[0];
+
     const res = await query<Accesorio>(
       `INSERT INTO accesorios (
         nombre, codigo, cantidad, unidad_medida, costo,
-        id_proveedor, estado, calidad, observaciones
+        id_proveedor, id_categoria, fecha_entrada, estado, calidad, observaciones
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, 'DISPONIBLE', 'NUEVO', $7
+        $1, $2, $3, $4, $5, $6, $7, $8, 'DISPONIBLE', 'NUEVO', $9
       ) RETURNING *`,
       [
-        data.nombre,
-        data.codigo || null,
-        data.cantidad,
+        data.nombre.trim(),
+        data.codigo ? data.codigo.trim() : null,
+        data.cantidad || 0,
         data.unidad_medida || 'UNIDADES',
         data.costo || 0,
         data.id_proveedor || null,
+        data.id_categoria || null,
+        fecha,
         data.observaciones || null,
       ]
     );

@@ -151,7 +151,7 @@
                 <th>FECHA</th>
                 <th>TIPO</th>
                 <th>ACCESORIO / MATERIAL</th>
-                <th>CANTIDAD</th>
+                <th class="col-number">CANTIDAD</th>
                 <th>DESTINO</th>
                 <th>ENCARGADO</th>
                 <th>ASUNTO</th>
@@ -162,19 +162,27 @@
               <% if (movimientos && movimientos.length > 0) { %>
                 <% movimientos.forEach(m => { %>
                   <tr>
-                    <td><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
+                    <td class="col-fecha font-tabular"><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
                     <td>
-                      <span class="badge-mw <%= m.tipo_movimiento === 'SALIDA' ? 'badge-salida' : 'badge-disponible' %>">
-                        <%= m.tipo_movimiento %>
-                      </span>
+                      <% if (m.tipo_movimiento === 'SALIDA') { %>
+                        <span class="badge-mw badge-wms-critico">SALIDA</span>
+                      <% } else { %>
+                        <span class="badge-mw badge-wms-optimo">ENTRADA</span>
+                      <% } %>
                     </td>
                     <td><strong><%= m.nombre_accesorio || '-' %></strong></td>
-                    <td>
-                      <span class="badge-mw badge-neutral fw-bold">
+                    <td class="col-number font-tabular">
+                      <span class="badge-mw badge-neutral fw-bold font-tabular">
                         <%= m.cantidad %> <%= m.unidad_medida || 'UNIDADES' %>
                       </span>
                     </td>
-                    <td><span class="badge-mw badge-disponible text-dark"><%= m.destino || '-' %></span></td>
+                    <td>
+                      <% if (m.destino) { %>
+                        <span class="badge-mw badge-neutral"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
+                      <% } else { %>
+                        <span class="text-muted">-</span>
+                      <% } %>
+                    </td>
                     <td><%= m.encargado %></td>
                     <td><small><%= m.asunto %></small></td>
                     <td><small class="text-muted"><%= m.observaciones || '-' %></small></td>

@@ -1,7 +1,7 @@
-<%- include('../layouts/header', { title: 'Mantenimientos', activeNav: 'mantenimientos' }) %>
+<%- include('../layouts/header', { title: 'Gestión de Mantenimientos y Taller', activeNav: 'mantenimientos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario -->
+  <!-- Formulario de Ingreso a Taller -->
   <div class="col-12 col-xl-4">
     <div class="mw-card">
       <div class="mw-card-header">
@@ -9,51 +9,63 @@
       </div>
       <div class="mw-card-body">
         <form method="POST" action="/maestros/mantenimientos">
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
-            <input type="text" name="numero_serie_mac" class="mw-input w-100" placeholder="Ej: 445121884JXX" required>
+          <div class="form-group-wms">
+            <label class="form-label-wms">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
+            <input type="text" name="numero_serie_mac" class="mw-input w-100 font-mono" placeholder="Ej: 445121884JXX" required autofocus>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TIPO DE FALLA <span class="text-danger">*</span></label>
-            <input type="text" name="tipo_falla" class="mw-input w-100" placeholder="Ej: No enciende, puertos ethernet quemados..." required>
+          <div class="form-group-wms">
+            <label class="form-label-wms">TIPO DE MANTENIMIENTO <span class="text-danger">*</span></label>
+            <select name="tipo_mantenimiento" class="mw-select w-100" required>
+              <option value="CORRECTIVO" selected>CORRECTIVO (Reparación de falla)</option>
+              <option value="PREVENTIVO">PREVENTIVO (Limpieza y calibración)</option>
+              <option value="EVOLUTIVO">EVOLUTIVO (Actualización de firmware)</option>
+            </select>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
-            <input type="text" name="tecnico_responsable" class="mw-input w-100" placeholder="Nombre del técnico que revisa..." required>
+          <div class="form-group-wms">
+            <label class="form-label-wms">DESCRIPCIÓN DE LA FALLA / TRABAJO <span class="text-danger">*</span></label>
+            <textarea name="descripcion" rows="2" class="mw-input w-100" placeholder="Ej: No sincroniza puerto PON, puertos ethernet quemados..." required></textarea>
           </div>
 
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">COSTO REP. (Bs.)</label>
-              <input type="number" step="0.01" name="costo_reparacion" class="mw-input w-100" value="0.00">
+          <div class="form-group-wms">
+            <label class="form-label-wms">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
+            <input type="text" name="tecnico_responsable" class="mw-input w-100" placeholder="Nombre del técnico responsable..." required>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-6 form-group-wms">
+              <label class="form-label-wms">COSTO EST. (Bs.)</label>
+              <input type="number" step="0.01" name="costo" class="mw-input w-100 font-tabular text-right" value="0.00">
             </div>
-            <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">FECHA INGRESO</label>
-              <input type="date" name="fecha_ingreso" class="mw-input w-100" value="<%= new Date().toISOString().split('T')[0] %>">
+            <div class="col-6 form-group-wms">
+              <label class="form-label-wms">FECHA INGRESO</label>
+              <input type="date" name="fecha_ingreso" class="mw-input w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DIAGNÓSTICO INICIAL</label>
-            <textarea name="diagnostico" rows="2" class="mw-input w-100" placeholder="Detalles de la inspección inicial..."></textarea>
+          <div class="form-group-wms">
+            <label class="form-label-wms">REPUESTOS / OBSERVACIONES</label>
+            <input type="text" name="repuestos_cambiados" class="mw-input w-100" placeholder="Ej: Fuente 12V 2A reemplazada">
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
-            <i class="bi bi-save"></i> Registrar Mantenimiento
+          <button type="submit" class="mw-btn mw-btn-primary w-100 mw-btn-touch mt-2">
+            <i class="bi bi-save"></i> Ingresar Equipo a Taller
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Listado -->
+  <!-- Listado de Mantenimientos WMS UI Pro -->
   <div class="col-12 col-xl-8">
     <div class="mw-card">
       <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-card-checklist text-primary"></i> Equipos en Mantenimiento / Taller</span>
-        <span class="text-muted" style="font-size: 11.5px;">Total: <strong><%= mantenimientos.length %></strong></span>
+        <span class="mw-card-title"><i class="bi bi-card-checklist text-primary"></i> Historial de Equipos en Taller</span>
+        <div class="d-flex align-items-center gap-2">
+          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar por serie, técnico..." style="width: 220px;">
+          <span class="badge-mw badge-neutral"><%= mantenimientos.length %> registros</span>
+        </div>
       </div>
       <div class="mw-card-body p-0">
         <div class="mw-table-container">
@@ -63,28 +75,69 @@
                 <th>FECHA</th>
                 <th>N° SERIE / MAC</th>
                 <th>EQUIPO</th>
-                <th>FALLA</th>
+                <th>TIPO / DESCRIPCIÓN</th>
                 <th>TÉCNICO</th>
-                <th>COSTO</th>
+                <th class="col-number">COSTO</th>
                 <th>ESTADO</th>
+                <th class="actions-cell">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               <% if (mantenimientos && mantenimientos.length > 0) { %>
                 <% mantenimientos.forEach(m => { %>
                   <tr>
-                    <td><%= m.fecha_ingreso ? new Date(m.fecha_ingreso).toISOString().split('T')[0] : '-' %></td>
-                    <td><span class="badge-mw badge-neutral" style="font-family: monospace;"><%= m.numero_serie_mac %></span></td>
-                    <td><strong><%= m.nombre_equipo || '-' %></strong></td>
-                    <td><%= m.tipo_falla %></td>
+                    <td class="col-fecha font-tabular">
+                      <%= m.fecha_ingreso ? new Date(m.fecha_ingreso).toISOString().split('T')[0] : '-' %>
+                    </td>
+                    <td>
+                      <span class="font-mono">
+                        <%= m.numero_serie_mac %>
+                        <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                      </span>
+                    </td>
+                    <td>
+                      <strong><%= m.nombre_equipo || 'Equipo' %></strong>
+                      <% if (m.modelo_equipo) { %>
+                        <span class="text-muted ms-1">(<%= m.modelo_equipo %>)</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <span class="badge-mw badge-neutral" style="font-size: 10px;"><%= m.tipo_mantenimiento %></span>
+                      <div class="text-truncate" style="max-width: 180px;" title="<%= m.descripcion %>">
+                        <%= m.descripcion %>
+                      </div>
+                    </td>
                     <td><%= m.tecnico_responsable %></td>
-                    <td>Bs. <%= Number(m.costo_reparacion || 0).toFixed(2) %></td>
-                    <td><span class="badge-mw badge-mantenimiento"><%= m.estado %></span></td>
+                    <td class="col-number font-tabular">
+                      Bs. <%= Number(m.costo || 0).toFixed(2) %>
+                    </td>
+                    <td>
+                      <% if (m.estado === 'EN_PROCESO') { %>
+                        <span class="badge-mw badge-wms-transito">EN PROCESO</span>
+                      <% } else if (m.estado === 'COMPLETADO') { %>
+                        <span class="badge-mw badge-wms-optimo">COMPLETADO</span>
+                      <% } else { %>
+                        <span class="badge-mw badge-wms-critico"><%= m.estado %></span>
+                      <% } %>
+                    </td>
+                    <td class="actions-cell">
+                      <% if (m.estado === 'EN_PROCESO') { %>
+                        <form method="POST" action="/maestros/mantenimientos/completar/<%= m.id_mantenimiento %>" style="display: inline;" onsubmit="return confirm('¿Confirmar que el mantenimiento finalizó y el equipo regresa a DISPONIBLE?');">
+                          <button type="submit" class="mw-btn mw-btn-success mw-btn-sm" title="Finalizar mantenimiento">
+                            <i class="bi bi-check-lg"></i> Listo
+                          </button>
+                        </form>
+                      <% } else { %>
+                        <span class="text-muted" style="font-size: 11px;"><i class="bi bi-check2-all text-success"></i> Cerrado</span>
+                      <% } %>
+                    </td>
                   </tr>
                 <% }); %>
               <% } else { %>
                 <tr>
-                  <td colspan="7" class="text-center text-muted py-4">No hay equipos actualmente en mantenimiento.</td>
+                  <td colspan="8" class="text-center text-muted py-4">No se registran mantenimientos activos en el taller.</td>
                 </tr>
               <% } %>
             </tbody>

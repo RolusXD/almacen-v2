@@ -76,9 +76,9 @@ export class MovimientoRepository {
 
       // 2. Actualizar estado del equipo
       let nuevoEstado = 'DISPONIBLE';
-      if (data.tipo_movimiento === 'SALIDA') nuevoEstado = 'ASIGNADO';
+      if (data.tipo_movimiento === 'SALIDA') nuevoEstado = 'OCUPADO';
       else if (data.tipo_movimiento === 'MANTENIMIENTO') nuevoEstado = 'MANTENIMIENTO';
-      else if (data.tipo_movimiento === 'REVISION') nuevoEstado = 'REVISION';
+      else if (data.tipo_movimiento === 'REVISION') nuevoEstado = 'MANTENIMIENTO';
 
       await client.query(
         'UPDATE equipos SET estado = $1, updated_at = CURRENT_TIMESTAMP WHERE TRIM(LOWER(numero_serie_mac)) = TRIM(LOWER($2))',

@@ -13,8 +13,12 @@ export class EquipoRepository {
     let idx = 1;
 
     if (estado && estado !== 'Todos') {
-      sql += ` AND e.estado = $${idx++}`;
-      params.push(estado);
+      if (estado === 'OCUPADO' || estado === 'ASIGNADO') {
+        sql += ` AND (e.estado = 'OCUPADO' OR e.estado = 'ASIGNADO')`;
+      } else {
+        sql += ` AND e.estado = $${idx++}`;
+        params.push(estado);
+      }
     }
 
     if (codigo && codigo !== 'Todos') {
@@ -144,14 +148,16 @@ export class EquipoRepository {
   async getEstadisticas() {
     const total = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM equipos');
     const disponibles = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM equipos WHERE estado = \'DISPONIBLE\'');
-    const asignados = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM equipos WHERE estado IN (\'ASIGNADO\', \'NO DISPONIBLE\', \'SALIDA\')');
+    const asignados = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM equipos WHERE estado IN (\'OCUPADO\', \'ASIGNADO\', \'SALIDA\')');
     const mantenimiento = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM equipos WHERE estado IN (\'MANTENIMIENTO\', \'REVISION\')');
+    const retirados = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM equipos WHERE estado = \'RETIRADO\'');
 
     return {
       total: parseInt(total?.count || '0', 10),
       disponibles: parseInt(disponibles?.count || '0', 10),
       asignados: parseInt(asignados?.count || '0', 10),
       mantenimiento: parseInt(mantenimiento?.count || '0', 10),
+      retirados: parseInt(retirados?.count || '0', 10),
     };
   }
 }

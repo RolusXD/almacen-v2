@@ -10,7 +10,7 @@ export class AccesoriosController {
     try {
       const filtro = req.query.filtro as string || '';
       const unidadFiltro = req.query.unidad as string || 'Todas';
-      const stockBajoFiltro = req.query.stockBajo === '1';
+      const stockBajoFiltro = req.query.stockBajo === '1' || req.query.stock_bajo === 'true';
 
       const accesorios = await accesorioRepo.getAll(filtro, unidadFiltro, stockBajoFiltro);
 
@@ -29,9 +29,11 @@ export class AccesoriosController {
   static async nuevoForm(req: Request, res: Response) {
     try {
       const proveedores = await maestroRepo.getProveedores();
+      const categorias = await maestroRepo.getCategorias();
       res.render('accesorios/form', {
         accesorio: null,
         proveedores,
+        categorias,
       });
     } catch (err) {
       console.error('Error cargando formulario accesorio:', err);
@@ -41,7 +43,7 @@ export class AccesoriosController {
 
   static async nuevoSubmit(req: Request, res: Response) {
     try {
-      const { nombre, codigo, cantidad, unidad_medida, costo, id_proveedor, observaciones } = req.body;
+      const { nombre, codigo, cantidad, unidad_medida, costo, id_proveedor, id_categoria, fecha_entrada, observaciones } = req.body;
 
       if (!nombre) {
         req.session.flash = { type: 'error', message: 'El nombre del material es obligatorio.' };
@@ -55,6 +57,8 @@ export class AccesoriosController {
         unidad_medida,
         costo: parseFloat(costo || '0'),
         id_proveedor: id_proveedor ? parseInt(id_proveedor, 10) : undefined,
+        id_categoria: id_categoria ? parseInt(id_categoria, 10) : undefined,
+        fecha_entrada: fecha_entrada || new Date().toISOString().split('T')[0],
         observaciones,
       });
 

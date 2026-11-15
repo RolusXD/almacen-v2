@@ -27,7 +27,7 @@
           <div class="row g-2 mb-3">
             <div class="col-6">
               <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CARNET / CI <span class="text-danger">*</span></label>
-              <input type="text" name="carnet" class="mw-input w-100" placeholder="1234567" required>
+              <input type="text" name="carnet" class="mw-input w-100 font-tabular" placeholder="1234567" required>
             </div>
             <div class="col-6">
               <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">ROL <span class="text-danger">*</span></label>
@@ -38,9 +38,15 @@
             </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
-            <input type="email" name="email" class="mw-input w-100" placeholder="jperez@toi.bo" required>
+          <div class="row g-2 mb-3">
+            <div class="col-7">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="mw-input w-100" placeholder="jperez@toi.bo" required>
+            </div>
+            <div class="col-5">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">FECHA NACIMIENTO <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_nacimiento" class="mw-input w-100 font-tabular" value="1995-01-01" required>
+            </div>
           </div>
 
           <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">

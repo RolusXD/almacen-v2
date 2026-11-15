@@ -160,15 +160,32 @@
               <% if (movimientos && movimientos.length > 0) { %>
                 <% movimientos.forEach(m => { %>
                   <tr>
-                    <td><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
+                    <td class="col-fecha font-tabular"><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
                     <td>
-                      <span class="badge-mw <%= m.tipo_movimiento === 'SALIDA' ? 'badge-salida' : (m.tipo_movimiento === 'ENTRADA' ? 'badge-disponible' : 'badge-mantenimiento') %>">
-                        <%= m.tipo_movimiento %>
+                      <% if (m.tipo_movimiento === 'SALIDA') { %>
+                        <span class="badge-mw badge-wms-critico">SALIDA</span>
+                      <% } else if (m.tipo_movimiento === 'ENTRADA') { %>
+                        <span class="badge-mw badge-wms-optimo">ENTRADA</span>
+                      <% } else { %>
+                        <span class="badge-mw badge-wms-transito"><%= m.tipo_movimiento %></span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <span class="font-mono">
+                        <%= m.numero_serie_mac %>
+                        <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
                       </span>
                     </td>
-                    <td><span class="badge-mw badge-neutral" style="font-family: monospace;"><%= m.numero_serie_mac %></span></td>
                     <td><strong><%= m.nombre_equipo || '-' %></strong> <small class="text-muted">(<%= m.modelo_equipo || '-' %>)</small></td>
-                    <td><span class="badge-mw badge-disponible text-dark"><%= m.destino || '-' %></span></td>
+                    <td>
+                      <% if (m.destino) { %>
+                        <span class="badge-mw badge-neutral"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
+                      <% } else { %>
+                        <span class="text-muted">-</span>
+                      <% } %>
+                    </td>
                     <td><%= m.encargado %></td>
                     <td><small><%= m.asunto %></small></td>
                     <td><small class="text-muted"><%= m.observaciones || '-' %></small></td>

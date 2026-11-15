@@ -1,7 +1,7 @@
-<%- include('../layouts/header', { title: 'Préstamos', activeNav: 'prestamos' }) %>
+<%- include('../layouts/header', { title: 'Control de Préstamos', activeNav: 'prestamos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario -->
+  <!-- Formulario de Préstamo -->
   <div class="col-12 col-xl-4">
     <div class="mw-card">
       <div class="mw-card-header">
@@ -9,51 +9,65 @@
       </div>
       <div class="mw-card-body">
         <form method="POST" action="/maestros/prestamos">
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
-            <input type="text" name="numero_serie_mac" class="mw-input w-100" placeholder="Ej: 445121884JXX" required>
+          <div class="form-group-wms">
+            <label class="form-label-wms">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
+            <input type="text" name="numero_serie_mac" class="mw-input w-100 font-mono" placeholder="Ej: 445121884JXX" required autofocus>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">SOLICITANTE <span class="text-danger">*</span></label>
-            <input type="text" name="solicitante" class="mw-input w-100" placeholder="Nombre de la persona solicitante" required>
+          <div class="form-group-wms">
+            <label class="form-label-wms">NOMBRE DEL SOLICITANTE <span class="text-danger">*</span></label>
+            <input type="text" name="nombre_solicita" class="mw-input w-100" placeholder="Nombre de la persona solicitante" required>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DEPARTAMENTO / ÁREA <span class="text-danger">*</span></label>
-            <input type="text" name="departamento" class="mw-input w-100" placeholder="Ej: Soporte Técnico, Ventas, Redes" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">MOTIVO DEL PRÉSTAMO <span class="text-danger">*</span></label>
-            <input type="text" name="motivo" class="mw-input w-100" placeholder="Ej: Pruebas de laboratorio, evento especial" required>
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">FECHA PRÉSTAMO</label>
-              <input type="date" name="fecha_prestamo" class="mw-input w-100" value="<%= new Date().toISOString().split('T')[0] %>">
+          <div class="row g-2">
+            <div class="col-6 form-group-wms">
+              <label class="form-label-wms">DEPARTAMENTO / ÁREA</label>
+              <input type="text" name="departamento" class="mw-input w-100" placeholder="Ej: Soporte, Ventas">
             </div>
-            <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DEVOLUCIÓN ESP.</label>
-              <input type="date" name="fecha_devolucion_esperada" class="mw-input w-100">
+            <div class="col-6 form-group-wms">
+              <label class="form-label-wms">TELÉFONO CONTACTO</label>
+              <input type="text" name="telefono_contacto" class="mw-input w-100 font-tabular" placeholder="Ej: 71234567">
             </div>
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
-            <i class="bi bi-save"></i> Registrar Préstamo
+          <div class="form-group-wms">
+            <label class="form-label-wms">MOTIVO DEL PRÉSTAMO <span class="text-danger">*</span></label>
+            <textarea name="motivo_prestamo" rows="2" class="mw-input w-100" placeholder="Ej: Pruebas técnicas de laboratorio o evento" required></textarea>
+          </div>
+
+          <div class="row g-2">
+            <div class="col-6 form-group-wms">
+              <label class="form-label-wms">FECHA PRÉSTAMO</label>
+              <input type="date" name="fecha_prestamo" class="mw-input w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
+            </div>
+            <div class="col-6 form-group-wms">
+              <label class="form-label-wms">DEVOLUCIÓN ESP. <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_devolucion_esperada" class="mw-input w-100 font-tabular" value="<%= new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] %>" required>
+            </div>
+          </div>
+
+          <div class="form-group-wms">
+            <label class="form-label-wms">OBSERVACIONES DE SALIDA</label>
+            <input type="text" name="observaciones_salida" class="mw-input w-100" placeholder="Accesorios entregados con el equipo...">
+          </div>
+
+          <button type="submit" class="mw-btn mw-btn-primary w-100 mw-btn-touch mt-2">
+            <i class="bi bi-save"></i> Registrar Préstamo de Equipo
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Listado -->
+  <!-- Listado de Préstamos WMS UI Pro -->
   <div class="col-12 col-xl-8">
     <div class="mw-card">
       <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-card-checklist text-primary"></i> Préstamos Activos</span>
-        <span class="text-muted" style="font-size: 11.5px;">Total: <strong><%= prestamos.length %></strong></span>
+        <span class="mw-card-title"><i class="bi bi-card-checklist text-primary"></i> Control de Préstamos de Equipos</span>
+        <div class="d-flex align-items-center gap-2">
+          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar préstamos..." style="width: 220px;">
+          <span class="badge-mw badge-neutral"><%= prestamos.length %> registros</span>
+        </div>
       </div>
       <div class="mw-card-body p-0">
         <div class="mw-table-container">
@@ -67,24 +81,67 @@
                 <th>ÁREA</th>
                 <th>DEV. ESPERADA</th>
                 <th>ESTADO</th>
+                <th class="actions-cell">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               <% if (prestamos && prestamos.length > 0) { %>
                 <% prestamos.forEach(p => { %>
                   <tr>
-                    <td><%= p.fecha_prestamo ? new Date(p.fecha_prestamo).toISOString().split('T')[0] : '-' %></td>
-                    <td><span class="badge-mw badge-neutral" style="font-family: monospace;"><%= p.numero_serie_mac %></span></td>
-                    <td><strong><%= p.nombre_equipo || '-' %></strong></td>
-                    <td><%= p.solicitante %></td>
-                    <td><%= p.departamento %></td>
-                    <td><%= p.fecha_devolucion_esperada ? new Date(p.fecha_devolucion_esperada).toISOString().split('T')[0] : '-' %></td>
-                    <td><span class="badge-mw badge-asignado"><%= p.estado %></span></td>
+                    <td class="col-fecha font-tabular">
+                      <%= p.fecha_prestamo ? new Date(p.fecha_prestamo).toISOString().split('T')[0] : '-' %>
+                    </td>
+                    <td>
+                      <span class="font-mono">
+                        <%= p.numero_serie_mac %>
+                        <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= p.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                      </span>
+                    </td>
+                    <td>
+                      <strong><%= p.nombre_equipo || 'Equipo' %></strong>
+                      <% if (p.modelo_equipo) { %>
+                        <span class="text-muted ms-1">(<%= p.modelo_equipo %>)</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <strong><%= p.nombre_solicita %></strong>
+                      <% if (p.telefono_contacto) { %>
+                        <span class="text-muted ms-1 font-tabular">(<%= p.telefono_contacto %>)</span>
+                      <% } %>
+                    </td>
+                    <td><%= p.departamento || '-' %></td>
+                    <td class="col-fecha font-tabular">
+                      <%= p.fecha_devolucion_esperada ? new Date(p.fecha_devolucion_esperada).toISOString().split('T')[0] : '-' %>
+                    </td>
+                    <td>
+                      <% if (p.estado === 'PRESTADO') { %>
+                        <span class="badge-mw badge-wms-transito">PRESTADO</span>
+                      <% } else if (p.estado === 'DEVUELTO') { %>
+                        <span class="badge-mw badge-wms-optimo">DEVUELTO</span>
+                      <% } else if (p.estado === 'ATRASADO') { %>
+                        <span class="badge-mw badge-wms-critico">ATRASADO</span>
+                      <% } else { %>
+                        <span class="badge-mw badge-neutral"><%= p.estado %></span>
+                      <% } %>
+                    </td>
+                    <td class="actions-cell">
+                      <% if (p.estado === 'PRESTADO' || p.estado === 'ATRASADO') { %>
+                        <form method="POST" action="/maestros/prestamos/devolver/<%= p.id_prestamo %>" style="display: inline;" onsubmit="return confirm('¿Confirmar que el equipo fue retornado a almacén y pasa a DISPONIBLE?');">
+                          <button type="submit" class="mw-btn mw-btn-success mw-btn-sm" title="Registrar retorno">
+                            <i class="bi bi-box-arrow-in-down"></i> Retornar
+                          </button>
+                        </form>
+                      <% } else { %>
+                        <span class="text-muted" style="font-size: 11px;"><i class="bi bi-check2-all text-success"></i> Entregado</span>
+                      <% } %>
+                    </td>
                   </tr>
                 <% }); %>
               <% } else { %>
                 <tr>
-                  <td colspan="7" class="text-center text-muted py-4">No hay préstamos activos registrados.</td>
+                  <td colspan="8" class="text-center text-muted py-4">No se registran préstamos activos.</td>
                 </tr>
               <% } %>
             </tbody>

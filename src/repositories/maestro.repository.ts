@@ -97,8 +97,8 @@ export class MaestroRepository {
   async getCategorias(): Promise<Categoria[]> {
     return query<Categoria>(`
       SELECT c.*,
-        (SELECT COUNT(*) FROM equipos WHERE codigo IN (SELECT codigo FROM tipos_equipos WHERE categoria = c.nombre)) as total_equipos,
-        (SELECT COUNT(*) FROM accesorios WHERE id_tipo_accesorio = c.id_categoria) as total_accesorios
+        (SELECT COUNT(*) FROM equipos WHERE id_categoria = c.id_categoria) as total_equipos,
+        (SELECT COUNT(*) FROM accesorios WHERE id_categoria = c.id_categoria) as total_accesorios
       FROM categorias c
       WHERE c.activo = 1
       ORDER BY c.nombre ASC
@@ -124,8 +124,8 @@ export class MaestroRepository {
   async getMarcas(): Promise<Marca[]> {
     return query<Marca>(`
       SELECT m.*,
-        (SELECT COUNT(*) FROM equipos WHERE marca ILIKE m.nombre) as total_equipos,
-        0 as total_accesorios
+        (SELECT COUNT(*) FROM equipos WHERE id_marca = m.id_marca OR marca ILIKE m.nombre) as total_equipos,
+        (SELECT COUNT(*) FROM accesorios WHERE id_marca = m.id_marca OR marca ILIKE m.nombre) as total_accesorios
       FROM marcas m
       WHERE m.activo = 1
       ORDER BY m.nombre ASC
@@ -150,37 +150,83 @@ export class MaestroRepository {
   // ==========================================
   async getMantenimientos(): Promise<Mantenimiento[]> {
     return query<Mantenimiento>(`
-      SELECT m.*, e.nombre as nombre_equipo
+      SELECT m.*, e.nombre as nombre_equipo, e.codigo as codigo_equipo, e.marca as marca_equipo, e.modelo as modelo_equipo
       FROM mantenimientos m
       LEFT JOIN equipos e ON m.numero_serie_mac = e.numero_serie_mac
-      ORDER BY m.fecha_ingreso DESC LIMIT 150
+      ORDER BY m.fecha_ingreso DESC, m.id_mantenimiento DESC LIMIT 200
     `);
   }
 
   async createMantenimiento(data: {
     numero_serie_mac: string;
-    tipo_falla: string;
-    diagnostico?: string;
+    tipo_mantenimiento: 'PREVENTIVO' | 'CORRECTIVO' | 'EVOLUTIVO';
+    descripcion: string;
     tecnico_responsable: string;
-    costo_reparacion?: number;
+    costo?: number;
     fecha_ingreso: string;
+    repuestos_cambiados?: string;
+    observaciones?: string;
   }): Promise<Mantenimiento> {
+    // Buscar id_equipo si existe
+    const eq = await queryOne<{ id_equipo: number }>(
+      'SELECT id_equipo FROM equipos WHERE numero_serie_mac = $1',
+      [data.numero_serie_mac.trim()]
+    );
+
+    const tipoValido = ['PREVENTIVO', 'CORRECTIVO', 'EVOLUTIVO'].includes(data.tipo_mantenimiento)
+      ? data.tipo_mantenimiento
+      : 'CORRECTIVO';
+
     const res = await query<Mantenimiento>(
       `INSERT INTO mantenimientos (
-        numero_serie_mac, tipo_falla, diagnostico, tecnico_responsable,
-        costo_reparacion, estado, fecha_ingreso
-      ) VALUES ($1, $2, $3, $4, $5, 'EN_PROCESO', $6)
+        id_equipo, numero_serie_mac, tipo_mantenimiento, descripcion,
+        tecnico_responsable, costo, estado, fecha_ingreso,
+        repuestos_cambiados, observaciones
+      ) VALUES ($1, $2, $3, $4, $5, $6, 'EN_PROCESO', $7, $8, $9)
       RETURNING *`,
       [
+        eq?.id_equipo || null,
         data.numero_serie_mac.trim(),
-        data.tipo_falla,
-        data.diagnostico || null,
-        data.tecnico_responsable,
-        data.costo_reparacion || 0,
+        tipoValido,
+        data.descripcion || 'Mantenimiento técnico de equipo',
+        data.tecnico_responsable || 'Técnico de Laboratorio',
+        data.costo || 0,
         data.fecha_ingreso || new Date().toISOString().split('T')[0],
+        data.repuestos_cambiados || null,
+        data.observaciones || null,
       ]
     );
+
+    // Actualizar estado del equipo a MANTENIMIENTO
+    await query("UPDATE equipos SET estado = 'MANTENIMIENTO' WHERE numero_serie_mac = $1", [
+      data.numero_serie_mac.trim(),
+    ]);
+
     return res[0];
+  }
+
+  async completeMantenimiento(
+    id_mantenimiento: number,
+    fecha_entrega?: string,
+    observaciones?: string
+  ): Promise<void> {
+    const mant = await queryOne<Mantenimiento>(
+      'SELECT * FROM mantenimientos WHERE id_mantenimiento = $1',
+      [id_mantenimiento]
+    );
+    if (!mant) return;
+
+    await query(
+      `UPDATE mantenimientos 
+       SET estado = 'COMPLETADO', fecha_entrega = $1, observaciones = COALESCE($2, observaciones)
+       WHERE id_mantenimiento = $3`,
+      [fecha_entrega || new Date().toISOString().split('T')[0], observaciones || null, id_mantenimiento]
+    );
+
+    // Restaurar estado del equipo a DISPONIBLE
+    await query("UPDATE equipos SET estado = 'DISPONIBLE' WHERE numero_serie_mac = $1", [
+      mant.numero_serie_mac,
+    ]);
   }
 
   // ==========================================
@@ -188,38 +234,84 @@ export class MaestroRepository {
   // ==========================================
   async getPrestamos(): Promise<Prestamo[]> {
     return query<Prestamo>(`
-      SELECT p.*, e.nombre as nombre_equipo
+      SELECT p.*, e.nombre as nombre_equipo, e.codigo as codigo_equipo, e.marca as marca_equipo, e.modelo as modelo_equipo
       FROM prestamos p
       LEFT JOIN equipos e ON p.numero_serie_mac = e.numero_serie_mac
-      ORDER BY p.fecha_prestamo DESC LIMIT 150
+      ORDER BY p.fecha_prestamo DESC, p.id_prestamo DESC LIMIT 200
     `);
   }
 
   async createPrestamo(data: {
     numero_serie_mac: string;
-    solicitante: string;
-    departamento: string;
-    motivo: string;
+    nombre_solicita: string;
+    cargo_solicita?: string;
+    departamento?: string;
+    telefono_contacto?: string;
+    motivo_prestamo: string;
     fecha_prestamo: string;
-    fecha_devolucion_esperada?: string;
-    observaciones?: string;
+    fecha_devolucion_esperada: string;
+    observaciones_salida?: string;
   }): Promise<Prestamo> {
+    // Buscar id_equipo si existe
+    const eq = await queryOne<{ id_equipo: number }>(
+      'SELECT id_equipo FROM equipos WHERE numero_serie_mac = $1',
+      [data.numero_serie_mac.trim()]
+    );
+
     const res = await query<Prestamo>(
       `INSERT INTO prestamos (
-        numero_serie_mac, solicitante, departamento, motivo,
-        fecha_prestamo, fecha_devolucion_esperada, estado, observaciones
-      ) VALUES ($1, $2, $3, $4, $5, $6, 'ACTIVO', $7)
+        id_equipo, numero_serie_mac, nombre_solicita, cargo_solicita,
+        departamento, telefono_contacto, fecha_prestamo, fecha_devolucion_esperada,
+        estado, motivo_prestamo, observaciones_salida, equipo_entregado_conforme, equipo_recibido_conforme
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'PRESTADO', $9, $10, 1, 1)
       RETURNING *`,
       [
+        eq?.id_equipo || null,
         data.numero_serie_mac.trim(),
-        data.solicitante,
-        data.departamento,
-        data.motivo,
-        data.fecha_prestamo,
-        data.fecha_devolucion_esperada || null,
-        data.observaciones || null,
+        data.nombre_solicita,
+        data.cargo_solicita || null,
+        data.departamento || null,
+        data.telefono_contacto || null,
+        data.fecha_prestamo || new Date().toISOString().split('T')[0],
+        data.fecha_devolucion_esperada || new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
+        data.motivo_prestamo,
+        data.observaciones_salida || null,
       ]
     );
+
+    // Actualizar estado del equipo a OCUPADO
+    await query("UPDATE equipos SET estado = 'OCUPADO' WHERE numero_serie_mac = $1", [
+      data.numero_serie_mac.trim(),
+    ]);
+
     return res[0];
+  }
+
+  async returnPrestamo(
+    id_prestamo: number,
+    fecha_devolucion_real?: string,
+    observaciones_devolucion?: string
+  ): Promise<void> {
+    const prest = await queryOne<Prestamo>(
+      'SELECT * FROM prestamos WHERE id_prestamo = $1',
+      [id_prestamo]
+    );
+    if (!prest) return;
+
+    await query(
+      `UPDATE prestamos 
+       SET estado = 'DEVUELTO', fecha_devolucion_real = $1, observaciones_devolucion = $2
+       WHERE id_prestamo = $3`,
+      [
+        fecha_devolucion_real || new Date().toISOString().split('T')[0],
+        observaciones_devolucion || 'Devuelto conforme a almacén',
+        id_prestamo,
+      ]
+    );
+
+    // Restaurar equipo a DISPONIBLE
+    await query("UPDATE equipos SET estado = 'DISPONIBLE' WHERE numero_serie_mac = $1", [
+      prest.numero_serie_mac,
+    ]);
   }
 }

@@ -2,9 +2,46 @@
     </div>
   </div>
 
-  <!-- Client-side script for sidebar toggle and simple table filtering -->
+  <!-- Toast discreto para confirmación de copiado WMS UI PRO -->
+  <div id="toastCopy" class="toast-copy-notify">
+    <i class="bi bi-check2-circle text-success"></i>
+    <span id="toastCopyText">Copiado al portapapeles</span>
+  </div>
+
+  <!-- Client-side script para WMS UI Pro -->
   <script>
+    // Función global para copiar al portapapeles
+    function copyToClipboard(text, label) {
+      if (!text) return;
+      navigator.clipboard.writeText(text).then(() => {
+        showCopyToast((label || 'Texto') + ' copiado: ' + text);
+      }).catch(err => {
+        console.error('Error al copiar:', err);
+      });
+    }
+
+    function showCopyToast(msg) {
+      const toast = document.getElementById('toastCopy');
+      const text = document.getElementById('toastCopyText');
+      if (toast && text) {
+        text.textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => {
+          toast.classList.remove('show');
+        }, 2200);
+      }
+    }
+
+    function focusQuickSearch() {
+      const searchInput = document.getElementById('quickTableSearch') || document.querySelector('input[name="filtro"]') || document.querySelector('input[type="search"]');
+      if (searchInput) {
+        searchInput.focus();
+        searchInput.select();
+      }
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
+      // Toggle sidebar en móvil / tablet
       const toggle = document.getElementById('sidebarToggle');
       const sidebar = document.getElementById('sidebar');
       if (toggle && sidebar) {
@@ -13,7 +50,15 @@
         });
       }
 
-      // Quick in-page table search
+      // Atajo global de teclado (Ctrl + K o tecla /)
+      document.addEventListener('keydown', function (e) {
+        if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA')) {
+          e.preventDefault();
+          focusQuickSearch();
+        }
+      });
+
+      // Búsqueda en tiempo real sobre tablas
       const quickSearch = document.getElementById('quickTableSearch');
       if (quickSearch) {
         quickSearch.addEventListener('input', function () {

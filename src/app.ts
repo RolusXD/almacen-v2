@@ -137,8 +137,10 @@ app.get('/maestros/marcas/eliminar/:id', MaestrosController.marcasEliminar);
 // Maestros: Mantenimientos y Préstamos
 app.get('/maestros/mantenimientos', MaestrosController.mantenimientosIndex);
 app.post('/maestros/mantenimientos', MaestrosController.mantenimientosSubmit);
+app.post('/maestros/mantenimientos/completar/:id', MaestrosController.mantenimientosCompletar);
 app.get('/maestros/prestamos', MaestrosController.prestamosIndex);
 app.post('/maestros/prestamos', MaestrosController.prestamosSubmit);
+app.post('/maestros/prestamos/devolver/:id', MaestrosController.prestamosDevolver);
 
 // Reportes y Exportación
 app.get('/reportes/exportar/equipos', ReportesController.exportarEquipos);
@@ -152,10 +154,24 @@ app.post('/usuarios/nuevo', requireAdmin, UsuariosController.nuevoSubmit);
 
 // Manejo 404
 app.use((req, res) => {
-  res.status(404).render('dashboard/index', {
-    statsEquipos: { total: 0, disponibles: 0, asignados: 0, mantenimiento: 0 },
-    statsAccesorios: { totalItems: 0, totalUnidades: 0, stockBajo: 0, valorTotal: 0 },
-    ultimosMovimientos: [],
-    flash: { type: 'error', message: 'La ruta solicitada no existe o fue movida.' },
+  res.status(404).render('error', {
+    title: 'Recurso no encontrado (404)',
+    status: 404,
+    message: `La ruta '${req.originalUrl}' no existe o fue movida en la reestructuración del sistema.`,
+    user: (req as any).user || null,
+  });
+});
+
+// Middleware Centralizado de Manejo de Errores (500)
+app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+  console.error('Error no controlado en la aplicación:', err);
+  const status = err.status || 500;
+  res.status(status).render('error', {
+    title: `Error del Servidor (${status})`,
+    status,
+    message: ENV.NODE_ENV === 'production' 
+      ? 'Ocurrió un inconveniente temporal procesando los datos. Por favor reintente o contacte a soporte.'
+      : (err.message || 'Error interno del servidor'),
+    user: (req as any).user || null,
   });
 });

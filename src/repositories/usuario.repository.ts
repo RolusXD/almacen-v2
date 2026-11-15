@@ -50,6 +50,10 @@ export class UsuarioRepository {
     fecha_nacimiento?: string;
     rol: 'admin' | 'usuario';
   }): Promise<Usuario> {
+    const fechaNac = data.fecha_nacimiento && data.fecha_nacimiento.trim() !== ''
+      ? data.fecha_nacimiento.trim()
+      : '1995-01-01';
+
     const res = await query<Usuario>(
       `INSERT INTO usuarios (nombre_completo, usuario, password_hash, carnet, email, fecha_nacimiento, rol, activo)
        VALUES ($1, $2, $3, $4, $5, $6, $7, 1)
@@ -60,7 +64,7 @@ export class UsuarioRepository {
         data.password_hash,
         data.carnet,
         data.email,
-        data.fecha_nacimiento || null,
+        fechaNac,
         data.rol,
       ]
     );
