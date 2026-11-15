@@ -25,14 +25,34 @@
                 <div class="row g-3">
                   <div class="col-md-4">
                     <label class="form-label fw-semibold text-body">
-                      Destino / Cuadrilla / Proyecto <span class="text-danger">*</span>
+                      <i class="bi bi-geo-alt-fill text-danger me-1"></i> Destino / Área / Proyecto <span class="text-danger">*</span>
                     </label>
-                    <input type="text" name="destino" id="inputDestino" class="form-control" list="destinosList" placeholder="Ej: Cuadrilla Fibra 1, Nodo Norte..." required autocomplete="off">
-                    <datalist id="destinosList">
-                      <% destinos.forEach(d => { %>
-                        <option value="<%= d %>">
-                      <% }); %>
-                    </datalist>
+                    <select name="destino" id="selectDestino" class="form-select" required onchange="handleDestinoChange(this.value)">
+                      <option value="">Seleccione destino...</option>
+                      <optgroup label="Áreas y Cuadrillas Operativas">
+                        <option value="INSTALACIONES">INSTALACIONES (Clientes)</option>
+                        <option value="INFRAESTRUCTURA">INFRAESTRUCTURA (Nodos / Torres)</option>
+                        <option value="MANTENIMIENTO RED">MANTENIMIENTO DE RED</option>
+                        <option value="MANTENIMIENTO VEHICULOS">MANTENIMIENTO VEHÍCULOS</option>
+                        <option value="ADMINISTRACION">ADMINISTRACIÓN</option>
+                        <option value="SOPORTE TECNICO">SOPORTE TÉCNICO</option>
+                      </optgroup>
+                      <% 
+                        const standardDestinos = ['INSTALACIONES', 'INFRAESTRUCTURA', 'MANTENIMIENTO RED', 'MANTENIMIENTO VEHICULOS', 'ADMINISTRACION', 'SOPORTE TECNICO'];
+                        const otrosDestinos = (destinos || []).filter(d => d && !standardDestinos.includes(d.toUpperCase().trim()));
+                      %>
+                      <% if (otrosDestinos.length > 0) { %>
+                        <optgroup label="Proyectos y Destinos Registrados">
+                          <% otrosDestinos.forEach(d => { %>
+                            <option value="<%= d %>"><%= d %></option>
+                          <% }); %>
+                        </optgroup>
+                      <% } %>
+                      <option value="__OTRO__">+ Otro Proyecto / Destino Personalizado...</option>
+                    </select>
+                    <div id="wrapperOtroDestino" class="mt-2" style="display: none;">
+                      <input type="text" id="inputOtroDestino" class="form-control" placeholder="Escriba el nombre del nuevo proyecto o destino...">
+                    </div>
                   </div>
 
                   <div class="col-md-4">
@@ -46,7 +66,16 @@
                     <label class="form-label fw-semibold text-body">
                       Asunto / Motivo del Despacho <span class="text-danger">*</span>
                     </label>
-                    <input type="text" name="asunto" class="form-control" placeholder="Ej: Habilitación nuevo cliente corporativo..." required>
+                    <input type="text" name="asunto" class="form-control" list="asuntosList" placeholder="Ej: INSTALACIÓN, RCA, Mantenimiento..." required autocomplete="off">
+                    <datalist id="asuntosList">
+                      <option value="INSTALACIÓN">
+                      <option value="RCA (Requerimiento de Cambio/Alta)">
+                      <option value="MANTENIMIENTO PREVENTIVO">
+                      <option value="MANTENIMIENTO CORRECTIVO">
+                      <option value="INFRAESTRUCTURA DE RED">
+                      <option value="SOPORTE TÉCNICO">
+                      <option value="AMPLIACIÓN DE FIBRA">
+                    </datalist>
                   </div>
 
                   <div class="col-12">
@@ -407,6 +436,41 @@
     badge.textContent = `${cart.length} Ítems (${countEq} Equipos, ${countAcc} Materiales)`;
     btnSubmit.disabled = false;
   }
+
+  function handleDestinoChange(val) {
+    const wrapper = document.getElementById('wrapperOtroDestino');
+    const inputOtro = document.getElementById('inputOtroDestino');
+    if (val === '__OTRO__') {
+      wrapper.style.display = 'block';
+      inputOtro.required = true;
+      inputOtro.focus();
+    } else {
+      wrapper.style.display = 'none';
+      inputOtro.required = false;
+      inputOtro.value = '';
+    }
+  }
+
+  document.getElementById('formDespachoGeneral').addEventListener('submit', function(e) {
+    const selectDestino = document.getElementById('selectDestino');
+    const inputOtro = document.getElementById('inputOtroDestino');
+    if (selectDestino.value === '__OTRO__') {
+      const valorOtro = (inputOtro.value || '').trim();
+      if (!valorOtro) {
+        e.preventDefault();
+        alert('Por favor especifique el nombre del nuevo proyecto o destino.');
+        inputOtro.focus();
+        return false;
+      }
+      // Cambiar el valor seleccionado para que se envíe directamente
+      selectDestino.name = 'destino_select_ignored';
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'destino';
+      hiddenInput.value = valorOtro.toUpperCase();
+      this.appendChild(hiddenInput);
+    }
+  });
 </script>
 
 <%- include('../layouts/footer') %>

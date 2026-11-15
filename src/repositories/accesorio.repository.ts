@@ -118,9 +118,9 @@ export class AccesorioRepository {
 
   async getEstadisticas() {
     const totalItems = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM accesorios');
-    const totalUnidades = await queryOne<{ sum: string }>('SELECT SUM(cantidad) as sum FROM accesorios');
-    const stockBajo = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM accesorios WHERE cantidad < 10');
-    const valorTotal = await queryOne<{ sum: string }>('SELECT SUM(cantidad * COALESCE(costo, 0)) as sum FROM accesorios');
+    const totalUnidades = await queryOne<{ sum: string }>('SELECT SUM(COALESCE(cantidad, 0)) as sum FROM accesorios');
+    const stockBajo = await queryOne<{ count: string }>('SELECT COUNT(*) as count FROM accesorios WHERE COALESCE(cantidad, 0) <= COALESCE(stock_minimo, 10)');
+    const valorTotal = await queryOne<{ sum: string }>('SELECT SUM(COALESCE(cantidad, 0) * COALESCE(costo, 0)) as sum FROM accesorios');
 
     return {
       totalItems: parseInt(totalItems?.count || '0', 10),

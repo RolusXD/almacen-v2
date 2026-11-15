@@ -204,10 +204,14 @@ export class MovimientoRepository {
   async getDestinosUnicos(): Promise<string[]> {
     const res = await query<{ destino: string }>(`
       SELECT DISTINCT destino FROM (
+        SELECT nombre as destino FROM destinos WHERE activo = 1
+        UNION
         SELECT destino FROM movimientos_equipos WHERE destino IS NOT NULL AND TRIM(destino) <> ''
         UNION
         SELECT destino FROM movimientos_accesorios WHERE destino IS NOT NULL AND TRIM(destino) <> ''
-      ) as d ORDER BY destino ASC
+        UNION
+        SELECT destino FROM ordenes_despacho WHERE destino IS NOT NULL AND TRIM(destino) <> ''
+      ) as d WHERE destino IS NOT NULL AND TRIM(destino) <> '' ORDER BY destino ASC
     `);
     return res.map(r => r.destino);
   }
