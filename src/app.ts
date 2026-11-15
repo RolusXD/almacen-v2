@@ -1,5 +1,6 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import session from 'express-session';
 import connectPgSimple from 'connect-pg-simple';
 import helmet from 'helmet';
@@ -33,7 +34,9 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Servir librerías oficiales de AdminLTE 4, Bootstrap 5 y Bootstrap Icons
-const nodeModulesPath = path.resolve(process.cwd(), 'node_modules');
+const nodeModulesPath = fs.existsSync(path.resolve(__dirname, '..', 'node_modules'))
+  ? path.resolve(__dirname, '..', 'node_modules')
+  : path.resolve(process.cwd(), 'node_modules');
 app.use('/adminlte', express.static(path.join(nodeModulesPath, 'admin-lte', 'dist')));
 app.use('/bootstrap', express.static(path.join(nodeModulesPath, 'bootstrap', 'dist')));
 app.use('/bootstrap-icons', express.static(path.join(nodeModulesPath, 'bootstrap-icons', 'font')));
