@@ -17,3 +17,9 @@ services:
       - SESSION_SECRET=${SESSION_SECRET}
       - ENCRYPTION_KEY=${ENCRYPTION_KEY}
       - DATABASE_URL=${DATABASE_URL}
+    networks:
+      - coolify
+
+networks:
+  coolify:
+    external: true
