@@ -1,82 +1,27 @@
 <%- include('../layouts/header', { title: 'Control de Préstamos', activeNav: 'prestamos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Préstamo (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-4">
-    <div class="card card-primary card-outline shadow-sm mb-4">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="bi bi-handbag text-primary me-2"></i> Registrar Préstamo de Equipo
-        </h3>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="/maestros/prestamos">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
-            <input type="text" name="numero_serie_mac" class="form-control font-mono" placeholder="Ej: 445121884JXX" required autofocus>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">NOMBRE DEL SOLICITANTE <span class="text-danger">*</span></label>
-            <input type="text" name="nombre_solicita" class="form-control" placeholder="Nombre de la persona solicitante" required>
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold">DEPARTAMENTO / ÁREA</label>
-              <input type="text" name="departamento" class="form-control" placeholder="Ej: Soporte, Ventas">
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold">TELÉFONO CONTACTO</label>
-              <input type="text" name="telefono_contacto" class="form-control font-tabular" placeholder="Ej: 71234567">
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">MOTIVO DEL PRÉSTAMO <span class="text-danger">*</span></label>
-            <textarea name="motivo_prestamo" rows="2" class="form-control" placeholder="Ej: Pruebas técnicas de laboratorio o evento" required></textarea>
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold">FECHA PRÉSTAMO</label>
-              <input type="date" name="fecha_prestamo" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold">DEVOLUCIÓN ESP. <span class="text-danger">*</span></label>
-              <input type="date" name="fecha_devolucion_esperada" class="form-control font-tabular" value="<%= new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] %>" required>
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">OBSERVACIONES DE SALIDA</label>
-            <input type="text" name="observaciones_salida" class="form-control" placeholder="Accesorios entregados con el equipo...">
-          </div>
-
-          <button type="submit" class="btn btn-primary w-100 py-2">
-            <i class="bi bi-save me-1"></i> Registrar Préstamo de Equipo
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Listado de Préstamos (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-8">
+  <!-- Listado de Préstamos (100% Ancho Full-Width) -->
+  <div class="col-12">
     <div class="card card-primary card-outline shadow-sm mb-4">
       <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h3 class="card-title">
           <i class="bi bi-card-checklist text-primary me-2"></i> Control de Préstamos de Equipos
         </h3>
-        <span class="badge text-bg-primary ms-auto"><%= prestamos.length %> Registros</span>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoPrestamo">
+            <i class="bi bi-handbag me-1"></i> + Registrar Préstamo
+          </button>
+          <span class="badge text-bg-primary"><%= prestamos.length %> Registros</span>
+        </div>
       </div>
       <div class="card-body">
         
         <!-- Barra de Control -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
-          <span class="small text-muted">Préstamos temporales activos</span>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
+          <span class="small text-body-secondary">Préstamos temporales y asignaciones internas</span>
           <div class="d-flex align-items-center gap-2 ms-auto">
-            <label class="form-label mb-0 small text-muted">Buscar:</label>
+            <label class="form-label mb-0 small text-body">Buscar:</label>
             <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar préstamos..." style="width: 200px;">
           </div>
         </div>
@@ -111,15 +56,15 @@
                       </span>
                     </td>
                     <td>
-                      <strong><%= p.nombre_equipo || 'Equipo' %></strong>
+                      <strong class="text-body"><%= p.nombre_equipo || 'Equipo' %></strong>
                       <% if (p.modelo_equipo) { %>
-                        <small class="text-muted ms-1">(<%= p.modelo_equipo %>)</small>
+                        <small class="text-body-secondary ms-1">(<%= p.modelo_equipo %>)</small>
                       <% } %>
                     </td>
                     <td>
-                      <strong><%= p.nombre_solicita %></strong>
+                      <strong class="text-body"><%= p.nombre_solicita %></strong>
                       <% if (p.telefono_contacto) { %>
-                        <small class="text-muted ms-1 font-tabular">(<%= p.telefono_contacto %>)</small>
+                        <small class="text-body-secondary ms-1 font-tabular">(<%= p.telefono_contacto %>)</small>
                       <% } %>
                     </td>
                     <td><%= p.departamento || '-' %></td>
@@ -145,7 +90,7 @@
                           </button>
                         </form>
                       <% } else { %>
-                        <span class="text-muted small"><i class="bi bi-check2-all text-success"></i> Entregado</span>
+                        <span class="text-body-secondary small"><i class="bi bi-check2-all text-success"></i> Entregado</span>
                       <% } %>
                     </td>
                   </tr>
@@ -159,6 +104,71 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Registro de Préstamo -->
+<div class="modal fade" id="modalNuevoPrestamo" tabindex="-1" aria-labelledby="modalNuevoPrestamoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalNuevoPrestamoLabel">
+          <i class="bi bi-handbag me-2"></i> Registrar Préstamo de Equipo
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" action="/maestros/prestamos">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
+              <input type="text" name="numero_serie_mac" class="form-control font-mono" placeholder="Ej: 445121884JXX" required autofocus>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">NOMBRE DEL SOLICITANTE <span class="text-danger">*</span></label>
+              <input type="text" name="nombre_solicita" class="form-control" placeholder="Nombre de la persona solicitante" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">DEPARTAMENTO / ÁREA</label>
+              <input type="text" name="departamento" class="form-control" placeholder="Ej: Soporte, Ventas, Sistemas">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">TELÉFONO CONTACTO</label>
+              <input type="text" name="telefono_contacto" class="form-control font-tabular" placeholder="Ej: 71234567">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">MOTIVO DEL PRÉSTAMO <span class="text-danger">*</span></label>
+              <textarea name="motivo_prestamo" rows="2" class="form-control" placeholder="Ej: Pruebas técnicas de laboratorio o evento" required></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">FECHA PRÉSTAMO</label>
+              <input type="date" name="fecha_prestamo" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">DEVOLUCIÓN ESPERADA <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_devolucion_esperada" class="form-control font-tabular" value="<%= new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] %>" required>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">OBSERVACIONES DE SALIDA</label>
+              <input type="text" name="observaciones_salida" class="form-control" placeholder="Cargador, patch cord u otros accesorios entregados...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-save me-1"></i> Registrar Préstamo
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

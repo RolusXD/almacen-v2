@@ -1,72 +1,28 @@
 <%- include('../layouts/header', { title: 'Proveedores', activeNav: 'proveedores' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Nuevo Proveedor (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-4">
-    <div class="card card-primary card-outline shadow-sm mb-4">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="bi bi-truck text-primary me-2"></i> Registrar Proveedor
-        </h3>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="/maestros/proveedores">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">NOMBRE DE LA EMPRESA <span class="text-danger">*</span></label>
-            <input type="text" name="nombre_empresa" class="form-control" placeholder="Ej: DIGICORP S.R.L. o COMRADE" required autofocus>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">NIT (BOLIVIA)</label>
-            <input type="text" name="nit" class="form-control font-mono font-tabular" placeholder="Ej: 1028374029">
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold">CONTACTO</label>
-              <input type="text" name="contacto" class="form-control" placeholder="Nombre contacto">
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold">TELÉFONO</label>
-              <input type="text" name="telefono" class="form-control font-tabular" placeholder="70012345">
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">CORREO ELECTRÓNICO</label>
-            <input type="email" name="email" class="form-control" placeholder="ventas@proveedor.com">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">DIRECCIÓN</label>
-            <input type="text" name="direccion" class="form-control" placeholder="Ciudad, calle o zona">
-          </div>
-
-          <button type="submit" class="btn btn-primary w-100 py-2">
-            <i class="bi bi-save me-1"></i> Guardar Proveedor
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Listado de Proveedores (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-8">
+  <!-- Listado de Proveedores (100% Ancho Full-Width) -->
+  <div class="col-12">
     <div class="card card-success card-outline shadow-sm mb-4">
       <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h3 class="card-title">
           <i class="bi bi-buildings text-success me-2"></i> Proveedores Registrados
         </h3>
-        <span class="badge text-bg-success ms-auto"><%= proveedores.length %> Proveedores</span>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoProveedor">
+            <i class="bi bi-truck me-1"></i> + Registrar Proveedor
+          </button>
+          <span class="badge text-bg-success"><%= proveedores.length %> Proveedores</span>
+        </div>
       </div>
       <div class="card-body">
         
         <!-- Barra de Control -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
-          <span class="small text-muted">Directorio comercial y fiscal</span>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
+          <span class="small text-body-secondary">Directorio comercial y fiscal</span>
           <div class="d-flex align-items-center gap-2 ms-auto">
-            <label class="form-label mb-0 small text-muted">Buscar:</label>
-            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar proveedores..." style="width: 180px;">
+            <label class="form-label mb-0 small text-body">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar proveedores..." style="width: 200px;">
           </div>
         </div>
 
@@ -87,7 +43,7 @@
               <% if (proveedores && proveedores.length > 0) { %>
                 <% proveedores.forEach(p => { %>
                   <tr>
-                    <td><strong><%= p.nombre_empresa %></strong></td>
+                    <td><strong class="text-body"><%= p.nombre_empresa %></strong></td>
                     <td>
                       <% if (p.nit) { %>
                         <span class="font-mono font-tabular text-primary fw-semibold">
@@ -103,7 +59,7 @@
                     <td><%= p.contacto || '-' %></td>
                     <td class="text-end font-tabular"><%= p.telefono || '-' %></td>
                     <td><%= p.email || '-' %></td>
-                    <td><small class="text-muted"><%= p.direccion || '-' %></small></td>
+                    <td><small class="text-body-secondary"><%= p.direccion || '-' %></small></td>
                     <td class="text-end">
                       <a href="/maestros/proveedores/eliminar/<%= p.id_proveedor %>" class="btn btn-outline-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar proveedor <%= p.nombre_empresa %>?');">
                         <i class="bi bi-trash"></i>
@@ -120,6 +76,61 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Registro de Proveedor -->
+<div class="modal fade" id="modalNuevoProveedor" tabindex="-1" aria-labelledby="modalNuevoProveedorLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalNuevoProveedorLabel">
+          <i class="bi bi-truck me-2"></i> Registrar Proveedor
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" action="/maestros/proveedores">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label class="form-label fw-semibold">NOMBRE DE LA EMPRESA <span class="text-danger">*</span></label>
+              <input type="text" name="nombre_empresa" class="form-control" placeholder="Ej: DIGICORP S.R.L. o COMRADE" required autofocus>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label fw-semibold">NIT (BOLIVIA)</label>
+              <input type="text" name="nit" class="form-control font-mono font-tabular" placeholder="Ej: 1028374029">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">CONTACTO</label>
+              <input type="text" name="contacto" class="form-control" placeholder="Nombre de persona contacto">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">TELÉFONO</label>
+              <input type="text" name="telefono" class="form-control font-tabular" placeholder="70012345">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">CORREO ELECTRÓNICO</label>
+              <input type="email" name="email" class="form-control" placeholder="ventas@proveedor.com">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">DIRECCIÓN</label>
+              <input type="text" name="direccion" class="form-control" placeholder="Ciudad, calle o zona">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-save me-1"></i> Guardar Proveedor
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

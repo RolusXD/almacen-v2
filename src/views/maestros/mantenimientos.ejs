@@ -1,81 +1,28 @@
 <%- include('../layouts/header', { title: 'Gestión de Mantenimientos y Taller', activeNav: 'mantenimientos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Ingreso a Taller (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-4">
-    <div class="card card-warning card-outline shadow-sm mb-4">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="bi bi-wrench-adjustable text-warning me-2"></i> Ingreso a Taller / Mantenimiento
-        </h3>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="/maestros/mantenimientos">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
-            <input type="text" name="numero_serie_mac" class="form-control font-mono" placeholder="Ej: 445121884JXX" required autofocus>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">TIPO DE MANTENIMIENTO <span class="text-danger">*</span></label>
-            <select name="tipo_mantenimiento" class="form-select" required>
-              <option value="CORRECTIVO" selected>CORRECTIVO (Reparación de falla)</option>
-              <option value="PREVENTIVO">PREVENTIVO (Limpieza y calibración)</option>
-              <option value="EVOLUTIVO">EVOLUTIVO (Actualización de firmware)</option>
-            </select>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">DESCRIPCIÓN DE LA FALLA / TRABAJO <span class="text-danger">*</span></label>
-            <textarea name="descripcion" rows="2" class="form-control" placeholder="Ej: No sincroniza puerto PON, puertos quemados..." required></textarea>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
-            <input type="text" name="tecnico_responsable" class="form-control" placeholder="Nombre del técnico responsable..." required>
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold">COSTO EST. (Bs.)</label>
-              <input type="number" step="0.01" name="costo" class="form-control font-tabular text-end" value="0.00">
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold">FECHA INGRESO</label>
-              <input type="date" name="fecha_ingreso" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
-            </div>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">REPUESTOS / OBSERVACIONES</label>
-            <input type="text" name="repuestos_cambiados" class="form-control" placeholder="Ej: Fuente 12V 2A reemplazada">
-          </div>
-
-          <button type="submit" class="btn btn-warning w-100 py-2">
-            <i class="bi bi-save me-1"></i> Ingresar Equipo a Taller
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Listado de Mantenimientos (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-8">
+  <!-- Listado de Mantenimientos (100% Ancho Full-Width) -->
+  <div class="col-12">
     <div class="card card-primary card-outline shadow-sm mb-4">
       <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h3 class="card-title">
           <i class="bi bi-card-checklist text-primary me-2"></i> Historial de Equipos en Taller
         </h3>
-        <span class="badge text-bg-primary ms-auto"><%= mantenimientos.length %> Registros</span>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoMantenimiento">
+            <i class="bi bi-wrench-adjustable me-1"></i> + Ingreso a Taller
+          </button>
+          <span class="badge text-bg-primary"><%= mantenimientos.length %> Registros</span>
+        </div>
       </div>
       <div class="card-body">
         
         <!-- Barra de Control -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
-          <span class="small text-muted">Órdenes de servicio técnico</span>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
+          <span class="small text-body-secondary">Órdenes de servicio técnico y control de reparaciones</span>
           <div class="d-flex align-items-center gap-2 ms-auto">
-            <label class="form-label mb-0 small text-muted">Buscar:</label>
-            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar por serie, técnico..." style="width: 200px;">
+            <label class="form-label mb-0 small text-body">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar por serie, técnico..." style="width: 220px;">
           </div>
         </div>
 
@@ -109,14 +56,14 @@
                       </span>
                     </td>
                     <td>
-                      <strong><%= m.nombre_equipo || 'Equipo' %></strong>
+                      <strong class="text-body"><%= m.nombre_equipo || 'Equipo' %></strong>
                       <% if (m.modelo_equipo) { %>
-                        <small class="text-muted ms-1">(<%= m.modelo_equipo %>)</small>
+                        <small class="text-body-secondary ms-1">(<%= m.modelo_equipo %>)</small>
                       <% } %>
                     </td>
                     <td>
                       <span class="badge text-bg-secondary small"><%= m.tipo_mantenimiento %></span>
-                      <div class="text-truncate text-secondary small" style="max-width: 180px;" title="<%= m.descripcion %>">
+                      <div class="text-truncate text-body-secondary small" style="max-width: 180px;" title="<%= m.descripcion %>">
                         <%= m.descripcion %>
                       </div>
                     </td>
@@ -141,7 +88,7 @@
                           </button>
                         </form>
                       <% } else { %>
-                        <span class="text-muted small"><i class="bi bi-check2-all text-success"></i> Cerrado</span>
+                        <span class="text-body-secondary small"><i class="bi bi-check2-all text-success"></i> Cerrado</span>
                       <% } %>
                     </td>
                   </tr>
@@ -155,6 +102,70 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Ingreso a Taller -->
+<div class="modal fade" id="modalNuevoMantenimiento" tabindex="-1" aria-labelledby="modalNuevoMantenimientoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title fw-bold" id="modalNuevoMantenimientoLabel">
+          <i class="bi bi-wrench-adjustable me-2"></i> Ingreso a Taller / Mantenimiento
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" action="/maestros/mantenimientos">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
+              <input type="text" name="numero_serie_mac" class="form-control font-mono" placeholder="Ej: 445121884JXX" required autofocus>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">TIPO DE MANTENIMIENTO <span class="text-danger">*</span></label>
+              <select name="tipo_mantenimiento" class="form-select" required>
+                <option value="CORRECTIVO" selected>CORRECTIVO (Reparación de falla)</option>
+                <option value="PREVENTIVO">PREVENTIVO (Limpieza y calibración)</option>
+                <option value="EVOLUTIVO">EVOLUTIVO (Actualización de firmware)</option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">DESCRIPCIÓN DE LA FALLA / TRABAJO <span class="text-danger">*</span></label>
+              <textarea name="descripcion" rows="2" class="form-control" placeholder="Ej: No sincroniza puerto PON, puertos quemados..." required></textarea>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
+              <input type="text" name="tecnico_responsable" class="form-control" placeholder="Nombre del técnico responsable..." required>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">COSTO EST. (Bs.)</label>
+              <input type="number" step="0.01" name="costo" class="form-control font-tabular text-end" value="0.00">
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">FECHA INGRESO</label>
+              <input type="date" name="fecha_ingreso" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">REPUESTOS / OBSERVACIONES</label>
+              <input type="text" name="repuestos_cambiados" class="form-control" placeholder="Ej: Fuente 12V 2A reemplazada, calibración de potencia...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning px-4">
+            <i class="bi bi-save me-1"></i> Ingresar Equipo a Taller
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>

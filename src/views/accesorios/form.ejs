@@ -19,8 +19,8 @@
         <form method="POST" action="<%= accesorio ? '/accesorios/editar/' + accesorio.id_accesorio : '/accesorios/nuevo' %>">
           
           <!-- SECCIÓN 1: IDENTIFICACIÓN -->
-          <div class="p-2 bg-light border-start border-success border-3 mb-3 rounded">
-            <span class="fw-bold text-dark small text-uppercase">
+          <div class="p-2 bg-body-tertiary border-start border-success border-3 mb-3 rounded">
+            <span class="fw-bold text-body small text-uppercase">
               <i class="bi bi-tools me-1 text-success"></i> 1. Identificación del Material
             </span>
           </div>
@@ -38,8 +38,8 @@
           </div>
 
           <!-- SECCIÓN 2: STOCK Y COSTOS -->
-          <div class="p-2 bg-light border-start border-primary border-3 mt-4 mb-3 rounded">
-            <span class="fw-bold text-dark small text-uppercase">
+          <div class="p-2 bg-body-tertiary border-start border-primary border-3 mt-4 mb-3 rounded">
+            <span class="fw-bold text-body small text-uppercase">
               <i class="bi bi-boxes me-1 text-primary"></i> 2. Control de Stock y Valoración
             </span>
           </div>
@@ -67,8 +67,8 @@
           </div>
 
           <!-- SECCIÓN 3: CLASIFICACIÓN Y ORIGEN -->
-          <div class="p-2 bg-light border-start border-info border-3 mt-4 mb-3 rounded">
-            <span class="fw-bold text-dark small text-uppercase">
+          <div class="p-2 bg-body-tertiary border-start border-info border-3 mt-4 mb-3 rounded">
+            <span class="fw-bold text-body small text-uppercase">
               <i class="bi bi-tag me-1 text-info"></i> 3. Clasificación y Proveedor
             </span>
           </div>
@@ -107,8 +107,8 @@
           </div>
 
           <!-- SECCIÓN 4: CALIDAD Y OBSERVACIONES -->
-          <div class="p-2 bg-light border-start border-warning border-3 mt-4 mb-3 rounded">
-            <span class="fw-bold text-dark small text-uppercase">
+          <div class="p-2 bg-body-tertiary border-start border-warning border-3 mt-4 mb-3 rounded">
+            <span class="fw-bold text-body small text-uppercase">
               <i class="bi bi-chat-left-text me-1 text-warning"></i> 4. Calidad y Observaciones
             </span>
           </div>
@@ -116,7 +116,7 @@
           <div class="row g-3 mb-4">
             <div class="col-md-6">
               <label class="form-label fw-semibold">CALIDAD ESTÁNDAR</label>
-              <input type="text" class="form-control" value="NUEVO (Calidad Garantizada)" readonly style="background-color: #e9ecef; font-weight: 700; color: #198754; cursor: not-allowed;">
+              <input type="text" class="form-control bg-body-secondary fw-bold text-success" value="NUEVO (Calidad Garantizada)" readonly style="cursor: not-allowed;">
               <input type="hidden" name="calidad" value="NUEVO">
             </div>
 

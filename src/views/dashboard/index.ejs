@@ -98,11 +98,11 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
             <span><i class="bi bi-currency-dollar text-info me-2"></i>Valor Estimado Materiales</span>
-            <span class="badge text-bg-light border text-dark font-tabular fw-bold">Bs. <%= Number(statsAccesorios.valorTotal || 0).toFixed(2) %></span>
+            <span class="badge bg-body-secondary border text-body font-tabular fw-bold">Bs. <%= Number(statsAccesorios.valorTotal || 0).toFixed(2) %></span>
           </li>
         </ul>
       </div>
-      <div class="card-footer bg-light d-flex gap-2 flex-wrap">
+      <div class="card-footer bg-body-tertiary d-flex gap-2 flex-wrap">
         <a href="/movimientos/equipos" class="btn btn-primary btn-sm">
           <i class="bi bi-arrow-left-right me-1"></i> Mover Equipo
         </a>
@@ -183,7 +183,7 @@
                     </td>
                     <td>
                       <% if (m.destino) { %>
-                        <span class="badge text-bg-light border text-dark"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
+                        <span class="badge bg-body-secondary border text-body"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
                       <% } else { %>
                         <span class="text-muted">-</span>
                       <% } %>

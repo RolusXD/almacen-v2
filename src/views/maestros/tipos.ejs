@@ -1,16 +1,93 @@
 <%- include('../layouts/header', { title: 'Tipos de Equipos', activeNav: 'tipos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Nuevo Tipo (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-4">
+  <!-- Listado de Tipos (100% Ancho Full-Width) -->
+  <div class="col-12">
     <div class="card card-primary card-outline shadow-sm mb-4">
-      <div class="card-header">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h3 class="card-title">
-          <i class="bi bi-tag text-primary me-2"></i> Nuevo Tipo de Equipo
+          <i class="bi bi-tags text-primary me-2"></i> Catálogo de Tipos de Equipos
         </h3>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoTipo">
+            <i class="bi bi-tag me-1"></i> + Nuevo Tipo de Equipo
+          </button>
+          <span class="badge text-bg-primary"><%= tipos.length %> Registros</span>
+        </div>
       </div>
       <div class="card-body">
-        <form method="POST" action="/maestros/tipos">
+        
+        <!-- Barra de Control -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
+          <span class="small text-body-secondary">Códigos de clasificación técnica</span>
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <label class="form-label mb-0 small text-body">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar tipos..." style="width: 200px;">
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 60px;">ID</th>
+                <th>CÓDIGO</th>
+                <th>DESCRIPCIÓN</th>
+                <th>CATEGORÍA</th>
+                <th>PREFIJO</th>
+                <th>OBSERVACIONES</th>
+                <th class="text-end">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (tipos && tipos.length > 0) { %>
+                <% tipos.forEach(t => { %>
+                  <tr>
+                    <td class="text-body-secondary font-tabular small">#<%= t.id_codigo %></td>
+                    <td>
+                      <span class="font-mono text-primary fw-semibold">
+                        <%= t.codigo %>
+                        <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= t.codigo %>', 'Código')" title="Copiar código">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                      </span>
+                    </td>
+                    <td><strong class="text-body"><%= t.descripcion %></strong></td>
+                    <td><span class="badge text-bg-secondary"><%= t.categoria %></span></td>
+                    <td><%= t.prefijo || '-' %></td>
+                    <td><small class="text-body-secondary"><%= t.observaciones || '-' %></small></td>
+                    <td class="text-end">
+                      <a href="/maestros/tipos/eliminar/<%= t.id_codigo %>" class="btn btn-outline-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar tipo <%= t.codigo %>?');">
+                        <i class="bi bi-trash"></i>
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">No hay tipos de equipos registrados.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Nuevo Tipo de Equipo -->
+<div class="modal fade" id="modalNuevoTipo" tabindex="-1" aria-labelledby="modalNuevoTipoLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalNuevoTipoLabel">
+          <i class="bi bi-tag me-2"></i> Nuevo Tipo de Equipo
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" action="/maestros/tipos">
+        <div class="modal-body p-4">
           <div class="mb-3">
             <label class="form-label fw-semibold">CÓDIGO ÚNICO <span class="text-danger">*</span></label>
             <input type="text" name="codigo" class="form-control font-mono" placeholder="Ej: ROT2.4, ONU5G, SW8P" required style="text-transform: uppercase;" autofocus>
@@ -41,81 +118,14 @@
             <label class="form-label fw-semibold">OBSERVACIONES</label>
             <textarea name="observaciones" rows="2" class="form-control" placeholder="Notas sobre este tipo de hardware..."></textarea>
           </div>
-
-          <button type="submit" class="btn btn-primary w-100 py-2">
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-4">
             <i class="bi bi-save me-1"></i> Guardar Tipo de Equipo
           </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Listado de Tipos (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-8">
-    <div class="card card-primary card-outline shadow-sm mb-4">
-      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-        <h3 class="card-title">
-          <i class="bi bi-tags text-primary me-2"></i> Catálogo de Tipos de Equipos
-        </h3>
-        <span class="badge text-bg-primary ms-auto"><%= tipos.length %> Registros</span>
-      </div>
-      <div class="card-body">
-        
-        <!-- Barra de Control -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
-          <span class="small text-muted">Códigos de clasificación técnica</span>
-          <div class="d-flex align-items-center gap-2 ms-auto">
-            <label class="form-label mb-0 small text-muted">Buscar:</label>
-            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar tipos..." style="width: 180px;">
-          </div>
         </div>
-
-        <div class="table-responsive">
-          <table class="table table-bordered table-striped table-hover align-middle mb-0">
-            <thead class="table-light">
-              <tr>
-                <th style="width: 60px;">ID</th>
-                <th>CÓDIGO</th>
-                <th>DESCRIPCIÓN</th>
-                <th>CATEGORÍA</th>
-                <th>PREFIJO</th>
-                <th>OBSERVACIONES</th>
-                <th class="text-end">ACCIONES</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% if (tipos && tipos.length > 0) { %>
-                <% tipos.forEach(t => { %>
-                  <tr>
-                    <td class="text-muted font-tabular small">#<%= t.id_codigo %></td>
-                    <td>
-                      <span class="font-mono text-primary fw-semibold">
-                        <%= t.codigo %>
-                        <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= t.codigo %>', 'Código')" title="Copiar código">
-                          <i class="bi bi-clipboard"></i>
-                        </button>
-                      </span>
-                    </td>
-                    <td><strong><%= t.descripcion %></strong></td>
-                    <td><span class="badge text-bg-secondary"><%= t.categoria %></span></td>
-                    <td><%= t.prefijo || '-' %></td>
-                    <td><small class="text-muted"><%= t.observaciones || '-' %></small></td>
-                    <td class="text-end">
-                      <a href="/maestros/tipos/eliminar/<%= t.id_codigo %>" class="btn btn-outline-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar tipo <%= t.codigo %>?');">
-                        <i class="bi bi-trash"></i>
-                      </a>
-                    </td>
-                  </tr>
-                <% }); %>
-              <% } else { %>
-                <tr>
-                  <td colspan="7" class="text-center text-muted py-4">No hay tipos de equipos registrados.</td>
-                </tr>
-              <% } %>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      </form>
     </div>
   </div>
 </div>

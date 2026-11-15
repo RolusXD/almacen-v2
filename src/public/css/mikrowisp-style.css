@@ -56,6 +56,113 @@
   font-size: 0.78rem;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  color: #495057;
+  color: var(--bs-body-color);
+  opacity: 0.9;
   margin-bottom: 0.35rem;
+}
+
+/* ==========================================================
+   TEMA OSCURO NATIVO (Ajustes de contraste para tablas y cajas)
+   ========================================================== */
+[data-bs-theme="dark"] .table thead th {
+  background-color: #212529 !important;
+  color: #f8f9fa !important;
+  border-color: #373b3e !important;
+}
+
+[data-bs-theme="dark"] .app-header {
+  border-bottom: 1px solid #373b3e !important;
+}
+
+/* ==========================================================
+   ALTO CONTRASTE (High Contrast Mode)
+   Fondo negro puro (#000), textos blancos (#FFF), bordes 2px
+   ========================================================== */
+html.theme-high-contrast,
+body.theme-high-contrast,
+.theme-high-contrast {
+  --bs-body-bg: #000000 !important;
+  --bs-body-color: #ffffff !important;
+  --bs-tertiary-bg: #0a0a0a !important;
+  --bs-secondary-bg: #111111 !important;
+  --bs-border-color: #ffffff !important;
+}
+
+.theme-high-contrast .app-wrapper,
+.theme-high-contrast .app-main,
+.theme-high-contrast .app-header,
+.theme-high-contrast .app-sidebar,
+.theme-high-contrast .app-footer,
+.theme-high-contrast .card,
+.theme-high-contrast .modal-content,
+.theme-high-contrast .dropdown-menu {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.theme-high-contrast .card {
+  border: 2px solid #ffffff !important;
+  box-shadow: none !important;
+}
+
+.theme-high-contrast .card-header,
+.theme-high-contrast .modal-header,
+.theme-high-contrast .modal-footer {
+  background-color: #0d0d0d !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+.theme-high-contrast .form-control,
+.theme-high-contrast .form-select {
+  background-color: #000000 !important;
+  color: #ffffff !important;
+  border: 2px solid #ffffff !important;
+}
+
+.theme-high-contrast .form-control:focus,
+.theme-high-contrast .form-select:focus {
+  border-color: #ffd700 !important;
+  box-shadow: 0 0 0 0.25rem rgba(255, 215, 0, 0.4) !important;
+  color: #ffffff !important;
+  background-color: #000000 !important;
+}
+
+.theme-high-contrast .table {
+  color: #ffffff !important;
+  border-color: #ffffff !important;
+}
+
+.theme-high-contrast .table thead th {
+  background-color: #1a1a1a !important;
+  color: #ffd700 !important;
+  border: 2px solid #ffffff !important;
+}
+
+.theme-high-contrast .table td {
+  border-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+.theme-high-contrast .table-striped tbody tr:nth-of-type(odd) {
+  background-color: #0d0d0d !important;
+}
+
+.theme-high-contrast .table-hover tbody tr:hover {
+  background-color: #222222 !important;
+}
+
+.theme-high-contrast .badge {
+  border: 1px solid #ffffff !important;
+}
+
+.theme-high-contrast a:not(.btn) {
+  color: #66b2ff !important;
+}
+
+.theme-high-contrast .text-muted,
+.theme-high-contrast .form-text,
+.theme-high-contrast .small {
+  color: #e0e0e0 !important;
 }

@@ -1,24 +1,22 @@
 ---
 name: wms-ui-pro
-description: "Integra y aplica el framework oficial AdminLTE v4 (Bootstrap 5.3) en proyectos Node.js. Úsalo siempre para estructurar layouts, tarjetas KPI (small-box), formularios (.card, .form-control, .form-select), tablas administrativas y modales."
+description: "Integra AdminLTE v4 (Bootstrap 5.3) con soporte multi-tema (Claro, Noche, Alto Contraste) y operaciones basadas en Modales flotantes para maximizar el ancho de tablas en sistemas de almacenes."
 ---
 
-# Integración Oficial AdminLTE 4 (Bootstrap 5) - Sistema de Almacenes
+# AdminLTE 4 Multi-Tema y Tablas Full-Width (Modales)
 
-Eres un desarrollador experto en **Node.js** y **AdminLTE v4 (Bootstrap 5.3)**. Tu objetivo es que TODAS las vistas del sistema utilicen exclusivamente los archivos CSS/JS oficiales de `admin-lte` instalados vía npm y sus clases estándar de Bootstrap 5, eliminando cualquier estilo roto o sin formato.
+Eres un desarrollador experto en **Node.js** y **AdminLTE v4 (Bootstrap 5.3)**. Debes garantizar contrastes impecables en todos los temas y maximizar el espacio horizontal de las tablas.
 
-## 1. Configuración Base en Node.js
-- Asegúrate de que `admin-lte` (v4) y `bootstrap-icons` (o `@fortawesome/fontawesome-free`) estén instalados en `package.json` y servidos como archivos estáticos en Express (ej. `app.use('/adminlte', express.static(path.join(__dirname, 'node_modules/admin-lte/dist')))`).
-- El layout principal (`header.ejs`, `sidebar.ejs`, `footer.ejs`) debe cargar obligatoriamente `adminlte.min.css` en el `<head>` y `adminlte.min.js` + `bootstrap.bundle.min.js` antes de cerrar `</body>`.
-- Usa la estructura oficial de AdminLTE 4: `<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">`, `<div class="app-wrapper">`, `<nav class="app-header navbar navbar-expand bg-body">`, `<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">` y `<main class="app-main">`.
+## 1. Sistema de Temas (Claro / Noche / Alto Contraste)
+- **Prohibido hardcodear colores:** Nunca uses clases fijas como `bg-white`, `bg-light`, `text-dark` o estilos inline con colores fijos en tarjetas, filtros o tablas. Usa siempre variables/clases adaptables de Bootstrap 5.3 (`bg-body`, `bg-body-tertiary`, `text-body`, `border`) para que respondan automáticamente al tema activo.
+- **Selector de Tema en Navbar:** Incluye en la barra superior (al lado de Alertas/Admin) un dropdown con 3 opciones persistidas en `localStorage`:
+  1. **Modo Claro (`light`):** `document.documentElement.setAttribute('data-bs-theme', 'light')` (Estilo clásico AdminLTE con fondo `#F4F6F9` y tarjetas blancas).
+  2. **Modo Noche (`dark`):** `document.documentElement.setAttribute('data-bs-theme', 'dark')` (Fondo oscuro uniforme sin cajas blancas sueltas).
+  3. **Alto Contraste (`high-contrast`):** `data-bs-theme="dark"` + clase `theme-high-contrast` en `<body>` con CSS dedicado (fondo `#000000`, tarjetas `#0A0A0A`, bordes `#FFFFFF` o `#FFD700` de `2px`, y textos `#FFFFFF` al 100% de contraste).
 
-## 2. Componentes Obligatorios en TODAS las Vistas
-1. **Tarjetas KPI en Dashboard (`small-box`):**
-   - Usa la clase nativa `<div class="small-box text-bg-info">`, `text-bg-success`, `text-bg-primary`, `text-bg-warning` con `<div class="inner">`, icono grande y `<a href="#" class="small-box-footer">Ver más <i class="bi bi-arrow-right-circle"></i></a>`.
-2. **Contenedores y Formularios (`card` + Bootstrap 5):**
-   - Envuelve cada formulario o sección dentro de `<div class="card card-primary card-outline mb-4">` con `<div class="card-header"><h3 class="card-title">...</h3></div>` y `<div class="card-body">`.
-   - **Prohibido dejar inputs sin clase:** Todo `<input>` debe llevar `class="form-control"`, todo `<select>` debe llevar `class="form-select"`, todo `<label>` debe llevar `class="form-label fw-semibold"` y los botones deben llevar `btn btn-primary`, `btn btn-success`, `btn btn-danger` o `btn btn-secondary`.
-3. **Tablas Administrativas:**
-   - Envuelve cada tabla en `<div class="table-responsive">`.
-   - Usa `<table class="table table-bordered table-striped table-hover align-middle mb-0">` con `<thead class="table-light">`.
-   - Usa `<span class="badge text-bg-success">`, `text-bg-warning` o `text-bg-danger` para los estados.
+## 2. Tablas al 100% de Ancho y Formularios en Modales Flotantes
+- **Vista Principal = Tabla Completa:** En todas las pantallas de operaciones y gestión (`Equipos`, `Accesorios`, `Movimientos de Equipos`, `Movimientos de Accesorios`, `Categorías`, `Tipos`, `Proveedores`, `Marcas`, `Taller`, `Préstamos`), la tabla debe ocupar el **100% del ancho (`col-12`)**.
+- **Acciones en Ventanas Flotantes (`Bootstrap Modal`):**
+  - Nunca pongas formularios fijos al costado de una tabla.
+  - Coloca un botón principal en la cabecera de la tarjeta de la tabla (ej. `+ Registrar Movimiento`, `+ Nuevo Equipo`, `+ Nueva Categoría`).
+  - Al hacer clic, abre un `<div class="modal fade" tabindex="-1">` centrado (`modal-lg` o `modal-dialog-centered`) con el formulario completo adentro.

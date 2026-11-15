@@ -28,8 +28,38 @@
   <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="/adminlte/js/adminlte.min.js"></script>
 
-  <!-- Script de Utilidades WMS -->
+  <!-- Script de Utilidades WMS y Manejo de Temas -->
   <script>
+    function setAppTheme(theme) {
+      localStorage.setItem('almacen_theme', theme);
+      applyThemeUI(theme);
+    }
+
+    function applyThemeUI(theme) {
+      const icon = document.getElementById('currentThemeIcon');
+      const label = document.getElementById('currentThemeLabel');
+      
+      if (theme === 'high-contrast') {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        document.documentElement.classList.add('theme-high-contrast');
+        document.body.classList.add('theme-high-contrast');
+        if (icon) icon.className = 'bi bi-eye-fill text-danger fs-5 me-1';
+        if (label) label.textContent = 'Alto Contraste';
+      } else if (theme === 'dark') {
+        document.documentElement.setAttribute('data-bs-theme', 'dark');
+        document.documentElement.classList.remove('theme-high-contrast');
+        document.body.classList.remove('theme-high-contrast');
+        if (icon) icon.className = 'bi bi-moon-stars-fill text-primary fs-5 me-1';
+        if (label) label.textContent = 'Noche';
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+        document.documentElement.classList.remove('theme-high-contrast');
+        document.body.classList.remove('theme-high-contrast');
+        if (icon) icon.className = 'bi bi-sun-fill text-warning fs-5 me-1';
+        if (label) label.textContent = 'Claro';
+      }
+    }
+
     function copyToClipboard(text, label) {
       if (!text) return;
       navigator.clipboard.writeText(text).then(() => {
@@ -46,6 +76,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+      // Sincronizar UI de selector de tema
+      const currentTheme = localStorage.getItem('almacen_theme') || 'light';
+      applyThemeUI(currentTheme);
+
       const quickSearch = document.getElementById('quickTableSearch');
       if (quickSearch) {
         quickSearch.addEventListener('input', function () {

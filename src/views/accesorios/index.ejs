@@ -20,9 +20,9 @@
 
   <div class="card-body">
     <!-- Toolbar de Filtros y Búsqueda AdminLTE 4 / Bootstrap 5 -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
       <form method="GET" action="/accesorios" class="d-flex flex-wrap align-items-center gap-2">
-        <label class="form-label mb-0 small fw-bold text-secondary">Unidad:</label>
+        <label class="form-label mb-0 small fw-bold text-body">Unidad:</label>
         <select name="unidad" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
           <option value="Todas" <%= unidadFiltro === 'Todas' ? 'selected' : '' %>>Todas las unidades</option>
           <option value="METROS" <%= unidadFiltro === 'METROS' ? 'selected' : '' %>>METROS</option>
@@ -46,8 +46,8 @@
         </div>
       </form>
 
-      <div class="small text-muted ms-auto">
-        Mostrando <strong class="text-dark font-tabular"><%= accesorios.length %></strong> ítem(s)
+      <div class="small text-body-secondary ms-auto">
+        Mostrando <strong class="text-body font-tabular"><%= accesorios.length %></strong> ítem(s)
       </div>
     </div>
 

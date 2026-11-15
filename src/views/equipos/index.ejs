@@ -17,9 +17,9 @@
 
   <div class="card-body">
     <!-- Toolbar de Filtros y Búsqueda AdminLTE 4 / Bootstrap 5 -->
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
       <form method="GET" action="/equipos" class="d-flex flex-wrap align-items-center gap-2">
-        <label class="form-label mb-0 small fw-bold text-secondary">Estado:</label>
+        <label class="form-label mb-0 small fw-bold text-body">Estado:</label>
         <select name="estado" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
           <option value="Todos" <%= estadoFiltro === 'Todos' ? 'selected' : '' %>>Todos los estados</option>
           <option value="DISPONIBLE" <%= estadoFiltro === 'DISPONIBLE' ? 'selected' : '' %>>DISPONIBLE (En Bodega)</option>
@@ -28,7 +28,7 @@
           <option value="RETIRADO" <%= estadoFiltro === 'RETIRADO' ? 'selected' : '' %>>RETIRADO (De Baja)</option>
         </select>
 
-        <label class="form-label mb-0 small fw-bold text-secondary">Código / Tipo:</label>
+        <label class="form-label mb-0 small fw-bold text-body">Código / Tipo:</label>
         <select name="codigo" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
           <option value="Todos">Todos los códigos</option>
           <% tipos.forEach(t => { %>
@@ -47,8 +47,8 @@
         </div>
       </form>
 
-      <div class="small text-muted ms-auto">
-        Mostrando <strong class="text-dark font-tabular"><%= equipos.length %></strong> equipo(s)
+      <div class="small text-body-secondary ms-auto">
+        Mostrando <strong class="text-body font-tabular"><%= equipos.length %></strong> equipo(s)
       </div>
     </div>
 

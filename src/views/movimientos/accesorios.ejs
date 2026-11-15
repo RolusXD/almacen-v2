@@ -1,117 +1,17 @@
 <%- include('../layouts/header', { title: 'Movimientos de Accesorios', activeNav: 'mov-accesorios' }) %>
 
 <div class="row g-3">
-  <!-- Panel de Registro (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-4">
-    <div class="card card-success card-outline shadow-sm mb-4">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="bi bi-box-arrow-up-right text-success me-2"></i> Asignar / Mover Accesorio
-        </h3>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="/movimientos/accesorios" id="formMovAccesorio">
-          
-          <!-- Selección de Accesorio -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-tools me-1 text-primary"></i> ACCESORIO / MATERIAL <span class="text-danger">*</span>
-            </label>
-            <select name="id_accesorio" id="selectAccesorio" class="form-select" required autofocus>
-              <option value="">Seleccione accesorio...</option>
-              <% accesoriosDisponibles.forEach(acc => { %>
-                <option value="<%= acc.id_accesorio %>" data-stock="<%= acc.cantidad %>" data-unidad="<%= acc.unidad_medida %>" <%= selectedId == acc.id_accesorio ? 'selected' : '' %>>
-                  <%= acc.nombre %> <%= acc.codigo ? '(' + acc.codigo + ')' : '' %> [Disp: <%= acc.cantidad %> <%= acc.unidad_medida %>]
-                </option>
-              <% }); %>
-            </select>
-            <div id="infoStock" class="mt-1 small text-primary fw-semibold"></div>
-          </div>
-
-          <!-- Tipo de Movimiento -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
-            <select name="tipo_movimiento" id="tipoMovAcc" class="form-select" required>
-              <option value="SALIDA">SALIDA (Egreso de almacén / Asignación a técnico)</option>
-              <option value="ENTRADA">ENTRADA (Retorno / Reingreso a almacén)</option>
-            </select>
-          </div>
-
-          <!-- Cantidad a Mover -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">CANTIDAD A ASIGNAR / MOVER <span class="text-danger">*</span></label>
-            <input type="number" name="cantidad" id="inputCantidad" class="form-control font-tabular" min="1" step="1" value="1" required>
-            <small id="alertaStockExcedido" class="text-danger fw-bold d-none">
-              <i class="bi bi-exclamation-triangle"></i> La cantidad supera el stock disponible en almacén.
-            </small>
-          </div>
-
-          <!-- Campo Destino -->
-          <div class="mb-3" id="campoDestinoAcc">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-geo-alt me-1 text-danger"></i> DESTINO <span class="text-danger">*</span>
-            </label>
-            <select name="destino" id="selectDestinoAcc" class="form-select" required>
-              <option value="">Seleccione destino...</option>
-              <option value="INSTALACIONES">INSTALACIONES (Clientes)</option>
-              <option value="INFRAESTRUCTURA">INFRAESTRUCTURA (Nodos/Torres)</option>
-              <option value="MANTENIMIENTO RED">MANTENIMIENTO DE RED</option>
-              <option value="MANTENIMIENTO VEHICULOS">MANTENIMIENTO VEHÍCULOS</option>
-              <option value="ADMINISTRACION">ADMINISTRACIÓN</option>
-              <option value="SOPORTE TECNICO">SOPORTE TÉCNICO</option>
-              <option value="OTROS">OTROS</option>
-            </select>
-            <div class="form-text">Lugar o proyecto donde se destinará el material.</div>
-          </div>
-
-          <!-- Asunto -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
-            <select name="asunto" class="form-select" required>
-              <option value="RCA">RCA (Requerimiento de Cambio/Alta)</option>
-              <option value="INSTALACIÓN">INSTALACIÓN</option>
-              <option value="MANTENIMIENTO">MANTENIMIENTO</option>
-              <option value="AMPLIACION">AMPLIACIÓN DE RED</option>
-              <option value="OTROS">OTROS</option>
-            </select>
-          </div>
-
-          <!-- Encargado -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">
-              <i class="bi bi-person me-1"></i> TÉCNICO / ENCARGADO <span class="text-danger">*</span>
-            </label>
-            <input type="text" name="encargado" class="form-control" placeholder="Nombre de quien retira o recibe..." required>
-          </div>
-
-          <!-- Fecha -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">FECHA <span class="text-danger">*</span></label>
-            <input type="date" name="fecha_movimiento" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>" required>
-          </div>
-
-          <!-- Observaciones -->
-          <div class="mb-3">
-            <label class="form-label fw-semibold">OBSERVACIONES</label>
-            <textarea name="observaciones" rows="2" class="form-control" placeholder="Metraje cortado, número de orden o notas..."></textarea>
-          </div>
-
-          <button type="submit" id="btnGuardarMovAcc" class="btn btn-success w-100 py-2">
-            <i class="bi bi-check2-circle me-1"></i> Registrar Movimiento de Accesorio
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Historial de Movimientos de Accesorios (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-8">
+  <!-- Historial de Movimientos de Materiales (100% Ancho Full-Width) -->
+  <div class="col-12">
     <div class="card card-primary card-outline shadow-sm mb-4">
       <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h3 class="card-title">
           <i class="bi bi-list-columns-reverse text-primary me-2"></i> Historial de Movimientos de Materiales
         </h3>
         <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalMovAccesorio">
+            <i class="bi bi-box-arrow-up-right me-1"></i> Despachar Material
+          </button>
           <span class="badge text-bg-primary"><%= movimientos.length %> Movimientos</span>
           <a href="/reportes/exportar/movimientos-accesorios" class="btn btn-outline-secondary btn-sm" title="Descargar Excel (.xlsx)">
             <i class="bi bi-file-earmark-excel text-success me-1"></i> Exportar (.xlsx)
@@ -121,9 +21,9 @@
 
       <div class="card-body">
         <!-- Toolbar de Filtros y Búsqueda -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
           <form method="GET" action="/movimientos/accesorios" class="d-flex flex-wrap align-items-center gap-2">
-            <label class="form-label mb-0 small fw-bold text-secondary">Destino:</label>
+            <label class="form-label mb-0 small fw-bold text-body">Destino:</label>
             <select name="destino" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
               <option value="">Todos los destinos</option>
               <% destinos.forEach(d => { %>
@@ -140,8 +40,8 @@
             </div>
           </form>
 
-          <div class="small text-muted ms-auto">
-            Mostrando <strong class="text-dark font-tabular"><%= movimientos.length %></strong> movimientos
+          <div class="small text-body-secondary ms-auto">
+            Mostrando <strong class="text-body font-tabular"><%= movimientos.length %></strong> movimientos
           </div>
         </div>
 
@@ -174,20 +74,20 @@
                     </td>
                     <td><strong><%= m.nombre_accesorio || '-' %></strong></td>
                     <td class="text-end font-tabular">
-                      <span class="badge text-bg-secondary fw-semibold">
+                      <span class="badge bg-body-secondary border text-body fw-semibold">
                         <%= m.cantidad %> <%= m.unidad_medida || 'UNIDADES' %>
                       </span>
                     </td>
                     <td>
                       <% if (m.destino) { %>
-                        <span class="badge text-bg-light border text-dark"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
+                        <span class="badge bg-body-secondary border text-body"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
                       <% } else { %>
                         <span class="text-muted">-</span>
                       <% } %>
                     </td>
                     <td><%= m.encargado %></td>
-                    <td><small class="text-secondary"><%= m.asunto %></small></td>
-                    <td><small class="text-muted"><%= m.observaciones || '-' %></small></td>
+                    <td><small class="text-body-secondary"><%= m.asunto %></small></td>
+                    <td><small class="text-body-secondary"><%= m.observaciones || '-' %></small></td>
                   </tr>
                 <% }); %>
               <% } else { %>
@@ -199,6 +99,114 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Registro de Movimiento de Accesorio -->
+<div class="modal fade" id="modalMovAccesorio" tabindex="-1" aria-labelledby="modalMovAccesorioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title fw-bold" id="modalMovAccesorioLabel">
+          <i class="bi bi-box-arrow-up-right me-2"></i> Asignar / Despachar Material
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" action="/movimientos/accesorios" id="formMovAccesorio">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <!-- Selección de Accesorio -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-tools me-1 text-primary"></i> ACCESORIO / MATERIAL <span class="text-danger">*</span>
+              </label>
+              <select name="id_accesorio" id="selectAccesorio" class="form-select" required>
+                <option value="">Seleccione accesorio...</option>
+                <% accesoriosDisponibles.forEach(acc => { %>
+                  <option value="<%= acc.id_accesorio %>" data-stock="<%= acc.cantidad %>" data-unidad="<%= acc.unidad_medida %>" <%= selectedId == acc.id_accesorio ? 'selected' : '' %>>
+                    <%= acc.nombre %> <%= acc.codigo ? '(' + acc.codigo + ')' : '' %> [Disp: <%= acc.cantidad %> <%= acc.unidad_medida %>]
+                  </option>
+                <% }); %>
+              </select>
+              <div id="infoStock" class="mt-1 small text-primary fw-semibold"></div>
+            </div>
+
+            <!-- Tipo de Movimiento -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
+              <select name="tipo_movimiento" id="tipoMovAcc" class="form-select" required>
+                <option value="SALIDA">SALIDA (Egreso de almacén / Asignación a técnico)</option>
+                <option value="ENTRADA">ENTRADA (Retorno / Reingreso a almacén)</option>
+              </select>
+            </div>
+
+            <!-- Cantidad a Mover -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">CANTIDAD A ASIGNAR / MOVER <span class="text-danger">*</span></label>
+              <input type="number" name="cantidad" id="inputCantidad" class="form-control font-tabular" min="1" step="1" value="1" required>
+              <small id="alertaStockExcedido" class="text-danger fw-bold d-none">
+                <i class="bi bi-exclamation-triangle"></i> La cantidad supera el stock disponible en almacén.
+              </small>
+            </div>
+
+            <!-- Campo Destino -->
+            <div class="col-md-6" id="campoDestinoAcc">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-geo-alt me-1 text-danger"></i> DESTINO <span class="text-danger">*</span>
+              </label>
+              <select name="destino" id="selectDestinoAcc" class="form-select" required>
+                <option value="">Seleccione destino...</option>
+                <option value="INSTALACIONES">INSTALACIONES (Clientes)</option>
+                <option value="INFRAESTRUCTURA">INFRAESTRUCTURA (Nodos/Torres)</option>
+                <option value="MANTENIMIENTO RED">MANTENIMIENTO DE RED</option>
+                <option value="MANTENIMIENTO VEHICULOS">MANTENIMIENTO VEHÍCULOS</option>
+                <option value="ADMINISTRACION">ADMINISTRACIÓN</option>
+                <option value="SOPORTE TECNICO">SOPORTE TÉCNICO</option>
+                <option value="OTROS">OTROS</option>
+              </select>
+            </div>
+
+            <!-- Asunto -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
+              <select name="asunto" class="form-select" required>
+                <option value="RCA">RCA (Requerimiento de Cambio/Alta)</option>
+                <option value="INSTALACIÓN">INSTALACIÓN</option>
+                <option value="MANTENIMIENTO">MANTENIMIENTO</option>
+                <option value="AMPLIACION">AMPLIACIÓN DE RED</option>
+                <option value="OTROS">OTROS</option>
+              </select>
+            </div>
+
+            <!-- Encargado -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">
+                <i class="bi bi-person me-1"></i> TÉCNICO / ENCARGADO <span class="text-danger">*</span>
+              </label>
+              <input type="text" name="encargado" class="form-control" placeholder="Nombre de quien retira o recibe..." required>
+            </div>
+
+            <!-- Fecha -->
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">FECHA <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_movimiento" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>" required>
+            </div>
+
+            <!-- Observaciones -->
+            <div class="col-12">
+              <label class="form-label fw-semibold">OBSERVACIONES</label>
+              <input type="text" name="observaciones" class="form-control" placeholder="Metraje cortado, número de orden o notas...">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" id="btnGuardarMovAcc" class="btn btn-success px-4">
+            <i class="bi bi-check2-circle me-1"></i> Registrar Despacho
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
@@ -240,6 +248,14 @@
   selectAcc.addEventListener('change', validarStock);
   inputCant.addEventListener('input', validarStock);
   tipoMovAcc.addEventListener('change', validarStock);
+
+  const modalMovAcc = document.getElementById('modalMovAccesorio');
+  if (modalMovAcc) {
+    modalMovAcc.addEventListener('shown.bs.modal', function() {
+      selectAcc.focus();
+      validarStock();
+    });
+  }
 
   validarStock();
 </script>

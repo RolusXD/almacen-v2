@@ -1,81 +1,28 @@
 <%- include('../layouts/header', { title: 'Gestión de Usuarios', activeNav: 'usuarios' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Nuevo Usuario (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-4">
-    <div class="card card-primary card-outline shadow-sm mb-4">
-      <div class="card-header">
-        <h3 class="card-title">
-          <i class="bi bi-person-plus text-primary me-2"></i> Registrar Nuevo Usuario
-        </h3>
-      </div>
-      <div class="card-body">
-        <form method="POST" action="/usuarios/nuevo">
-          <div class="mb-3">
-            <label class="form-label fw-semibold">NOMBRE COMPLETO <span class="text-danger">*</span></label>
-            <input type="text" name="nombre_completo" class="form-control" placeholder="Ej: Juan Perez" required autofocus>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">NOMBRE DE USUARIO <span class="text-danger">*</span></label>
-            <input type="text" name="usuario" class="form-control font-mono" placeholder="Ej: jperez" required autocomplete="off">
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label fw-semibold">CONTRASEÑA INICIAL <span class="text-danger">*</span></label>
-            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-6">
-              <label class="form-label fw-semibold">CARNET / CI <span class="text-danger">*</span></label>
-              <input type="text" name="carnet" class="form-control font-tabular" placeholder="1234567" required>
-            </div>
-            <div class="col-6">
-              <label class="form-label fw-semibold">ROL <span class="text-danger">*</span></label>
-              <select name="rol" class="form-select" required>
-                <option value="usuario">Operador (Usuario)</option>
-                <option value="admin">Administrador</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="row g-2 mb-3">
-            <div class="col-7">
-              <label class="form-label fw-semibold">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
-              <input type="email" name="email" class="form-control" placeholder="jperez@toi.bo" required>
-            </div>
-            <div class="col-5">
-              <label class="form-label fw-semibold">FECHA NACIMIENTO <span class="text-danger">*</span></label>
-              <input type="date" name="fecha_nacimiento" class="form-control font-tabular" value="1995-01-01" required>
-            </div>
-          </div>
-
-          <button type="submit" class="btn btn-success w-100 py-2">
-            <i class="bi bi-save me-1"></i> Guardar Usuario
-          </button>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Listado de Usuarios (Card AdminLTE 4) -->
-  <div class="col-12 col-xl-8">
+  <!-- Listado de Usuarios (100% Ancho Full-Width) -->
+  <div class="col-12">
     <div class="card card-primary card-outline shadow-sm mb-4">
       <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
         <h3 class="card-title">
           <i class="bi bi-people text-primary me-2"></i> Usuarios del Sistema
         </h3>
-        <span class="badge text-bg-primary ms-auto"><%= usuarios.length %> Usuarios</span>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalNuevoUsuario">
+            <i class="bi bi-person-plus me-1"></i> + Registrar Usuario
+          </button>
+          <span class="badge text-bg-primary"><%= usuarios.length %> Usuarios</span>
+        </div>
       </div>
       <div class="card-body">
         
         <!-- Barra de Control -->
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
-          <span class="small text-muted">Cuentas y roles del personal</span>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-body-tertiary p-2 rounded border">
+          <span class="small text-body-secondary">Cuentas y roles del personal técnico y administrativo</span>
           <div class="d-flex align-items-center gap-2 ms-auto">
-            <label class="form-label mb-0 small text-muted">Buscar:</label>
-            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar usuarios..." style="width: 180px;">
+            <label class="form-label mb-0 small text-body">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar usuarios..." style="width: 200px;">
           </div>
         </div>
 
@@ -96,12 +43,12 @@
               <% if (usuarios && usuarios.length > 0) { %>
                 <% usuarios.forEach(u => { %>
                   <tr>
-                    <td><strong><%= u.nombre_completo %></strong></td>
+                    <td><strong class="text-body"><%= u.nombre_completo %></strong></td>
                     <td><span class="font-mono text-primary fw-semibold"><%= u.usuario %></span></td>
                     <td><span class="badge <%= u.rol === 'admin' ? 'text-bg-primary' : 'text-bg-secondary' %>"><%= u.rol %></span></td>
                     <td class="font-tabular"><%= u.carnet %></td>
                     <td><%= u.email %></td>
-                    <td><small class="text-muted"><%= u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-BO') : 'Nunca' %></small></td>
+                    <td><small class="text-body-secondary"><%= u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-BO') : 'Nunca' %></small></td>
                     <td>
                       <span class="badge <%= u.activo ? 'text-bg-success' : 'text-bg-danger' %>">
                         <%= u.activo ? 'ACTIVO' : 'INACTIVO' %>
@@ -118,6 +65,69 @@
           </table>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Registro de Usuario -->
+<div class="modal fade" id="modalNuevoUsuario" tabindex="-1" aria-labelledby="modalNuevoUsuarioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalNuevoUsuarioLabel">
+          <i class="bi bi-person-plus me-2"></i> Registrar Nuevo Usuario
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" action="/usuarios/nuevo">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">NOMBRE COMPLETO <span class="text-danger">*</span></label>
+              <input type="text" name="nombre_completo" class="form-control" placeholder="Ej: Juan Perez" required autofocus>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">NOMBRE DE USUARIO <span class="text-danger">*</span></label>
+              <input type="text" name="usuario" class="form-control font-mono" placeholder="Ej: jperez" required autocomplete="off">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">CONTRASEÑA INICIAL <span class="text-danger">*</span></label>
+              <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">CARNET / CI <span class="text-danger">*</span></label>
+              <input type="text" name="carnet" class="form-control font-tabular" placeholder="1234567" required>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label fw-semibold">ROL <span class="text-danger">*</span></label>
+              <select name="rol" class="form-select" required>
+                <option value="usuario">Operador (Usuario)</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+
+            <div class="col-md-7">
+              <label class="form-label fw-semibold">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" placeholder="jperez@toi.bo" required>
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label fw-semibold">FECHA NACIMIENTO <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_nacimiento" class="form-control font-tabular" value="1995-01-01" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-save me-1"></i> Guardar Usuario
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
