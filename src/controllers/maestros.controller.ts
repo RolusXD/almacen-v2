@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { MaestroRepository } from '../repositories/maestro.repository';
+import { AuditService } from '../services/audit.service';
 
 const maestroRepo = new MaestroRepository();
 
@@ -18,6 +19,11 @@ export class MaestrosController {
     try {
       const { codigo, descripcion, categoria, prefijo, observaciones } = req.body;
       await maestroRepo.createTipoEquipo({ codigo, descripcion, categoria, prefijo, observaciones });
+      await AuditService.log(req, {
+        modulo: 'MAESTROS',
+        accion: 'CREAR',
+        detalle: `Creación de tipo de equipo: ${descripcion} (${codigo || 'sin código'})`
+      });
       req.session.flash = { type: 'success', message: 'Tipo de equipo registrado correctamente.' };
       res.redirect('/maestros/tipos');
     } catch (err: any) {
@@ -33,6 +39,11 @@ export class MaestrosController {
       if (!ok) {
         req.session.flash = { type: 'error', message: 'No se puede desactivar el tipo porque tiene equipos vinculados.' };
       } else {
+        await AuditService.log(req, {
+          modulo: 'MAESTROS',
+          accion: 'ELIMINAR',
+          detalle: `Desactivación de tipo de equipo ID ${id}`
+        });
         req.session.flash = { type: 'success', message: 'Tipo de equipo desactivado.' };
       }
       res.redirect('/maestros/tipos');
@@ -55,6 +66,11 @@ export class MaestrosController {
     try {
       const { nombre_empresa, contacto, telefono, email, direccion, nit, pagina_web } = req.body;
       await maestroRepo.createProveedor({ nombre_empresa, contacto, telefono, email, direccion, nit, pagina_web });
+      await AuditService.log(req, {
+        modulo: 'MAESTROS',
+        accion: 'CREAR',
+        detalle: `Registro de proveedor: ${nombre_empresa} (NIT: ${nit || 'N/A'})`
+      });
       req.session.flash = { type: 'success', message: 'Proveedor registrado correctamente.' };
       res.redirect('/maestros/proveedores');
     } catch (err: any) {
@@ -67,6 +83,11 @@ export class MaestrosController {
     try {
       const id = parseInt(req.params.id, 10);
       await maestroRepo.deleteProveedor(id);
+      await AuditService.log(req, {
+        modulo: 'MAESTROS',
+        accion: 'ELIMINAR',
+        detalle: `Desactivación de proveedor ID ${id}`
+      });
       req.session.flash = { type: 'success', message: 'Proveedor desactivado.' };
       res.redirect('/maestros/proveedores');
     } catch (err) {
@@ -90,6 +111,11 @@ export class MaestrosController {
     try {
       const { nombre, descripcion } = req.body;
       await maestroRepo.createCategoria(nombre, descripcion);
+      await AuditService.log(req, {
+        modulo: 'MAESTROS',
+        accion: 'CREAR',
+        detalle: `Creación de categoría: ${nombre}`
+      });
       req.session.flash = { type: 'success', message: 'Categoría guardada.' };
       res.redirect('/maestros/categorias');
     } catch (err: any) {
@@ -102,6 +128,11 @@ export class MaestrosController {
     try {
       const id = parseInt(req.params.id, 10);
       await maestroRepo.deleteCategoria(id);
+      await AuditService.log(req, {
+        modulo: 'MAESTROS',
+        accion: 'ELIMINAR',
+        detalle: `Eliminación de categoría ID ${id}`
+      });
       req.session.flash = { type: 'success', message: 'Categoría eliminada.' };
       res.redirect('/maestros/categorias');
     } catch (err) {
@@ -123,6 +154,11 @@ export class MaestrosController {
     try {
       const { nombre, pais_origen, pagina_web } = req.body;
       await maestroRepo.createMarca(nombre, pais_origen, pagina_web);
+      await AuditService.log(req, {
+        modulo: 'MAESTROS',
+        accion: 'CREAR',
+        detalle: `Creación de marca: ${nombre} (${pais_origen || 'sin país'})`
+      });
       req.session.flash = { type: 'success', message: 'Marca guardada exitosamente.' };
       res.redirect('/maestros/marcas');
     } catch (err: any) {
@@ -135,6 +171,11 @@ export class MaestrosController {
     try {
       const id = parseInt(req.params.id, 10);
       await maestroRepo.deleteMarca(id);
+      await AuditService.log(req, {
+        modulo: 'MAESTROS',
+        accion: 'ELIMINAR',
+        detalle: `Eliminación de marca ID ${id}`
+      });
       req.session.flash = { type: 'success', message: 'Marca eliminada.' };
       res.redirect('/maestros/marcas');
     } catch (err) {

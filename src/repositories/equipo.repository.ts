@@ -36,6 +36,10 @@ export class EquipoRepository {
     return query<Equipo>(sql, params);
   }
 
+  async getDisponibles(): Promise<Equipo[]> {
+    return this.getAll(undefined, 'DISPONIBLE');
+  }
+
   async findById(id: number): Promise<Equipo | null> {
     return queryOne<Equipo>(
       `SELECT e.*, t.descripcion as tipo_descripcion

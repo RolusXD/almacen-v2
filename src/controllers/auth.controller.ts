@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { UsuarioRepository } from '../repositories/usuario.repository';
 import { MailService } from '../services/mail.service';
+import { AuditService } from '../services/audit.service';
 import { ENV } from '../config/env';
 
 const userRepo = new UsuarioRepository();
@@ -25,12 +26,34 @@ export class AuthController {
     try {
       const user = await userRepo.verifyCredentials(usuario, password);
       if (!user) {
+        await AuditService.log(req, {
+          modulo: 'AUTENTICACION',
+          accion: 'LOGIN_FAILED',
+          detalle: `Credenciales inválidas para usuario '${usuario}'`
+        });
         return res.render('auth/login', { error: 'Usuario o contraseña incorrectos.' });
       }
 
       if (user.activo !== 1) {
+        await AuditService.log(req, {
+          modulo: 'AUTENTICACION',
+          accion: 'LOGIN_FAILED',
+          detalle: `Intento de acceso con cuenta desactivada '${usuario}'`,
+          id_usuario: user.id_usuario,
+          nombre_usuario: user.nombre_completo,
+          rol_usuario: user.rol
+        });
         return res.render('auth/login', { error: 'Esta cuenta ha sido desactivada. Comuníquese con el administrador.' });
       }
+
+      await AuditService.log(req, {
+        modulo: 'AUTENTICACION',
+        accion: 'LOGIN_SUCCESS',
+        detalle: `Inicio de sesión exitoso`,
+        id_usuario: user.id_usuario,
+        nombre_usuario: user.nombre_completo,
+        rol_usuario: user.rol
+      });
 
       // Regenerar ID de sesión para prevenir Session Fixation (OWASP)
       req.session.regenerate((err) => {
@@ -55,7 +78,14 @@ export class AuthController {
     }
   }
 
-  static handleLogout(req: Request, res: Response) {
+  static async handleLogout(req: Request, res: Response) {
+    if (req.session?.userId) {
+      await AuditService.log(req, {
+        modulo: 'AUTENTICACION',
+        accion: 'LOGOUT',
+        detalle: 'Cierre de sesión de usuario'
+      });
+    }
     req.session.destroy(() => {
       res.redirect('/auth/login');
     });

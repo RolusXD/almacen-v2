@@ -1,5 +1,5 @@
 import PDFDocument from 'pdfkit';
-import { ComprobanteDespacho } from '../models/types';
+import { ComprobanteDespacho, ComprobanteDespachoUnificado } from '../models/types';
 
 export class PdfService {
   /**
@@ -164,6 +164,216 @@ export class PdfService {
           `Documento generado electrónicamente por el Sistema de Almacén TOI • Fecha de impresión: ${new Date().toLocaleString('es-BO')}`,
           40,
           730,
+          { width: 532, align: 'center' }
+        );
+
+        doc.end();
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  /**
+   * Genera el Comprobante de Despacho Unificado (Equipos + Accesorios) en PDF
+   */
+  static async generarComprobanteDespachoUnificado(data: ComprobanteDespachoUnificado): Promise<Buffer> {
+    return new Promise((resolve, reject) => {
+      try {
+        const doc = new PDFDocument({
+          margin: 40,
+          size: 'LETTER',
+          info: {
+            Title: `Orden de Despacho - ${data.numero_orden}`,
+            Author: data.empresa_nombre || 'Almacén TOI',
+            Subject: 'Orden de Despacho y Custodia de Materiales y Equipos',
+          }
+        });
+
+        const buffers: Buffer[] = [];
+        doc.on('data', (chunk) => buffers.push(chunk));
+        doc.on('end', () => resolve(Buffer.concat(buffers)));
+        doc.on('error', (err) => reject(err));
+
+        const primaryColor = '#0f172a'; // Slate 900
+        const accentColor = '#059669';  // Emerald 600
+        const borderColor = '#cbd5e1';  // Slate 300
+
+        // ==========================================
+        // 1. ENCABEZADO INSTITUCIONAL DINÁMICO
+        // ==========================================
+        doc.rect(40, 40, 532, 70).fillAndStroke('#f8fafc', borderColor);
+
+        doc.fillColor(primaryColor)
+           .fontSize(14)
+           .font('Helvetica-Bold')
+           .text(data.empresa_nombre || 'TELECOMUNICACIONES OPORTUNAS INTELIGENTES (TOI)', 55, 50, { width: 340 });
+
+        doc.fontSize(8.5)
+           .font('Helvetica')
+           .fillColor('#64748b')
+           .text(`NIT: ${data.empresa_nit || '1029384021'} • Tel: ${data.empresa_telefono || '+591 2 2456789'}`, 55, 68)
+           .text(data.empresa_direccion || 'Dirección de Almacén Central', 55, 80, { width: 340 })
+           .text('SISTEMA INTEGRADO DE GESTIÓN Y CUSTODIA DE ALMACÉN', 55, 92);
+
+        // Recuadro derecho: N° de Orden
+        doc.rect(410, 48, 150, 54).fillAndStroke('#ffffff', accentColor);
+        doc.fillColor(accentColor)
+           .fontSize(8.5)
+           .font('Helvetica-Bold')
+           .text('ORDEN DE DESPACHO', 415, 55, { width: 140, align: 'center' });
+
+        doc.fillColor('#059669')
+           .fontSize(11)
+           .font('Courier-Bold')
+           .text(data.numero_orden, 415, 72, { width: 140, align: 'center' });
+
+        // ==========================================
+        // 2. DATOS GENERALES DE LA ORDEN
+        // ==========================================
+        doc.rect(40, 120, 532, 65).fillAndStroke('#ffffff', borderColor);
+
+        doc.fontSize(9.5).font('Helvetica-Bold').fillColor(primaryColor);
+        doc.text('DATOS DE LA ORDEN DE DESPACHO', 50, 127);
+        doc.moveTo(50, 139).lineTo(560, 139).stroke(borderColor);
+
+        doc.fontSize(8.5).font('Helvetica');
+        // Fila 1
+        doc.fillColor('#475569').text('Fecha / Hora:', 50, 145);
+        doc.fillColor('#000000').font('Helvetica-Bold').text(data.fecha_despacho, 120, 145);
+
+        doc.font('Helvetica').fillColor('#475569').text('Destino / Proyecto:', 280, 145);
+        doc.fillColor('#000000').font('Helvetica-Bold').text(data.destino, 380, 145, { width: 180 });
+
+        // Fila 2
+        doc.font('Helvetica').fillColor('#475569').text('Receptor:', 50, 160);
+        doc.fillColor('#000000').font('Helvetica-Bold').text(data.encargado_receptor, 120, 160, { width: 150 });
+
+        doc.font('Helvetica').fillColor('#475569').text('Operador Almacén:', 280, 160);
+        doc.fillColor('#000000').font('Helvetica-Bold').text(data.operador_nombre, 380, 160, { width: 180 });
+
+        // Fila 3
+        doc.font('Helvetica').fillColor('#475569').text('Asunto / Motivo:', 50, 173);
+        doc.fillColor('#000000').font('Helvetica').text(data.asunto, 120, 173, { width: 440 });
+
+        let currentY = 195;
+
+        // ==========================================
+        // 3. TABLA DE EQUIPOS DESPACHADOS (Si hay)
+        // ==========================================
+        if (data.equipos && data.equipos.length > 0) {
+          doc.rect(40, currentY, 532, 20).fill('#f1f5f9');
+          doc.fillColor(primaryColor).fontSize(9).font('Helvetica-Bold');
+          doc.text(`1. EQUIPOS DE RED Y TELECOMUNICACIONES (${data.equipos.length})`, 50, currentY + 5);
+
+          currentY += 24;
+          // Cabecera tabla equipos
+          doc.rect(40, currentY, 532, 18).fillAndStroke('#e2e8f0', borderColor);
+          doc.fontSize(8).font('Helvetica-Bold').fillColor('#334155');
+          doc.text('#', 45, currentY + 5, { width: 25, align: 'center' });
+          doc.text('CÓDIGO', 75, currentY + 5, { width: 70 });
+          doc.text('MARCA / MODELO', 150, currentY + 5, { width: 120 });
+          doc.text('DESCRIPCIÓN DEL EQUIPO', 275, currentY + 5, { width: 140 });
+          doc.text('N° SERIE / MAC', 420, currentY + 5, { width: 145 });
+
+          currentY += 18;
+
+          data.equipos.forEach((eq, index) => {
+            const isEven = index % 2 === 0;
+            if (isEven) {
+              doc.rect(40, currentY, 532, 16).fill('#f8fafc');
+            }
+            doc.rect(40, currentY, 532, 16).stroke(borderColor);
+
+            doc.fontSize(8).font('Helvetica').fillColor('#000000');
+            doc.text(String(index + 1), 45, currentY + 4, { width: 25, align: 'center' });
+            doc.text(eq.codigo || '-', 75, currentY + 4, { width: 70 });
+            doc.text(`${eq.marca || ''} ${eq.modelo || ''}`.trim() || '-', 150, currentY + 4, { width: 120 });
+            doc.font('Helvetica-Bold').text(eq.descripcion, 275, currentY + 4, { width: 140 });
+            doc.font('Courier-Bold').fillColor('#0369a1').text(eq.numero_serie_mac, 420, currentY + 4, { width: 145 });
+
+            currentY += 16;
+          });
+
+          currentY += 10;
+        }
+
+        // ==========================================
+        // 4. TABLA DE MATERIALES Y ACCESORIOS (Si hay)
+        // ==========================================
+        if (data.accesorios && data.accesorios.length > 0) {
+          doc.rect(40, currentY, 532, 20).fill('#f1f5f9');
+          doc.fillColor(primaryColor).fontSize(9).font('Helvetica-Bold');
+          doc.text(`2. MATERIALES, FIBRA Y ACCESORIOS ENTREGADOS (${data.accesorios.length})`, 50, currentY + 5);
+
+          currentY += 24;
+          // Cabecera tabla accesorios
+          doc.rect(40, currentY, 532, 18).fillAndStroke('#e2e8f0', borderColor);
+          doc.fontSize(8).font('Helvetica-Bold').fillColor('#334155');
+          doc.text('#', 45, currentY + 5, { width: 25, align: 'center' });
+          doc.text('CÓDIGO', 75, currentY + 5, { width: 80 });
+          doc.text('DESCRIPCIÓN DEL MATERIAL', 160, currentY + 5, { width: 220 });
+          doc.text('CANTIDAD', 390, currentY + 5, { width: 80, align: 'right' });
+          doc.text('UNIDAD', 485, currentY + 5, { width: 80 });
+
+          currentY += 18;
+
+          data.accesorios.forEach((acc, index) => {
+            const isEven = index % 2 === 0;
+            if (isEven) {
+              doc.rect(40, currentY, 532, 16).fill('#f8fafc');
+            }
+            doc.rect(40, currentY, 532, 16).stroke(borderColor);
+
+            doc.fontSize(8).font('Helvetica').fillColor('#000000');
+            doc.text(String(index + 1), 45, currentY + 4, { width: 25, align: 'center' });
+            doc.text(acc.codigo || '-', 75, currentY + 4, { width: 80 });
+            doc.font('Helvetica-Bold').text(acc.descripcion, 160, currentY + 4, { width: 220 });
+            doc.font('Helvetica-Bold').fillColor('#059669').text(String(acc.cantidad), 390, currentY + 4, { width: 80, align: 'right' });
+            doc.font('Helvetica').fillColor('#475569').text(acc.unidad_medida, 485, currentY + 4, { width: 80 });
+
+            currentY += 16;
+          });
+
+          currentY += 10;
+        }
+
+        // ==========================================
+        // 5. OBSERVACIONES Y RECUADROS DE FIRMAS
+        // ==========================================
+        const firmaY = Math.max(currentY + 15, 610);
+
+        // Pie legal
+        doc.fontSize(7.5).font('Helvetica-Oblique').fillColor('#64748b');
+        doc.text(
+          data.almacen_pie_firma || 'Documento oficial de entrega y custodia de materiales de red y telecomunicaciones. El receptor asume total responsabilidad del inventario asignado.',
+          40,
+          firmaY - 20,
+          { width: 532, align: 'center' }
+        );
+
+        // Cuadro Firma 1: Entregado por (Almacén)
+        doc.rect(40, firmaY, 240, 75).stroke(borderColor);
+        doc.moveTo(60, firmaY + 50).lineTo(260, firmaY + 50).stroke('#64748b');
+        doc.fillColor('#000000').fontSize(8.5).font('Helvetica-Bold');
+        doc.text('ENTREGADO POR (ALMACÉN CENTRAL)', 60, firmaY + 54, { width: 200, align: 'center' });
+        doc.fontSize(7.5).font('Helvetica').fillColor('#64748b');
+        doc.text(`Firma: ${data.operador_nombre}`, 60, firmaY + 65, { width: 200, align: 'center' });
+
+        // Cuadro Firma 2: Recibido Conforme (Cuadrilla / Receptor)
+        doc.rect(332, firmaY, 240, 75).stroke(borderColor);
+        doc.moveTo(352, firmaY + 50).lineTo(552, firmaY + 50).stroke('#64748b');
+        doc.fillColor('#000000').fontSize(8.5).font('Helvetica-Bold');
+        doc.text('RECIBIDO CONFORME (CUADRILLA / PROYECTO)', 352, firmaY + 54, { width: 200, align: 'center' });
+        doc.fontSize(7.5).font('Helvetica').fillColor('#64748b');
+        doc.text(`Firma: ${data.encargado_receptor}`, 352, firmaY + 65, { width: 200, align: 'center' });
+
+        // Pie de página con timestamp de impresión
+        doc.fontSize(7).fillColor('#94a3b8').font('Helvetica');
+        doc.text(
+          `Comprobante Electrónico • Almacén TOI v4.0 • Generado: ${new Date().toLocaleString('es-BO')}`,
+          40,
+          735,
           { width: 532, align: 'center' }
         );
 

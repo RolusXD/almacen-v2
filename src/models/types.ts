@@ -186,26 +186,6 @@ export interface ConfiguracionSmtp {
   updated_at?: string;
 }
 
-export interface ComprobanteDespacho {
-  id_movimiento: number;
-  tipo_item: 'EQUIPO' | 'ACCESORIO';
-  numero_remision: string;
-  fecha_movimiento: string;
-  tipo_movimiento: string;
-  asunto: string;
-  encargado: string;
-  destino: string;
-  observaciones?: string | null;
-  operador_nombre: string;
-  operador_carnet?: string;
-  descripcion: string;
-  codigo?: string | null;
-  marca?: string | null;
-  modelo?: string | null;
-  numero_serie_mac?: string | null;
-  cantidad: number;
-  unidad_medida: string;
-}
 
 
 export interface Prestamo {
@@ -247,6 +227,8 @@ export interface ConfiguracionSmtp {
   updated_at?: string;
 }
 
+
+
 export interface ComprobanteDespacho {
   id_movimiento: number;
   tipo_item: 'EQUIPO' | 'ACCESORIO';
@@ -268,3 +250,116 @@ export interface ComprobanteDespacho {
   unidad_medida: string;
 }
 
+// ==========================================
+// SPEC-004: DESPACHO GENERAL Y ADMINISTRACIÓN
+// ==========================================
+
+export interface OrdenDespacho {
+  id_orden: number;
+  numero_orden: string;
+  fecha_despacho: string;
+  destino: string;
+  encargado_receptor: string;
+  asunto: string;
+  observaciones?: string | null;
+  estado: 'COMPLETADO' | 'ANULADO' | string;
+  created_by?: number | null;
+  created_at?: string;
+  updated_at?: string;
+  // Joins y métricas
+  operador_nombre?: string;
+  operador_carnet?: string;
+  total_items?: number;
+  total_equipos?: number;
+  total_accesorios?: number;
+  detalles?: OrdenDespachoDetalle[];
+}
+
+export interface OrdenDespachoDetalle {
+  id_detalle: number;
+  id_orden: number;
+  tipo_item: 'EQUIPO' | 'ACCESORIO';
+  id_item?: number | null;
+  numero_serie_mac?: string | null;
+  descripcion: string;
+  codigo?: string | null;
+  marca?: string | null;
+  modelo?: string | null;
+  cantidad: number;
+  unidad_medida: string;
+  created_at?: string;
+}
+
+export interface ItemCarritoDespacho {
+  tipo_item: 'EQUIPO' | 'ACCESORIO';
+  id_item?: number;
+  id_equipo?: number;
+  id_accesorio?: number;
+  numero_serie_mac?: string;
+  descripcion: string;
+  codigo?: string;
+  marca?: string;
+  modelo?: string;
+  cantidad: number;
+  unidad_medida?: string;
+  stock_disponible?: number;
+}
+
+export interface ConfiguracionGeneral {
+  id: number;
+  zona_horaria: string;
+  empresa_nombre: string;
+  empresa_nit?: string | null;
+  empresa_direccion?: string | null;
+  empresa_telefono?: string | null;
+  empresa_email?: string | null;
+  almacen_pie_firma?: string | null;
+  stock_minimo_defecto: number;
+  alertas_emails?: string | null;
+  updated_at?: string;
+}
+
+export interface AuditoriaLog {
+  id_log: number;
+  fecha_hora: string;
+  id_usuario?: number | null;
+  nombre_usuario: string;
+  rol_usuario: string;
+  ip: string;
+  modulo: string;
+  accion: string;
+  detalle?: string | null;
+  created_at?: string;
+}
+
+export interface ComprobanteDespachoUnificado {
+  id_orden: number;
+  numero_orden: string;
+  fecha_despacho: string;
+  destino: string;
+  encargado_receptor: string;
+  asunto: string;
+  observaciones?: string | null;
+  operador_nombre: string;
+  operador_carnet?: string;
+  empresa_nombre: string;
+  empresa_nit?: string;
+  empresa_direccion?: string;
+  empresa_telefono?: string;
+  almacen_pie_firma?: string;
+  equipos: {
+    numero_serie_mac: string;
+    descripcion: string;
+    codigo?: string;
+    marca?: string;
+    modelo?: string;
+    cantidad: number;
+  }[];
+  accesorios: {
+    descripcion: string;
+    codigo?: string;
+    marca?: string;
+    cantidad: number;
+    unidad_medida: string;
+  }[];
+}

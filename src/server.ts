@@ -1,6 +1,10 @@
 import { app } from './app';
 import { ENV } from './config/env';
 import { pool } from './db';
+import { ConfiguracionRepository } from './repositories/configuracion.repository';
+import { setSystemTimeZone } from './utils/date.helper';
+
+const configRepo = new ConfiguracionRepository();
 
 const server = app.listen(ENV.PORT, async () => {
   console.log(`=======================================================`);
@@ -13,6 +17,11 @@ const server = app.listen(ENV.PORT, async () => {
   try {
     const res = await pool.query('SELECT current_database(), version()');
     console.log(`✅ Base de datos conectada: ${res.rows[0].current_database}`);
+
+    // Cargar y aplicar zona horaria configurada
+    const config = await configRepo.getConfiguracion();
+    setSystemTimeZone(config.zona_horaria || 'America/La_Paz');
+    console.log(`🕒 Zona horaria activa: ${config.zona_horaria || 'America/La_Paz'}`);
   } catch (err: any) {
     console.warn(`⚠️ Advertencia de conexión a BD: ${err.message}`);
     console.warn(`   (Normal durante la construcción de la imagen Docker en Coolify)`);

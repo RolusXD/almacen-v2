@@ -1,0 +1,309 @@
+<%- include('../layouts/header', { title: title || 'Historial de Despachos y Salidas', activeNav: 'despachos-historial' }) %>
+
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title text-body mb-0">
+          <i class="bi bi-box-seam text-primary me-2"></i> <%= title || 'Historial de Despachos y Salidas' %>
+        </h3>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <a href="/despachos/nuevo" class="btn btn-success btn-sm">
+            <i class="bi bi-plus-lg me-1"></i> + Nuevo Despacho General
+          </a>
+          <span class="badge text-bg-primary"><%= ordenes.length %> Órdenes</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <!-- Toolbar de Filtros y Búsqueda -->
+        <div class="bg-body-tertiary p-3 rounded border mb-3">
+          <form method="GET" action="/despachos" class="row g-2 align-items-end">
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label small fw-semibold text-body mb-1">Destino:</label>
+              <select name="destino" class="form-select form-select-sm">
+                <option value="TODOS">Todos los destinos</option>
+                <% destinos.forEach(d => { %>
+                  <option value="<%= d %>" <%= filtros.destino === d ? 'selected' : '' %>><%= d %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <div class="col-md-2 col-sm-6">
+              <label class="form-label small fw-semibold text-body mb-1">Desde:</label>
+              <input type="date" name="fechaInicio" class="form-control form-control-sm font-tabular" value="<%= filtros.fechaInicio || '' %>">
+            </div>
+
+            <div class="col-md-2 col-sm-6">
+              <label class="form-label small fw-semibold text-body mb-1">Hasta:</label>
+              <input type="date" name="fechaFin" class="form-control form-control-sm font-tabular" value="<%= filtros.fechaFin || '' %>">
+            </div>
+
+            <div class="col-md-3 col-sm-6">
+              <label class="form-label small fw-semibold text-body mb-1">Buscar:</label>
+              <input type="text" name="buscar" class="form-control form-control-sm" placeholder="N° Orden, encargado, asunto..." value="<%= filtros.buscar || '' %>">
+            </div>
+
+            <div class="col-md-2 col-sm-12 d-flex gap-2">
+              <button type="submit" class="btn btn-primary btn-sm flex-fill">
+                <i class="bi bi-funnel me-1"></i> Filtrar
+              </button>
+              <a href="/despachos" class="btn btn-outline-secondary btn-sm" title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tabla de Órdenes de Despacho (100% Full-Width) -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th style="width: 170px;">N° ORDEN</th>
+                <th style="width: 160px;">FECHA Y HORA</th>
+                <th>DESTINO</th>
+                <th>ENCARGADO RECEPTOR</th>
+                <th>ASUNTO</th>
+                <th style="width: 140px;" class="text-center">ÍTEMS</th>
+                <th style="width: 110px;" class="text-center">ESTADO</th>
+                <th style="width: 140px;">OPERADOR</th>
+                <th style="width: 140px;" class="text-center">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (ordenes && ordenes.length > 0) { %>
+                <% ordenes.forEach(o => { %>
+                  <tr>
+                    <td>
+                      <span class="font-mono fw-bold text-primary"><%= o.numero_orden %></span>
+                    </td>
+                    <td class="font-tabular small text-body">
+                      <%= formatDateTime(o.fecha_despacho) %>
+                    </td>
+                    <td>
+                      <span class="badge bg-body-secondary text-body border">
+                        <i class="bi bi-geo-alt text-primary me-1"></i><%= o.destino %>
+                      </span>
+                    </td>
+                    <td>
+                      <strong><%= o.encargado_receptor %></strong>
+                    </td>
+                    <td>
+                      <small class="text-body-secondary"><%= o.asunto %></small>
+                    </td>
+                    <td class="text-center">
+                      <span class="badge text-bg-success me-1" title="Equipos"><%= o.total_equipos || 0 %> Eq</span>
+                      <span class="badge text-bg-info" title="Materiales"><%= o.total_accesorios || 0 %> Mat</span>
+                    </td>
+                    <td class="text-center">
+                      <% if (o.estado === 'COMPLETADO') { %>
+                        <span class="badge text-bg-success">COMPLETADO</span>
+                      <% } else { %>
+                        <span class="badge text-bg-danger"><%= o.estado %></span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <small class="text-body"><%= o.operador_nombre || 'Almacén' %></small>
+                    </td>
+                    <td class="text-center">
+                      <div class="btn-group btn-group-sm">
+                        <!-- Botón Ver Detalle (Modal) -->
+                        <button type="button" class="btn btn-outline-primary" onclick="abrirModalDetalle(<%= o.id_orden %>)" title="Ver detalle de la orden">
+                          <i class="bi bi-eye"></i>
+                        </button>
+                        <!-- Botón Descargar PDF -->
+                        <a href="/despachos/comprobante/<%= o.id_orden %>" target="_blank" class="btn btn-outline-secondary" title="Descargar Comprobante PDF">
+                          <i class="bi bi-file-earmark-pdf text-danger"></i>
+                        </a>
+                        <!-- Botón Anular (Solo Admin y si está activa) -->
+                        <% if (esAdmin && o.estado !== 'ANULADO') { %>
+                          <button type="button" class="btn btn-outline-danger" onclick="confirmarAnulacion(<%= o.id_orden %>, '<%= o.numero_orden %>')" title="Anular orden de despacho">
+                            <i class="bi bi-x-circle"></i>
+                          </button>
+                        <% } %>
+                      </div>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="9" class="text-center text-muted py-4">
+                    <i class="bi bi-inbox fs-2 d-block mb-1"></i>
+                    No se encontraron órdenes de despacho registradas con los filtros aplicados.
+                  </td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Detalle de Orden (Full-Width Responsive) -->
+<div class="modal fade" id="modalDetalleDespacho" tabindex="-1" aria-labelledby="modalDetalleLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalDetalleLabel">
+          <i class="bi bi-receipt me-2"></i> Detalle de Orden de Despacho
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4" id="modalDetalleBody">
+        <div class="text-center py-4">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Cargando...</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer bg-body-tertiary d-flex justify-content-between">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <a href="#" id="btnModalPdf" target="_blank" class="btn btn-danger">
+          <i class="bi bi-file-earmark-pdf me-1"></i> Imprimir Comprobante PDF
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Confirmación de Anulación -->
+<div class="modal fade" id="modalAnularDespacho" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-octagon me-2"></i> Confirmar Anulación</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" id="formAnularDespacho">
+        <div class="modal-body p-4 text-center">
+          <i class="bi bi-question-circle text-danger display-4 d-block mb-3"></i>
+          <h5 class="fw-bold">¿Está seguro de anular la orden <span id="spanAnularNumero" class="font-mono text-danger"></span>?</h5>
+          <p class="text-body-secondary small mb-0">
+            Esta acción revertirá atómicamente el estado de los equipos a <strong>DISPONIBLE</strong> y reintegrará las cantidades al inventario de accesorios.
+          </p>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-danger px-4">Sí, Anular Orden</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  function abrirModalDetalle(idOrden) {
+    const modalEl = document.getElementById('modalDetalleDespacho');
+    const modalBody = document.getElementById('modalDetalleBody');
+    const btnPdf = document.getElementById('btnModalPdf');
+    btnPdf.href = `/despachos/comprobante/${idOrden}`;
+
+    modalBody.innerHTML = `
+      <div class="text-center py-4">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+    `;
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+
+    fetch(`/api/despachos/${idOrden}/detalle`)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) {
+          modalBody.innerHTML = `<div class="alert alert-danger">${data.message || 'Error cargando datos'}</div>`;
+          return;
+        }
+
+        const o = data.orden;
+        const items = data.detalles || [];
+
+        let itemsHtml = '';
+        items.forEach((it, idx) => {
+          itemsHtml += `
+            <tr>
+              <td class="font-tabular">${idx + 1}</td>
+              <td><span class="badge ${it.tipo_item === 'EQUIPO' ? 'text-bg-primary' : 'text-bg-info'}">${it.tipo_item}</span></td>
+              <td class="font-mono fw-semibold">${it.numero_serie_mac || '-'}</td>
+              <td><strong>${it.descripcion}</strong> ${it.codigo ? `<small class="text-muted">(${it.codigo})</small>` : ''}</td>
+              <td class="text-end font-tabular fw-bold">${it.cantidad}</td>
+              <td class="small text-muted">${it.unidad_medida || 'UNIDAD'}</td>
+            </tr>
+          `;
+        });
+
+        modalBody.innerHTML = `
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <span class="small text-muted d-block">NÚMERO DE ORDEN:</span>
+              <span class="fs-5 fw-bold font-mono text-primary">${o.numero_orden}</span>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <span class="small text-muted d-block">FECHA Y HORA:</span>
+              <span class="fw-semibold font-tabular">${o.fecha_formateada || '-'}</span>
+            </div>
+            <div class="col-md-6">
+              <span class="small text-muted d-block">DESTINO:</span>
+              <span class="badge bg-body-secondary text-body border"><i class="bi bi-geo-alt text-primary me-1"></i>${o.destino}</span>
+            </div>
+            <div class="col-md-6 text-md-end">
+              <span class="small text-muted d-block">RECEPTOR / ENCARGADO:</span>
+              <strong>${o.encargado_receptor}</strong>
+            </div>
+            <div class="col-12">
+              <span class="small text-muted d-block">ASUNTO:</span>
+              <span>${o.asunto}</span>
+            </div>
+            ${o.observaciones ? `
+              <div class="col-12">
+                <span class="small text-muted d-block">OBSERVACIONES:</span>
+                <span class="small text-muted">${o.observaciones}</span>
+              </div>
+            ` : ''}
+          </div>
+
+          <h6 class="fw-bold text-primary border-bottom pb-2 mb-2">Ítems Despachados (${items.length})</h6>
+          <div class="table-responsive">
+            <table class="table table-sm table-bordered table-striped align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th style="width: 40px;">#</th>
+                  <th style="width: 100px;">TIPO</th>
+                  <th style="width: 180px;">SERIE / MAC</th>
+                  <th>DESCRIPCIÓN</th>
+                  <th style="width: 90px;" class="text-end">CANT.</th>
+                  <th style="width: 90px;">UNIDAD</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${itemsHtml}
+              </tbody>
+            </table>
+          </div>
+        `;
+      })
+      .catch(err => {
+        modalBody.innerHTML = `<div class="alert alert-danger">Error de red cargando detalles.</div>`;
+      });
+  }
+
+  function confirmarAnulacion(idOrden, numeroOrden) {
+    const modalEl = document.getElementById('modalAnularDespacho');
+    const form = document.getElementById('formAnularDespacho');
+    const span = document.getElementById('spanAnularNumero');
+
+    span.textContent = numeroOrden;
+    form.action = `/despachos/anular/${idOrden}`;
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+  }
+</script>
+
+<%- include('../layouts/footer') %>

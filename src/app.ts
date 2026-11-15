@@ -19,6 +19,7 @@ import { MaestrosController } from './controllers/maestros.controller';
 import { UsuariosController } from './controllers/usuarios.controller';
 import { ReportesController } from './controllers/reportes.controller';
 import { ConfigController } from './controllers/config.controller';
+import { DespachoController } from './controllers/despacho.controller';
 
 export const app = express();
 
@@ -129,6 +130,14 @@ app.get('/movimientos/accesorios', MovimientosController.accesoriosIndex);
 app.post('/movimientos/accesorios', MovimientosController.accesoriosSubmit);
 app.get('/movimientos/comprobante/:id', ReportesController.descargarComprobante);
 
+// Despacho General y Operaciones Unificadas
+app.get('/despachos', DespachoController.index);
+app.get('/despachos/nuevo', DespachoController.nuevoForm);
+app.post('/despachos/confirmar', DespachoController.confirmarSubmit);
+app.get('/despachos/comprobante/:id', DespachoController.descargarComprobante);
+app.get('/api/despachos/:id/detalle', DespachoController.apiDetalle);
+app.post('/despachos/anular/:id', requireAdmin, DespachoController.anular);
+
 // Maestros: Tipos de Equipos
 app.get('/maestros/tipos', MaestrosController.tiposIndex);
 app.post('/maestros/tipos', MaestrosController.tiposSubmit);
@@ -177,6 +186,12 @@ app.post('/usuarios/toggle/:id', requireAdmin, UsuariosController.toggleActivo);
 app.get('/configuracion/smtp', requireAdmin, ConfigController.smtpIndex);
 app.post('/configuracion/smtp', requireAdmin, ConfigController.smtpSubmit);
 app.post('/configuracion/smtp/test', requireAdmin, mailLimiter, ConfigController.smtpTest);
+
+// Administración General y Auditoría (Solo Administradores)
+app.get('/administracion/configuracion', requireAdmin, ConfigController.generalIndex);
+app.post('/administracion/configuracion', requireAdmin, ConfigController.generalSubmit);
+app.get('/administracion/logs', requireAdmin, ConfigController.logsIndex);
+app.get('/administracion/logs/exportar/excel', requireAdmin, ConfigController.logsExportarExcel);
 
 // Manejo 404
 app.use((req, res) => {

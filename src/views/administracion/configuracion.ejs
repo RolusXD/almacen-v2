@@ -1,0 +1,125 @@
+<%- include('../layouts/header', { title: 'Configuración General del Sistema', activeNav: 'admin-config' }) %>
+
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title text-body mb-0">
+          <i class="bi bi-sliders text-primary me-2"></i> Configuración General y Parámetros del Sistema
+        </h3>
+        <span class="badge text-bg-primary">Módulo Administración</span>
+      </div>
+
+      <form method="POST" action="/administracion/configuracion" id="formConfigGeneral">
+        <div class="card-body">
+          <div class="row g-4">
+            
+            <!-- 1. Región y Zona Horaria -->
+            <div class="col-12">
+              <div class="p-3 bg-body-tertiary rounded border">
+                <h5 class="fw-bold text-primary mb-3">
+                  <i class="bi bi-clock-history me-2"></i> Zona Horaria y Sincronización Horaria
+                </h5>
+                <div class="row g-3 align-items-center">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-body">Zona Horaria Oficial <span class="text-danger">*</span></label>
+                    <select name="zona_horaria" class="form-select" required>
+                      <option value="America/La_Paz" <%= config.zona_horaria === 'America/La_Paz' ? 'selected' : '' %>>America/La_Paz (Bolivia UTC-4) [Por defecto]</option>
+                      <option value="America/Lima" <%= config.zona_horaria === 'America/Lima' ? 'selected' : '' %>>America/Lima (Perú UTC-5)</option>
+                      <option value="America/Santiago" <%= config.zona_horaria === 'America/Santiago' ? 'selected' : '' %>>America/Santiago (Chile UTC-4/UTC-3)</option>
+                      <option value="America/Buenos_Aires" <%= config.zona_horaria === 'America/Buenos_Aires' ? 'selected' : '' %>>America/Buenos_Aires (Argentina UTC-3)</option>
+                      <option value="America/Bogota" <%= config.zona_horaria === 'America/Bogota' ? 'selected' : '' %>>America/Bogota (Colombia UTC-5)</option>
+                      <option value="America/Asuncion" <%= config.zona_horaria === 'America/Asuncion' ? 'selected' : '' %>>America/Asuncion (Paraguay UTC-4)</option>
+                      <option value="UTC" <%= config.zona_horaria === 'UTC' ? 'selected' : '' %>>UTC (Tiempo Universal Coordinado)</option>
+                    </select>
+                    <div class="form-text">Esta zona horaria se aplica a la bitácora de auditoría, comprobantes PDF, correos SMTP y fechas de movimientos.</div>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="alert alert-info py-2 mb-0 border shadow-sm">
+                      <div class="d-flex align-items-center">
+                        <i class="bi bi-info-circle-fill fs-4 text-info me-3"></i>
+                        <div>
+                          <strong>Zona horaria activa:</strong> <code><%= config.zona_horaria || 'America/La_Paz' %></code><br>
+                          <small class="text-body-secondary">Garantiza sincronización exacta de despachos sin desfase UTC.</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Datos Institucionales para Reportes y Comprobantes -->
+            <div class="col-12">
+              <div class="p-3 bg-body-tertiary rounded border">
+                <h5 class="fw-bold text-primary mb-3">
+                  <i class="bi bi-building me-2"></i> Identidad Corporativa (Membrete de Comprobantes PDF)
+                </h5>
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-body">Nombre de la Empresa / Razón Social <span class="text-danger">*</span></label>
+                    <input type="text" name="empresa_nombre" class="form-control" value="<%= config.empresa_nombre || '' %>" required>
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-body">NIT / Identificador Fiscal</label>
+                    <input type="text" name="empresa_nit" class="form-control font-tabular" value="<%= config.empresa_nit || '' %>">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label fw-semibold text-body">Dirección del Almacén Central</label>
+                    <input type="text" name="empresa_direccion" class="form-control" value="<%= config.empresa_direccion || '' %>">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold text-body">Teléfono de Contacto</label>
+                    <input type="text" name="empresa_telefono" class="form-control font-tabular" value="<%= config.empresa_telefono || '' %>">
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold text-body">Correo Institucional</label>
+                    <input type="email" name="empresa_email" class="form-control" value="<%= config.empresa_email || '' %>">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label fw-semibold text-body">Pie de Firma / Leyenda Legal en Comprobantes</label>
+                    <textarea name="almacen_pie_firma" rows="2" class="form-control"><%= config.almacen_pie_firma || '' %></textarea>
+                    <div class="form-text">Texto que aparecerá al pie de cada Comprobante de Despacho y Remisión de Entrega en PDF.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Parámetros Operativos e Inventario -->
+            <div class="col-12">
+              <div class="p-3 bg-body-tertiary rounded border">
+                <h5 class="fw-bold text-primary mb-3">
+                  <i class="bi bi-bell me-2"></i> Umbrales de Inventario y Notificaciones de Stock
+                </h5>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-body">Stock Mínimo por Defecto</label>
+                    <input type="number" name="stock_minimo_defecto" class="form-control font-tabular" min="1" max="9999" value="<%= config.stock_minimo_defecto || 10 %>" required>
+                    <div class="form-text">Umbral aplicado cuando un artículo no tiene un mínimo personalizado configurado.</div>
+                  </div>
+                  <div class="col-md-8">
+                    <label class="form-label fw-semibold text-body">Correos Destinatarios para Alertas de Stock Bajo</label>
+                    <input type="text" name="alertas_emails" class="form-control" value="<%= config.alertas_emails || '' %>" placeholder="almacen@toi.bo, supervisor@toi.bo">
+                    <div class="form-text">Separar múltiples correos mediante comas. Recibirán alertas automáticas al emitir despachos críticos.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card-footer bg-body-tertiary d-flex justify-content-between align-items-center p-3">
+          <span class="text-body-secondary small">
+            <i class="bi bi-clock me-1"></i> Última modificación: <%= config.updated_at ? new Date(config.updated_at).toLocaleString() : 'N/A' %>
+          </span>
+          <button type="submit" class="btn btn-success px-4">
+            <i class="bi bi-check2-circle me-1"></i> Guardar Configuración
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<%- include('../layouts/footer') %>

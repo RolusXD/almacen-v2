@@ -46,23 +46,35 @@
           </a>
         </li>
 
-        <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Operaciones y Kardex</li>
+        <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Despacho y Operaciones</li>
+        <li class="nav-item">
+          <a href="/despachos/nuevo" class="nav-link <%= activeNav === 'despachos-nuevo' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-cart-plus text-success"></i>
+            <p>+ Nuevo Despacho <span class="badge text-bg-success ms-auto">Nuevo</span></p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/despachos" class="nav-link <%= activeNav === 'despachos-historial' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-box-seam"></i>
+            <p>Historial Despachos</p>
+          </a>
+        </li>
         <li class="nav-item">
           <a href="/movimientos/equipos" class="nav-link <%= activeNav === 'mov-equipos' ? 'active' : '' %>">
             <i class="nav-icon bi bi-box-arrow-right"></i>
-            <p>Mover Equipos</p>
+            <p>Despacho de Equipos</p>
           </a>
         </li>
         <li class="nav-item">
           <a href="/movimientos/accesorios" class="nav-link <%= activeNav === 'mov-accesorios' ? 'active' : '' %>">
             <i class="nav-icon bi bi-box-arrow-up-right"></i>
-            <p>Mover Accesorios</p>
+            <p>Despacho Materiales</p>
           </a>
         </li>
         <li class="nav-item">
           <a href="/reportes" class="nav-link <%= activeNav === 'reportes' ? 'active' : '' %>">
             <i class="nav-icon bi bi-file-earmark-bar-graph"></i>
-            <p><%= (user && user.rol === 'admin') ? 'Centro de Reportes' : 'Mis Movimientos' %></p>
+            <p><%= (user && user.rol === 'admin') ? 'Kardex y Reportes' : 'Mis Despachos' %></p>
           </a>
         </li>
 
@@ -107,7 +119,10 @@
         </li>
 
         <% if (user && user.rol === 'admin') { %>
-          <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Administración</li>
+          <li class="nav-header text-uppercase text-secondary fw-bold mt-2 d-flex justify-content-between align-items-center" style="font-size: 11px;">
+            <span>Administración</span>
+            <span class="badge text-bg-warning text-dark me-2" style="font-size: 9px;">ADMIN</span>
+          </li>
           <li class="nav-item">
             <a href="/usuarios" class="nav-link <%= activeNav === 'usuarios' ? 'active' : '' %>">
               <i class="nav-icon bi bi-people"></i>
@@ -115,9 +130,21 @@
             </a>
           </li>
           <li class="nav-item">
+            <a href="/administracion/configuracion" class="nav-link <%= activeNav === 'admin-config' ? 'active' : '' %>">
+              <i class="nav-icon bi bi-sliders"></i>
+              <p>Configuración General</p>
+            </a>
+          </li>
+          <li class="nav-item">
             <a href="/configuracion/smtp" class="nav-link <%= activeNav === 'config-smtp' ? 'active' : '' %>">
               <i class="nav-icon bi bi-envelope-gear"></i>
-              <p>Configuración SMTP</p>
+              <p>Servidor SMTP</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/administracion/logs" class="nav-link <%= activeNav === 'admin-logs' ? 'active' : '' %>">
+              <i class="nav-icon bi bi-shield-check text-info"></i>
+              <p>Logs y Auditoría</p>
             </a>
           </li>
         <% } %>

@@ -1,0 +1,412 @@
+<%- include('../layouts/header', { title: 'Nuevo Despacho General (Orden Unificada)', activeNav: 'despachos-nuevo' }) %>
+
+<div class="row g-3">
+  <div class="col-12">
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title text-body mb-0">
+          <i class="bi bi-box-arrow-right text-success me-2"></i> Orden de Despacho General Unificada
+        </h3>
+        <span class="badge text-bg-success">Salida Simultánea de Equipos y Materiales</span>
+      </div>
+
+      <form method="POST" action="/despachos/confirmar" id="formDespachoGeneral">
+        <input type="hidden" name="items_payload" id="itemsPayload" value="[]">
+
+        <div class="card-body">
+          <div class="row g-4">
+            
+            <!-- 1. Datos Generales de la Orden -->
+            <div class="col-12">
+              <div class="p-3 bg-body-tertiary rounded border">
+                <h5 class="fw-bold text-primary mb-3">
+                  <i class="bi bi-geo-alt me-2"></i> 1. Destino y Responsable de Recepción
+                </h5>
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-body">
+                      Destino / Cuadrilla / Proyecto <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" name="destino" id="inputDestino" class="form-control" list="destinosList" placeholder="Ej: Cuadrilla Fibra 1, Nodo Norte..." required autocomplete="off">
+                    <datalist id="destinosList">
+                      <% destinos.forEach(d => { %>
+                        <option value="<%= d %>">
+                      <% }); %>
+                    </datalist>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-body">
+                      Encargado Receptor (Técnico / Cliente) <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" name="encargado_receptor" class="form-control" placeholder="Nombre completo de quien recibe..." required>
+                  </div>
+
+                  <div class="col-md-4">
+                    <label class="form-label fw-semibold text-body">
+                      Asunto / Motivo del Despacho <span class="text-danger">*</span>
+                    </label>
+                    <input type="text" name="asunto" class="form-control" placeholder="Ej: Habilitación nuevo cliente corporativo..." required>
+                  </div>
+
+                  <div class="col-12">
+                    <label class="form-label fw-semibold text-body">Observaciones / Detalles Adicionales</label>
+                    <input type="text" name="observaciones" class="form-control" placeholder="N° de ticket, precinto de seguridad o notas de entrega...">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 2. Constructor del Carrito de Despacho -->
+            <div class="col-12">
+              <div class="p-3 bg-body-tertiary rounded border">
+                <h5 class="fw-bold text-primary mb-3">
+                  <i class="bi bi-cart-plus me-2"></i> 2. Agregar Equipos o Materiales a la Orden
+                </h5>
+
+                <div class="row g-3 align-items-end">
+                  <div class="col-md-3">
+                    <label class="form-label fw-semibold text-body">Tipo de Ítem</label>
+                    <select id="selectTipoItem" class="form-select" onchange="toggleSelectorTipo()">
+                      <option value="EQUIPO">Equipo (Por N° Serie / MAC)</option>
+                      <option value="ACCESORIO">Material / Accesorio (Por Cantidad)</option>
+                    </select>
+                  </div>
+
+                  <!-- Selector para Equipos -->
+                  <div class="col-md-7" id="boxSelectorEquipo">
+                    <label class="form-label fw-semibold text-body">Buscar Equipo Disponible</label>
+                    <input type="text" id="inputSerieEquipo" class="form-control font-mono" list="equiposList" placeholder="Escriba o escanee serie / MAC...">
+                    <datalist id="equiposList">
+                      <% equiposDisponibles.forEach(eq => { %>
+                        <option value="<%= eq.numero_serie_mac %>" label="<%= eq.nombre %> - <%= eq.modelo || '' %> (<%= eq.codigo || '' %>)">
+                      <% }); %>
+                    </datalist>
+                    <div id="equipoFichaPreview" class="small text-body-secondary mt-1"></div>
+                  </div>
+
+                  <!-- Selector para Accesorios -->
+                  <div class="col-md-5 d-none" id="boxSelectorAccesorio">
+                    <label class="form-label fw-semibold text-body">Seleccionar Material</label>
+                    <select id="selectAccesorio" class="form-select" onchange="actualizarStockAccesorio()">
+                      <option value="">-- Elija un material --</option>
+                      <% accesoriosDisponibles.forEach(acc => { %>
+                        <option value="<%= acc.id_accesorio %>" data-nombre="<%= acc.nombre %>" data-stock="<%= acc.cantidad %>" data-unidad="<%= acc.unidad_medida %>" data-codigo="<%= acc.codigo || '' %>">
+                          <%= acc.nombre %> (Stock: <%= acc.cantidad %> <%= acc.unidad_medida %>)
+                        </option>
+                      <% }); %>
+                    </select>
+                  </div>
+
+                  <div class="col-md-2 d-none" id="boxCantidadAccesorio">
+                    <label class="form-label fw-semibold text-body">Cantidad <span id="labelUnidad"></span></label>
+                    <input type="number" id="inputCantidadAccesorio" class="form-control font-tabular" min="1" step="any" placeholder="1">
+                    <small id="stockHelpText" class="text-success fw-semibold"></small>
+                  </div>
+
+                  <!-- Botón Agregar -->
+                  <div class="col-md-2">
+                    <button type="button" class="btn btn-primary w-100" onclick="agregarItemAlCarrito()">
+                      <i class="bi bi-plus-circle me-1"></i> Agregar
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Mensaje de Alerta en vivo -->
+                <div id="alertaCarrito" class="alert alert-warning py-2 mt-3 d-none" role="alert">
+                  <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <span id="alertaCarritoTexto"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. Lista / Carrito de Despacho (100% Ancho) -->
+            <div class="col-12">
+              <div class="card card-outline card-secondary mb-0 shadow-none border">
+                <div class="card-header d-flex justify-content-between align-items-center bg-body">
+                  <h6 class="fw-bold text-body mb-0">
+                    <i class="bi bi-list-check me-1"></i> Ítems en la Orden de Despacho
+                  </h6>
+                  <span id="badgeResumenCarrito" class="badge text-bg-secondary">0 Ítems (0 Equipos, 0 Materiales)</span>
+                </div>
+                <div class="card-body p-0">
+                  <div class="table-responsive">
+                    <table class="table table-bordered table-striped table-hover align-middle mb-0" id="tablaCarrito">
+                      <thead class="table-light">
+                        <tr>
+                          <th style="width: 50px;">#</th>
+                          <th style="width: 120px;">TIPO</th>
+                          <th style="width: 220px;">SERIE / MAC</th>
+                          <th>DESCRIPCIÓN</th>
+                          <th style="width: 130px;" class="text-end">CANTIDAD</th>
+                          <th style="width: 120px;">UNIDAD</th>
+                          <th style="width: 80px;" class="text-center">ACCIÓN</th>
+                        </tr>
+                      </thead>
+                      <tbody id="tbodyCarrito">
+                        <tr id="rowVacio">
+                          <td colspan="7" class="text-center text-muted py-4">
+                            <i class="bi bi-cart-x fs-2 d-block mb-1 text-secondary"></i>
+                            El carrito de despacho está vacío. Agregue equipos o materiales arriba.
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="card-footer bg-body-tertiary d-flex justify-content-between align-items-center p-3">
+          <a href="/despachos" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-1"></i> Cancelar y Volver
+          </a>
+          <button type="submit" class="btn btn-success btn-lg px-4" id="btnEmitirDespacho" disabled>
+            <i class="bi bi-check2-circle me-1"></i> Confirmar y Emitir Despacho
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Catálogo en memoria para validaciones en frontend -->
+<script>
+  const catalogoEquipos = {
+    <% equiposDisponibles.forEach(eq => { %>
+      "<%= eq.numero_serie_mac.toLowerCase().trim() %>": {
+        serie: "<%= eq.numero_serie_mac %>",
+        nombre: "<%= eq.nombre %>",
+        codigo: "<%= eq.codigo || '' %>",
+        marca: "<%= eq.marca || '' %>",
+        modelo: "<%= eq.modelo || '' %>",
+        estado: "<%= eq.estado %>"
+      },
+    <% }); %>
+  };
+
+  const catalogoAccesorios = {
+    <% accesoriosDisponibles.forEach(acc => { %>
+      "<%= acc.id_accesorio %>": {
+        id: <%= acc.id_accesorio %>,
+        nombre: "<%= acc.nombre %>",
+        stock: <%= acc.cantidad %>,
+        unidad: "<%= acc.unidad_medida %>",
+        codigo: "<%= acc.codigo || '' %>"
+      },
+    <% }); %>
+  };
+
+  // Carrito en memoria
+  let cart = [];
+
+  function mostrarAlerta(msg) {
+    const box = document.getElementById('alertaCarrito');
+    const txt = document.getElementById('alertaCarritoTexto');
+    txt.textContent = msg;
+    box.classList.remove('d-none');
+    setTimeout(() => { box.classList.add('d-none'); }, 5000);
+  }
+
+  function toggleSelectorTipo() {
+    const tipo = document.getElementById('selectTipoItem').value;
+    const boxEq = document.getElementById('boxSelectorEquipo');
+    const boxAcc = document.getElementById('boxSelectorAccesorio');
+    const boxCant = document.getElementById('boxCantidadAccesorio');
+
+    if (tipo === 'EQUIPO') {
+      boxEq.classList.remove('d-none');
+      boxAcc.classList.add('d-none');
+      boxCant.classList.add('d-none');
+    } else {
+      boxEq.classList.add('d-none');
+      boxAcc.classList.remove('d-none');
+      boxCant.classList.remove('d-none');
+      actualizarStockAccesorio();
+    }
+  }
+
+  function actualizarStockAccesorio() {
+    const sel = document.getElementById('selectAccesorio');
+    const opt = sel.options[sel.selectedIndex];
+    const lbl = document.getElementById('labelUnidad');
+    const help = document.getElementById('stockHelpText');
+    const inputCant = document.getElementById('inputCantidadAccesorio');
+
+    if (opt && opt.value) {
+      const stock = parseFloat(opt.dataset.stock) || 0;
+      const unidad = opt.dataset.unidad || 'U';
+      lbl.textContent = `(${unidad})`;
+      help.textContent = `Stock disponible: ${stock} ${unidad}`;
+      inputCant.max = stock;
+    } else {
+      lbl.textContent = '';
+      help.textContent = '';
+      inputCant.removeAttribute('max');
+    }
+  }
+
+  function agregarItemAlCarrito() {
+    const tipo = document.getElementById('selectTipoItem').value;
+
+    if (tipo === 'EQUIPO') {
+      const input = document.getElementById('inputSerieEquipo');
+      const serieRaw = input.value.trim();
+      const serieKey = serieRaw.toLowerCase();
+
+      if (!serieRaw) {
+        mostrarAlerta('Por favor ingrese o seleccione una Serie / MAC.');
+        return;
+      }
+
+      const eq = catalogoEquipos[serieKey];
+      if (!eq) {
+        mostrarAlerta(`El equipo con serie/MAC '${serieRaw}' no existe o no está registrado como DISPONIBLE.`);
+        return;
+      }
+
+      // Regla de Negocio: Evitar agregar dos veces la misma serie/MAC
+      const yaExiste = cart.some(item => item.tipo_item === 'EQUIPO' && item.numero_serie_mac.toLowerCase() === serieKey);
+      if (yaExiste) {
+        mostrarAlerta(`El equipo con serie/MAC '${eq.serie}' ya está agregado en esta orden.`);
+        return;
+      }
+
+      cart.push({
+        tipo_item: 'EQUIPO',
+        numero_serie_mac: eq.serie,
+        descripcion: eq.nombre + (eq.modelo ? ` (${eq.modelo})` : ''),
+        codigo: eq.codigo,
+        marca: eq.marca,
+        modelo: eq.modelo,
+        cantidad: 1,
+        unidad_medida: 'UNIDAD'
+      });
+
+      input.value = '';
+    } else {
+      const sel = document.getElementById('selectAccesorio');
+      const idAcc = sel.value;
+      const inputCant = document.getElementById('inputCantidadAccesorio');
+      const cant = parseFloat(inputCant.value);
+
+      if (!idAcc) {
+        mostrarAlerta('Por favor elija un material o accesorio.');
+        return;
+      }
+
+      if (isNaN(cant) || cant <= 0) {
+        mostrarAlerta('Ingrese una cantidad válida mayor a 0.');
+        return;
+      }
+
+      const acc = catalogoAccesorios[idAcc];
+      if (!acc) return;
+
+      // Regla de Negocio: Evitar exceder stock al sumar accesorios repetidos
+      const existente = cart.find(item => item.tipo_item === 'ACCESORIO' && item.id_accesorio === acc.id);
+      const cantEnOrden = existente ? existente.cantidad : 0;
+      const totalRequerido = cantEnOrden + cant;
+
+      if (totalRequerido > acc.stock) {
+        mostrarAlerta(`Stock insuficiente para '${acc.nombre}': Disponible ${acc.stock} ${acc.unidad}. Ya tiene ${cantEnOrden} en la orden.`);
+        return;
+      }
+
+      if (existente) {
+        existente.cantidad = totalRequerido;
+      } else {
+        cart.push({
+          tipo_item: 'ACCESORIO',
+          id_accesorio: acc.id,
+          descripcion: acc.nombre,
+          codigo: acc.codigo,
+          cantidad: cant,
+          unidad_medida: acc.unidad,
+          stock_disponible: acc.stock
+        });
+      }
+
+      inputCant.value = '';
+    }
+
+    renderizarCarrito();
+  }
+
+  function eliminarItem(index) {
+    cart.splice(index, 1);
+    renderizarCarrito();
+  }
+
+  function renderizarCarrito() {
+    const tbody = document.getElementById('tbodyCarrito');
+    const badge = document.getElementById('badgeResumenCarrito');
+    const hiddenPayload = document.getElementById('itemsPayload');
+    const btnSubmit = document.getElementById('btnEmitirDespacho');
+
+    hiddenPayload.value = JSON.stringify(cart);
+
+    if (cart.length === 0) {
+      tbody.innerHTML = `
+        <tr id="rowVacio">
+          <td colspan="7" class="text-center text-muted py-4">
+            <i class="bi bi-cart-x fs-2 d-block mb-1 text-secondary"></i>
+            El carrito de despacho está vacío. Agregue equipos o materiales arriba.
+          </td>
+        </tr>
+      `;
+      badge.className = 'badge text-bg-secondary';
+      badge.textContent = '0 Ítems (0 Equipos, 0 Materiales)';
+      btnSubmit.disabled = true;
+      return;
+    }
+
+    let countEq = 0;
+    let countAcc = 0;
+    let html = '';
+
+    cart.forEach((item, idx) => {
+      if (item.tipo_item === 'EQUIPO') countEq++;
+      else countAcc++;
+
+      html += `
+        <tr>
+          <td class="font-tabular text-body-secondary">${idx + 1}</td>
+          <td>
+            <span class="badge ${item.tipo_item === 'EQUIPO' ? 'text-bg-primary' : 'text-bg-info'}">
+              ${item.tipo_item}
+            </span>
+          </td>
+          <td class="font-mono fw-semibold text-primary">
+            ${item.numero_serie_mac || '<span class="text-muted">-</span>'}
+          </td>
+          <td>
+            <strong>${item.descripcion}</strong>
+            ${item.codigo ? `<small class="text-muted"> (${item.codigo})</small>` : ''}
+          </td>
+          <td class="text-end font-tabular fw-bold text-body">
+            ${item.cantidad}
+          </td>
+          <td class="text-body-secondary small">
+            ${item.unidad_medida || 'UNIDAD'}
+          </td>
+          <td class="text-center">
+            <button type="button" class="btn btn-outline-danger btn-sm py-0 px-2" onclick="eliminarItem(${idx})" title="Quitar de la orden">
+              <i class="bi bi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tbody.innerHTML = html;
+    badge.className = 'badge text-bg-success';
+    badge.textContent = `${cart.length} Ítems (${countEq} Equipos, ${countAcc} Materiales)`;
+    btnSubmit.disabled = false;
+  }
+</script>
+
+<%- include('../layouts/footer') %>

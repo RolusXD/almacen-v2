@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { UsuarioRepository } from '../repositories/usuario.repository';
+import { AuditService } from '../services/audit.service';
 
 const userRepo = new UsuarioRepository();
 
@@ -46,6 +47,12 @@ export class UsuariosController {
         rol: rol === 'admin' ? 'admin' : 'usuario',
       });
 
+      await AuditService.log(req, {
+        modulo: 'USUARIOS',
+        accion: 'CREAR',
+        detalle: `Creación de usuario '${usuario}' con rol '${rol || 'usuario'}'`
+      });
+
       req.session.flash = { type: 'success', message: `Usuario '${usuario}' creado exitosamente.` };
       res.redirect('/usuarios');
     } catch (err: any) {
@@ -71,6 +78,12 @@ export class UsuariosController {
         email,
         rol: rol === 'admin' ? 'admin' : 'usuario',
         fecha_nacimiento: fecha_nacimiento || '1995-01-01'
+      });
+
+      await AuditService.log(req, {
+        modulo: 'USUARIOS',
+        accion: 'EDITAR',
+        detalle: `Actualización de perfil para usuario ID ${id} (${nombre_completo})`
       });
 
       req.session.flash = { type: 'success', message: 'Datos del usuario actualizados correctamente.' };
@@ -100,6 +113,12 @@ export class UsuariosController {
       const password_hash = await bcrypt.hash(nueva_password, 10);
       await userRepo.updatePassword(id, password_hash);
 
+      await AuditService.log(req, {
+        modulo: 'USUARIOS',
+        accion: 'PASSWORD_RESET',
+        detalle: `Cambio de contraseña para usuario ID ${id}`
+      });
+
       req.session.flash = { type: 'success', message: 'Contraseña actualizada con éxito.' };
       res.redirect('/usuarios');
     } catch (err: any) {
@@ -123,6 +142,13 @@ export class UsuariosController {
       }
 
       const nuevoEstado = await userRepo.toggleActivo(id);
+
+      await AuditService.log(req, {
+        modulo: 'USUARIOS',
+        accion: 'TOGGLE_ESTADO',
+        detalle: `Estado de cuenta para usuario ID ${id} conmutado a: ${nuevoEstado === 1 ? 'ACTIVO' : 'INACTIVO'}`
+      });
+
       req.session.flash = {
         type: 'success',
         message: nuevoEstado === 1 ? 'Usuario reactivado con éxito.' : 'Usuario deshabilitado exitosamente.'
