@@ -1,24 +1,24 @@
 <%- include('../layouts/header', { title: 'Gestión de Mantenimientos y Taller', activeNav: 'mantenimientos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Ingreso a Taller (Box Estilo Mikrowisp / AdminLTE) -->
+  <!-- Formulario de Ingreso a Taller (Card AdminLTE 4) -->
   <div class="col-12 col-xl-4">
-    <div class="erp-box erp-box-orange">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-wrench-adjustable text-warning"></i> Ingreso a Taller / Mantenimiento
-        </div>
+    <div class="card card-warning card-outline shadow-sm mb-4">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-wrench-adjustable text-warning me-2"></i> Ingreso a Taller / Mantenimiento
+        </h3>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         <form method="POST" action="/maestros/mantenimientos">
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
-            <input type="text" name="numero_serie_mac" class="erp-input-sm w-100 font-mono" placeholder="Ej: 445121884JXX" required autofocus>
+            <label class="form-label fw-semibold">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
+            <input type="text" name="numero_serie_mac" class="form-control font-mono" placeholder="Ej: 445121884JXX" required autofocus>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TIPO DE MANTENIMIENTO <span class="text-danger">*</span></label>
-            <select name="tipo_mantenimiento" class="erp-select-sm w-100" required>
+            <label class="form-label fw-semibold">TIPO DE MANTENIMIENTO <span class="text-danger">*</span></label>
+            <select name="tipo_mantenimiento" class="form-select" required>
               <option value="CORRECTIVO" selected>CORRECTIVO (Reparación de falla)</option>
               <option value="PREVENTIVO">PREVENTIVO (Limpieza y calibración)</option>
               <option value="EVOLUTIVO">EVOLUTIVO (Actualización de firmware)</option>
@@ -26,32 +26,32 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DESCRIPCIÓN DE LA FALLA / TRABAJO <span class="text-danger">*</span></label>
-            <textarea name="descripcion" rows="2" class="erp-input-sm w-100" placeholder="Ej: No sincroniza puerto PON, puertos ethernet quemados..." required></textarea>
+            <label class="form-label fw-semibold">DESCRIPCIÓN DE LA FALLA / TRABAJO <span class="text-danger">*</span></label>
+            <textarea name="descripcion" rows="2" class="form-control" placeholder="Ej: No sincroniza puerto PON, puertos quemados..." required></textarea>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
-            <input type="text" name="tecnico_responsable" class="erp-input-sm w-100" placeholder="Nombre del técnico responsable..." required>
+            <label class="form-label fw-semibold">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
+            <input type="text" name="tecnico_responsable" class="form-control" placeholder="Nombre del técnico responsable..." required>
           </div>
 
           <div class="row g-2 mb-3">
             <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">COSTO EST. (Bs.)</label>
-              <input type="number" step="0.01" name="costo" class="erp-input-sm w-100 font-tabular text-right" value="0.00">
+              <label class="form-label fw-semibold">COSTO EST. (Bs.)</label>
+              <input type="number" step="0.01" name="costo" class="form-control font-tabular text-end" value="0.00">
             </div>
             <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">FECHA INGRESO</label>
-              <input type="date" name="fecha_ingreso" class="erp-input-sm w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
+              <label class="form-label fw-semibold">FECHA INGRESO</label>
+              <input type="date" name="fecha_ingreso" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">REPUESTOS / OBSERVACIONES</label>
-            <input type="text" name="repuestos_cambiados" class="erp-input-sm w-100" placeholder="Ej: Fuente 12V 2A reemplazada">
+            <label class="form-label fw-semibold">REPUESTOS / OBSERVACIONES</label>
+            <input type="text" name="repuestos_cambiados" class="form-control" placeholder="Ej: Fuente 12V 2A reemplazada">
           </div>
 
-          <button type="submit" class="btn-erp btn-erp-warning w-100 py-2">
+          <button type="submit" class="btn btn-warning w-100 py-2">
             <i class="bi bi-save me-1"></i> Ingresar Equipo a Taller
           </button>
         </form>
@@ -59,51 +59,49 @@
     </div>
   </div>
 
-  <!-- Listado de Mantenimientos Estilo DataTables -->
+  <!-- Listado de Mantenimientos (Card AdminLTE 4) -->
   <div class="col-12 col-xl-8">
-    <div class="erp-box erp-box-blue">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-card-checklist text-primary"></i> Historial de Equipos en Taller
-        </div>
-        <span class="badge-erp badge-erp-primary"><%= mantenimientos.length %> Registros</span>
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title">
+          <i class="bi bi-card-checklist text-primary me-2"></i> Historial de Equipos en Taller
+        </h3>
+        <span class="badge text-bg-primary ms-auto"><%= mantenimientos.length %> Registros</span>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         
-        <!-- Barra de Control Estilo DataTables -->
-        <div class="datatables-header-bar">
-          <div class="datatables-length-select">
-            <span>Mostrar <strong>10</strong> registros por página</span>
-          </div>
-          <div class="datatables-search-filter">
-            <label>Buscar:</label>
-            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar por serie, técnico..." style="width: 200px;">
+        <!-- Barra de Control -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
+          <span class="small text-muted">Órdenes de servicio técnico</span>
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <label class="form-label mb-0 small text-muted">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar por serie, técnico..." style="width: 200px;">
           </div>
         </div>
 
-        <div class="table-responsive-erp">
-          <table class="table-erp">
-            <thead>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
                 <th>FECHA</th>
                 <th>N° SERIE / MAC</th>
                 <th>EQUIPO</th>
                 <th>TIPO / DESCRIPCIÓN</th>
                 <th>TÉCNICO</th>
-                <th class="col-number">COSTO</th>
+                <th class="text-end">COSTO</th>
                 <th>ESTADO</th>
-                <th class="actions-cell">ACCIONES</th>
+                <th class="text-end">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               <% if (mantenimientos && mantenimientos.length > 0) { %>
                 <% mantenimientos.forEach(m => { %>
                   <tr>
-                    <td class="col-fecha font-tabular">
+                    <td class="font-tabular small">
                       <%= m.fecha_ingreso ? new Date(m.fecha_ingreso).toISOString().split('T')[0] : '-' %>
                     </td>
                     <td>
-                      <span class="font-mono text-primary" style="font-weight: 600;">
+                      <span class="font-mono text-primary fw-semibold">
                         <%= m.numero_serie_mac %>
                         <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
                           <i class="bi bi-clipboard"></i>
@@ -113,37 +111,37 @@
                     <td>
                       <strong><%= m.nombre_equipo || 'Equipo' %></strong>
                       <% if (m.modelo_equipo) { %>
-                        <span class="text-muted ms-1">(<%= m.modelo_equipo %>)</span>
+                        <small class="text-muted ms-1">(<%= m.modelo_equipo %>)</small>
                       <% } %>
                     </td>
                     <td>
-                      <span class="badge-erp badge-erp-purple" style="font-size: 10px;"><%= m.tipo_mantenimiento %></span>
-                      <div class="text-truncate" style="max-width: 180px;" title="<%= m.descripcion %>">
+                      <span class="badge text-bg-secondary small"><%= m.tipo_mantenimiento %></span>
+                      <div class="text-truncate text-secondary small" style="max-width: 180px;" title="<%= m.descripcion %>">
                         <%= m.descripcion %>
                       </div>
                     </td>
                     <td><%= m.tecnico_responsable %></td>
-                    <td class="col-number font-tabular">
+                    <td class="text-end font-tabular">
                       Bs. <%= Number(m.costo || 0).toFixed(2) %>
                     </td>
                     <td>
                       <% if (m.estado === 'EN_PROCESO') { %>
-                        <span class="badge-erp badge-erp-warning">EN PROCESO</span>
+                        <span class="badge text-bg-warning">EN PROCESO</span>
                       <% } else if (m.estado === 'COMPLETADO') { %>
-                        <span class="badge-erp badge-erp-success">COMPLETADO</span>
+                        <span class="badge text-bg-success">COMPLETADO</span>
                       <% } else { %>
-                        <span class="badge-erp badge-erp-danger"><%= m.estado %></span>
+                        <span class="badge text-bg-danger"><%= m.estado %></span>
                       <% } %>
                     </td>
-                    <td class="actions-cell">
+                    <td class="text-end">
                       <% if (m.estado === 'EN_PROCESO') { %>
                         <form method="POST" action="/maestros/mantenimientos/completar/<%= m.id_mantenimiento %>" style="display: inline;" onsubmit="return confirm('¿Confirmar que el mantenimiento finalizó y el equipo regresa a DISPONIBLE?');">
-                          <button type="submit" class="btn-erp btn-erp-success btn-sm" title="Finalizar mantenimiento">
-                            <i class="bi bi-check-lg"></i> Listo
+                          <button type="submit" class="btn btn-success btn-sm" title="Finalizar mantenimiento">
+                            <i class="bi bi-check-lg me-1"></i> Listo
                           </button>
                         </form>
                       <% } else { %>
-                        <span class="text-muted" style="font-size: 11px;"><i class="bi bi-check2-all text-success"></i> Cerrado</span>
+                        <span class="text-muted small"><i class="bi bi-check2-all text-success"></i> Cerrado</span>
                       <% } %>
                     </td>
                   </tr>

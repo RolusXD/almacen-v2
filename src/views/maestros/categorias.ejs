@@ -2,27 +2,27 @@
 
 <div class="row g-3">
   
-  <!-- Formulario de Creación (Box Estilo AdminLTE / Mikrowisp) -->
+  <!-- Formulario de Creación (Card AdminLTE 4) -->
   <div class="col-12 col-xl-4">
-    <div class="erp-box erp-box-teal">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-folder-plus text-success"></i> Nueva Categoría
-        </div>
+    <div class="card card-success card-outline shadow-sm mb-4">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-folder-plus text-success me-2"></i> Nueva Categoría
+        </h3>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         <form method="POST" action="/maestros/categorias">
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NOMBRE DE LA CATEGORÍA <span class="text-danger">*</span></label>
-            <input type="text" name="nombre" class="erp-input-sm w-100" placeholder="Ej: ROUTER, SWITCH, FIBRA ÓPTICA" required autofocus>
+            <label class="form-label fw-semibold">NOMBRE DE LA CATEGORÍA <span class="text-danger">*</span></label>
+            <input type="text" name="nombre" class="form-control" placeholder="Ej: ROUTER, SWITCH, FIBRA ÓPTICA" required autofocus>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DESCRIPCIÓN OPERATIVA</label>
-            <textarea name="descripcion" rows="3" class="erp-input-sm w-100" placeholder="Descripción del grupo o rubro..."></textarea>
+            <label class="form-label fw-semibold">DESCRIPCIÓN OPERATIVA</label>
+            <textarea name="descripcion" rows="3" class="form-control" placeholder="Descripción del grupo o rubro..."></textarea>
           </div>
 
-          <button type="submit" class="btn-erp btn-erp-success w-100 py-2">
+          <button type="submit" class="btn btn-success w-100 py-2">
             <i class="bi bi-save me-1"></i> Guardar Categoría
           </button>
         </form>
@@ -30,37 +30,35 @@
     </div>
   </div>
 
-  <!-- Listado de Categorías Estilo DataTables -->
+  <!-- Listado de Categorías (Card AdminLTE 4) -->
   <div class="col-12 col-xl-8">
-    <div class="erp-box erp-box-blue">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-folder2-open text-primary"></i> Catálogo de Categorías Registradas
-        </div>
-        <span class="badge-erp badge-erp-primary"><%= categorias.length %> Categorías</span>
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title">
+          <i class="bi bi-folder2-open text-primary me-2"></i> Catálogo de Categorías Registradas
+        </h3>
+        <span class="badge text-bg-primary ms-auto"><%= categorias.length %> Categorías</span>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         
-        <!-- Barra de Control Estilo DataTables -->
-        <div class="datatables-header-bar">
-          <div class="datatables-length-select">
-            <span>Mostrar <strong>10</strong> registros por página</span>
-          </div>
-          <div class="datatables-search-filter">
-            <label>Buscar:</label>
-            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar categorías..." style="width: 180px;">
+        <!-- Barra de Control -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
+          <span class="small text-muted">Listado maestro de clasificación</span>
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <label class="form-label mb-0 small text-muted">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar categorías..." style="width: 180px;">
           </div>
         </div>
 
-        <div class="table-responsive-erp">
-          <table class="table-erp">
-            <thead>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
                 <th>NOMBRE</th>
                 <th>DESCRIPCIÓN</th>
-                <th class="col-number">EQUIPOS</th>
-                <th class="col-number">ACCESORIOS</th>
-                <th class="actions-cell">ACCIONES</th>
+                <th class="text-end">EQUIPOS</th>
+                <th class="text-end">ACCESORIOS</th>
+                <th class="text-end">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -68,24 +66,17 @@
                 <% categorias.forEach(c => { %>
                   <tr>
                     <td>
-                      <i class="bi bi-folder2 text-primary me-1"></i>
-                      <strong class="text-dark"><%= c.nombre %></strong>
+                      <span class="fw-bold text-dark"><%= c.nombre %></span>
                     </td>
-                    <td>
-                      <span class="text-muted"><%= c.descripcion || '-' %></span>
+                    <td><small class="text-secondary"><%= c.descripcion || '-' %></small></td>
+                    <td class="text-end font-tabular">
+                      <span class="badge text-bg-primary"><%= c.total_equipos || 0 %></span>
                     </td>
-                    <td class="col-number font-tabular">
-                      <span class="badge-erp badge-erp-success font-tabular">
-                        <%= c.total_equipos || 0 %> equipos
-                      </span>
+                    <td class="text-end font-tabular">
+                      <span class="badge text-bg-success"><%= c.total_accesorios || 0 %></span>
                     </td>
-                    <td class="col-number font-tabular">
-                      <span class="badge-erp badge-erp-info font-tabular">
-                        <%= c.total_accesorios || 0 %> materiales
-                      </span>
-                    </td>
-                    <td class="actions-cell">
-                      <a href="/maestros/categorias/eliminar/<%= c.id_categoria %>" class="btn-erp btn-erp-danger btn-erp-sm btn-erp-icon" title="Desactivar categoría" onclick="return confirm('¿Desactivar la categoría <%= c.nombre %>?');">
+                    <td class="text-end">
+                      <a href="/maestros/categorias/eliminar/<%= c.id_categoria %>" class="btn btn-outline-danger btn-sm" title="Desactivar categoría" onclick="return confirm('¿Desactivar la categoría <%= c.nombre %>?');">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>
@@ -93,7 +84,7 @@
                 <% }); %>
               <% } else { %>
                 <tr>
-                  <td colspan="5" class="text-center text-muted py-4">No se registran categorías activas.</td>
+                  <td colspan="5" class="text-center text-muted py-4">No hay categorías registradas en el sistema.</td>
                 </tr>
               <% } %>
             </tbody>

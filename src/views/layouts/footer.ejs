@@ -1,69 +1,56 @@
-      </main>
+        </div><!-- /.container-fluid -->
+      </div><!-- /.app-content -->
+    </main><!-- /.app-main -->
+
+    <!-- Footer Oficial AdminLTE 4 -->
+    <footer class="app-footer">
+      <div class="float-end d-none d-sm-inline">
+        <b>Versión</b> 4.0.0 (Node.js & AdminLTE 4)
+      </div>
+      <strong>Almacén TOI &copy; 2026</strong> Sistema Integrado de Telecomunicaciones.
+    </footer>
+  </div><!-- /.app-wrapper -->
+
+  <!-- Toast discreto de copiado -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1090;">
+    <div id="toastCopy" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <i class="bi bi-check2-circle text-success me-2"></i>
+          <span id="toastCopyText">Copiado al portapapeles</span>
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
     </div>
   </div>
 
-  <!-- Toast discreto para confirmación de copiado WMS UI PRO -->
-  <div id="toastCopy" class="toast-copy-notify">
-    <i class="bi bi-check2-circle text-success"></i>
-    <span id="toastCopyText">Copiado al portapapeles</span>
-  </div>
+  <!-- Scripts Oficiales de Bootstrap 5 y AdminLTE 4 -->
+  <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/adminlte/js/adminlte.min.js"></script>
 
-  <!-- Client-side script para WMS UI Pro -->
+  <!-- Script de Utilidades WMS -->
   <script>
-    // Función global para copiar al portapapeles
     function copyToClipboard(text, label) {
       if (!text) return;
       navigator.clipboard.writeText(text).then(() => {
-        showCopyToast((label || 'Texto') + ' copiado: ' + text);
+        const toastEl = document.getElementById('toastCopy');
+        const textEl = document.getElementById('toastCopyText');
+        if (toastEl && textEl) {
+          textEl.textContent = (label || 'Texto') + ' copiado: ' + text;
+          const toast = bootstrap.Toast.getOrCreateInstance(toastEl);
+          toast.show();
+        }
       }).catch(err => {
         console.error('Error al copiar:', err);
       });
     }
 
-    function showCopyToast(msg) {
-      const toast = document.getElementById('toastCopy');
-      const text = document.getElementById('toastCopyText');
-      if (toast && text) {
-        text.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(() => {
-          toast.classList.remove('show');
-        }, 2200);
-      }
-    }
-
-    function focusQuickSearch() {
-      const searchInput = document.getElementById('quickTableSearch') || document.querySelector('input[name="filtro"]') || document.querySelector('input[type="search"]');
-      if (searchInput) {
-        searchInput.focus();
-        searchInput.select();
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', function () {
-      // Toggle sidebar en móvil / tablet
-      const toggle = document.getElementById('sidebarToggle');
-      const sidebar = document.getElementById('sidebar');
-      if (toggle && sidebar) {
-        toggle.addEventListener('click', function () {
-          sidebar.classList.toggle('show');
-        });
-      }
-
-      // Atajo global de teclado (Ctrl + K o tecla /)
-      document.addEventListener('keydown', function (e) {
-        if ((e.ctrlKey && e.key === 'k') || (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA')) {
-          e.preventDefault();
-          focusQuickSearch();
-        }
-      });
-
-      // Búsqueda en tiempo real sobre tablas
       const quickSearch = document.getElementById('quickTableSearch');
       if (quickSearch) {
         quickSearch.addEventListener('input', function () {
           const val = this.value.toLowerCase().trim();
-          const rows = document.querySelectorAll('.table-erp tbody tr, .mw-table tbody tr, table tbody tr');
+          const rows = document.querySelectorAll('table tbody tr');
           rows.forEach(row => {
             const text = row.textContent.toLowerCase();
             row.style.display = text.includes(val) ? '' : 'none';

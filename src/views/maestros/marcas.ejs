@@ -1,32 +1,32 @@
 <%- include('../layouts/header', { title: 'Marcas', activeNav: 'marcas' }) %>
 
 <div class="row g-3">
-  <!-- Formulario (Box Estilo Mikrowisp / AdminLTE) -->
+  <!-- Formulario (Card AdminLTE 4) -->
   <div class="col-12 col-xl-4">
-    <div class="erp-box erp-box-teal">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-bookmark-plus text-success"></i> Registrar Marca
-        </div>
+    <div class="card card-success card-outline shadow-sm mb-4">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-bookmark-plus text-success me-2"></i> Registrar Marca
+        </h3>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         <form method="POST" action="/maestros/marcas">
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NOMBRE DE LA MARCA <span class="text-danger">*</span></label>
-            <input type="text" name="nombre" class="erp-input-sm w-100" placeholder="Ej: TP-LINK, MIKROTIK, HUAWEI, VSOL" required>
+            <label class="form-label fw-semibold">NOMBRE DE LA MARCA <span class="text-danger">*</span></label>
+            <input type="text" name="nombre" class="form-control" placeholder="Ej: TP-LINK, MIKROTIK, HUAWEI, VSOL" required autofocus>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">PAÍS DE ORIGEN</label>
-            <input type="text" name="pais_origen" class="erp-input-sm w-100" placeholder="Ej: China, Letonia, EE.UU.">
+            <label class="form-label fw-semibold">PAÍS DE ORIGEN</label>
+            <input type="text" name="pais_origen" class="form-control" placeholder="Ej: China, Letonia, EE.UU.">
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">SITIO WEB OFICIAL</label>
-            <input type="url" name="pagina_web" class="erp-input-sm w-100" placeholder="https://www.marca.com">
+            <label class="form-label fw-semibold">SITIO WEB OFICIAL</label>
+            <input type="url" name="pagina_web" class="form-control" placeholder="https://www.marca.com">
           </div>
 
-          <button type="submit" class="btn-erp btn-erp-success w-100 py-2">
+          <button type="submit" class="btn btn-success w-100 py-2">
             <i class="bi bi-save me-1"></i> Guardar Marca
           </button>
         </form>
@@ -34,37 +34,35 @@
     </div>
   </div>
 
-  <!-- Listado Estilo DataTables -->
+  <!-- Listado (Card AdminLTE 4) -->
   <div class="col-12 col-xl-8">
-    <div class="erp-box erp-box-blue">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-bookmark-star text-primary"></i> Marcas Registradas
-        </div>
-        <span class="badge-erp badge-erp-primary"><%= marcas.length %> Marcas</span>
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title">
+          <i class="bi bi-bookmark-star text-primary me-2"></i> Marcas Registradas
+        </h3>
+        <span class="badge text-bg-primary ms-auto"><%= marcas.length %> Marcas</span>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         
-        <!-- Barra de Control Estilo DataTables -->
-        <div class="datatables-header-bar">
-          <div class="datatables-length-select">
-            <span>Mostrar <strong>10</strong> registros por página</span>
-          </div>
-          <div class="datatables-search-filter">
-            <label>Buscar:</label>
-            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar marcas..." style="width: 180px;">
+        <!-- Barra de Control -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
+          <span class="small text-muted">Fabricantes y marcas homologadas</span>
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <label class="form-label mb-0 small text-muted">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar marcas..." style="width: 180px;">
           </div>
         </div>
 
-        <div class="table-responsive-erp">
-          <table class="table-erp">
-            <thead>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
                 <th>NOMBRE</th>
                 <th>PAÍS</th>
                 <th>SITIO WEB</th>
-                <th class="col-number">EQUIPOS ASOCIADOS</th>
-                <th class="actions-cell">ACCIONES</th>
+                <th class="text-end">EQUIPOS ASOCIADOS</th>
+                <th class="text-end">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -75,18 +73,18 @@
                     <td><%= m.pais_origen || '-' %></td>
                     <td>
                       <% if (m.pagina_web) { %>
-                        <a href="<%= m.pagina_web %>" target="_blank" rel="noopener" class="text-primary text-decoration-none">
+                        <a href="<%= m.pagina_web %>" target="_blank" rel="noopener" class="text-decoration-none">
                           <i class="bi bi-box-arrow-up-right me-1"></i>Web Oficial
                         </a>
                       <% } else { %>
                         <span class="text-muted">-</span>
                       <% } %>
                     </td>
-                    <td class="col-number">
-                      <span class="badge-erp badge-erp-success"><%= m.total_equipos || 0 %> equipos</span>
+                    <td class="text-end font-tabular">
+                      <span class="badge text-bg-success"><%= m.total_equipos || 0 %> equipos</span>
                     </td>
-                    <td class="actions-cell">
-                      <a href="/maestros/marcas/eliminar/<%= m.id_marca %>" class="btn-erp btn-erp-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar marca <%= m.nombre %>?');">
+                    <td class="text-end">
+                      <a href="/maestros/marcas/eliminar/<%= m.id_marca %>" class="btn btn-outline-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar marca <%= m.nombre %>?');">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>

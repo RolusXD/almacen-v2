@@ -1,159 +1,116 @@
-<aside class="sidebar" id="sidebar">
-  <!-- Encabezado de Marca (Top-Left: 52px con fondo azul corporativo #3C8DBC) -->
-  <div class="sidebar-header">
-    <div class="sidebar-brand-icon">
-      <i class="bi bi-box-seam-fill"></i>
-    </div>
-    <div>
-      <div class="sidebar-brand-title">TOI Almacén</div>
-      <div class="sidebar-brand-sub">Sistema ERP / WMS</div>
-    </div>
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+  <!-- Brand Logo -->
+  <div class="sidebar-brand">
+    <a href="/dashboard" class="brand-link text-decoration-none d-flex align-items-center">
+      <i class="bi bi-boxes brand-image text-primary fs-4 me-2"></i>
+      <span class="brand-text fw-bold text-white">Almacén TOI</span>
+    </a>
   </div>
 
-  <!-- Panel de Perfil de Usuario (Estilo Mikrowisp / AdminLTE) -->
-  <div class="sidebar-user-panel">
-    <div class="user-avatar-circle">
-      <%= user && user.nombre_completo ? user.nombre_completo.charAt(0).toUpperCase() : 'U' %>
-    </div>
-    <div class="user-info-text">
-      <div class="user-name-title"><%= user ? user.nombre_completo : 'Usuario' %></div>
-      <div class="user-role-status">
-        <span class="status-dot-online" title="En línea"></span>
-        <span><%= user && user.rol ? user.rol.toUpperCase() : 'OPERADOR' %> (Online)</span>
+  <!-- Sidebar Wrapper -->
+  <div class="sidebar-wrapper">
+    <!-- User Panel -->
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center px-3 border-bottom border-secondary">
+      <div class="image me-2">
+        <i class="bi bi-person-circle fs-3 text-info"></i>
+      </div>
+      <div class="info">
+        <a href="#" class="d-block text-decoration-none fw-semibold text-white"><%= user ? user.nombre_completo : 'Administrador' %></a>
+        <small class="text-success"><i class="bi bi-circle-fill me-1" style="font-size: 8px;"></i>En línea</small>
       </div>
     </div>
-  </div>
 
-  <!-- Menú de Navegación Vertical con flechas e indicadores -->
-  <ul class="sidebar-nav">
-    <li class="nav-header-title">MENÚ PRINCIPAL</li>
-    <li class="nav-item">
-      <a href="/dashboard" class="nav-link <%= activeNav === 'dashboard' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-speedometer2 nav-icon"></i>
-          <span>Dashboard General</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
+    <!-- Sidebar Navigation Menu -->
+    <nav class="mt-2">
+      <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
+        
+        <li class="nav-header text-uppercase text-secondary fw-bold" style="font-size: 11px;">Módulos Principales</li>
+        <li class="nav-item">
+          <a href="/dashboard" class="nav-link <%= activeNav === 'dashboard' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-speedometer2"></i>
+            <p>Dashboard</p>
+          </a>
+        </li>
 
-    <li class="nav-header-title">INVENTARIO & ARTÍCULOS</li>
-    <li class="nav-item">
-      <a href="/equipos" class="nav-link <%= activeNav === 'equipos' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-router nav-icon"></i>
-          <span>Equipos de Red</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="/accesorios" class="nav-link <%= activeNav === 'accesorios' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-tools nav-icon"></i>
-          <span>Accesorios / Fibra</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
+        <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Inventario y Artículos</li>
+        <li class="nav-item">
+          <a href="/equipos" class="nav-link <%= activeNav === 'equipos' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-router"></i>
+            <p>Equipos de Red</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/accesorios" class="nav-link <%= activeNav === 'accesorios' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-tools"></i>
+            <p>Accesorios / Fibra</p>
+          </a>
+        </li>
 
-    <li class="nav-header-title">OPERACIONES & KARDEX</li>
-    <li class="nav-item">
-      <a href="/movimientos/equipos" class="nav-link <%= activeNav === 'mov-equipos' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-arrow-left-right nav-icon"></i>
-          <span>Mover Equipos</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="/movimientos/accesorios" class="nav-link <%= activeNav === 'mov-accesorios' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-box-arrow-up-right nav-icon"></i>
-          <span>Mover Accesorios</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
+        <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Operaciones y Kardex</li>
+        <li class="nav-item">
+          <a href="/movimientos/equipos" class="nav-link <%= activeNav === 'mov-equipos' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-box-arrow-right"></i>
+            <p>Mover Equipos</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/movimientos/accesorios" class="nav-link <%= activeNav === 'mov-accesorios' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-box-arrow-up-right"></i>
+            <p>Mover Accesorios</p>
+          </a>
+        </li>
 
-    <li class="nav-header-title">GESTIÓN MAESTRA (CATÁLOGOS)</li>
-    <li class="nav-item">
-      <a href="/maestros/categorias" class="nav-link <%= activeNav === 'categorias' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-folder2-open nav-icon"></i>
-          <span>Categorías</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="/maestros/tipos" class="nav-link <%= activeNav === 'tipos' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-tags nav-icon"></i>
-          <span>Tipos de Equipos</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="/maestros/proveedores" class="nav-link <%= activeNav === 'proveedores' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-truck nav-icon"></i>
-          <span>Proveedores (NIT)</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="/maestros/marcas" class="nav-link <%= activeNav === 'marcas' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-bookmark-star nav-icon"></i>
-          <span>Marcas</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
+        <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Gestión Maestra</li>
+        <li class="nav-item">
+          <a href="/maestros/categorias" class="nav-link <%= activeNav === 'categorias' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-folder2-open"></i>
+            <p>Categorías</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/maestros/tipos" class="nav-link <%= activeNav === 'tipos' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-tags"></i>
+            <p>Tipos de Equipos</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/maestros/proveedores" class="nav-link <%= activeNav === 'proveedores' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-buildings"></i>
+            <p>Proveedores (NIT)</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/maestros/marcas" class="nav-link <%= activeNav === 'marcas' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-bookmark-check"></i>
+            <p>Marcas</p>
+          </a>
+        </li>
 
-    <li class="nav-header-title">CONTROL & TALLER</li>
-    <li class="nav-item">
-      <a href="/maestros/mantenimientos" class="nav-link <%= activeNav === 'mantenimientos' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-wrench-adjustable nav-icon"></i>
-          <span>Mantenimientos / Taller</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a href="/maestros/prestamos" class="nav-link <%= activeNav === 'prestamos' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-handbag nav-icon"></i>
-          <span>Préstamos</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
+        <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Control y Taller</li>
+        <li class="nav-item">
+          <a href="/maestros/mantenimientos" class="nav-link <%= activeNav === 'mantenimientos' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-wrench-adjustable"></i>
+            <p>Mantenimientos / Taller</p>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="/maestros/prestamos" class="nav-link <%= activeNav === 'prestamos' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-handbag"></i>
+            <p>Préstamos</p>
+          </a>
+        </li>
 
-    <% if (user && user.rol === 'admin') { %>
-    <li class="nav-header-title">ADMINISTRACIÓN</li>
-    <li class="nav-item">
-      <a href="/usuarios" class="nav-link <%= activeNav === 'usuarios' ? 'active' : '' %>">
-        <div class="nav-left-content">
-          <i class="bi bi-people nav-icon"></i>
-          <span>Usuarios del Sistema</span>
-        </div>
-        <i class="bi bi-chevron-right arrow-icon"></i>
-      </a>
-    </li>
-    <% } %>
-  </ul>
+        <% if (user && user.rol === 'admin') { %>
+          <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Administración</li>
+          <li class="nav-item">
+            <a href="/usuarios" class="nav-link <%= activeNav === 'usuarios' ? 'active' : '' %>">
+              <i class="nav-icon bi bi-people"></i>
+              <p>Usuarios del Sistema</p>
+            </a>
+          </li>
+        <% } %>
 
-  <!-- Footer del Sidebar con botón de colapso -->
-  <div class="sidebar-footer">
-    <span>TOI ERP v4.0</span>
-    <a href="/auth/logout" class="text-danger" title="Cerrar sesión" style="text-decoration: none;">
-      <i class="bi bi-power fs-6"></i>
-    </a>
+      </ul>
+    </nav>
   </div>
 </aside>

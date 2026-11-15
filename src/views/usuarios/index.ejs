@@ -1,39 +1,39 @@
 <%- include('../layouts/header', { title: 'Gestión de Usuarios', activeNav: 'usuarios' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Nuevo Usuario (Box Estilo Mikrowisp / AdminLTE) -->
+  <!-- Formulario de Nuevo Usuario (Card AdminLTE 4) -->
   <div class="col-12 col-xl-4">
-    <div class="erp-box erp-box-purple">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-person-plus text-purple"></i> Registrar Nuevo Usuario
-        </div>
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-person-plus text-primary me-2"></i> Registrar Nuevo Usuario
+        </h3>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         <form method="POST" action="/usuarios/nuevo">
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NOMBRE COMPLETO <span class="text-danger">*</span></label>
-            <input type="text" name="nombre_completo" class="erp-input w-100" placeholder="Ej: Juan Perez" required autofocus>
+            <label class="form-label fw-semibold">NOMBRE COMPLETO <span class="text-danger">*</span></label>
+            <input type="text" name="nombre_completo" class="form-control" placeholder="Ej: Juan Perez" required autofocus>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NOMBRE DE USUARIO <span class="text-danger">*</span></label>
-            <input type="text" name="usuario" class="erp-input w-100 font-mono" placeholder="Ej: jperez" required autocomplete="off">
+            <label class="form-label fw-semibold">NOMBRE DE USUARIO <span class="text-danger">*</span></label>
+            <input type="text" name="usuario" class="form-control font-mono" placeholder="Ej: jperez" required autocomplete="off">
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CONTRASEÑA INICIAL <span class="text-danger">*</span></label>
-            <input type="password" name="password" class="erp-input w-100" placeholder="••••••••" required>
+            <label class="form-label fw-semibold">CONTRASEÑA INICIAL <span class="text-danger">*</span></label>
+            <input type="password" name="password" class="form-control" placeholder="••••••••" required>
           </div>
 
           <div class="row g-2 mb-3">
             <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CARNET / CI <span class="text-danger">*</span></label>
-              <input type="text" name="carnet" class="erp-input w-100 font-tabular" placeholder="1234567" required>
+              <label class="form-label fw-semibold">CARNET / CI <span class="text-danger">*</span></label>
+              <input type="text" name="carnet" class="form-control font-tabular" placeholder="1234567" required>
             </div>
             <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">ROL <span class="text-danger">*</span></label>
-              <select name="rol" class="erp-select w-100" required>
+              <label class="form-label fw-semibold">ROL <span class="text-danger">*</span></label>
+              <select name="rol" class="form-select" required>
                 <option value="usuario">Operador (Usuario)</option>
                 <option value="admin">Administrador</option>
               </select>
@@ -42,16 +42,16 @@
 
           <div class="row g-2 mb-3">
             <div class="col-7">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
-              <input type="email" name="email" class="erp-input w-100" placeholder="jperez@toi.bo" required>
+              <label class="form-label fw-semibold">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
+              <input type="email" name="email" class="form-control" placeholder="jperez@toi.bo" required>
             </div>
             <div class="col-5">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">FECHA NACIMIENTO <span class="text-danger">*</span></label>
-              <input type="date" name="fecha_nacimiento" class="erp-input w-100 font-tabular" value="1995-01-01" required>
+              <label class="form-label fw-semibold">FECHA NACIMIENTO <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_nacimiento" class="form-control font-tabular" value="1995-01-01" required>
             </div>
           </div>
 
-          <button type="submit" class="btn-erp btn-erp-success w-100 py-2">
+          <button type="submit" class="btn btn-success w-100 py-2">
             <i class="bi bi-save me-1"></i> Guardar Usuario
           </button>
         </form>
@@ -59,31 +59,29 @@
     </div>
   </div>
 
-  <!-- Listado de Usuarios Estilo DataTables -->
+  <!-- Listado de Usuarios (Card AdminLTE 4) -->
   <div class="col-12 col-xl-8">
-    <div class="erp-box erp-box-blue">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-people text-primary"></i> Usuarios del Sistema
-        </div>
-        <span class="badge-erp badge-erp-primary"><%= usuarios.length %> Usuarios</span>
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title">
+          <i class="bi bi-people text-primary me-2"></i> Usuarios del Sistema
+        </h3>
+        <span class="badge text-bg-primary ms-auto"><%= usuarios.length %> Usuarios</span>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         
-        <!-- Barra de Control Estilo DataTables -->
-        <div class="datatables-header-bar mb-3">
-          <div class="datatables-length-select">
-            <span>Mostrar <strong>10</strong> registros por página</span>
-          </div>
-          <div class="datatables-search-filter">
-            <label>Buscar:</label>
-            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar usuarios..." style="width: 180px;">
+        <!-- Barra de Control -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
+          <span class="small text-muted">Cuentas y roles del personal</span>
+          <div class="d-flex align-items-center gap-2 ms-auto">
+            <label class="form-label mb-0 small text-muted">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Filtrar usuarios..." style="width: 180px;">
           </div>
         </div>
 
-        <div class="table-responsive-erp">
-          <table class="table-erp">
-            <thead>
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
                 <th>NOMBRE</th>
                 <th>USUARIO</th>
@@ -99,13 +97,13 @@
                 <% usuarios.forEach(u => { %>
                   <tr>
                     <td><strong><%= u.nombre_completo %></strong></td>
-                    <td><span class="font-mono text-primary"><%= u.usuario %></span></td>
-                    <td><span class="badge-erp <%= u.rol === 'admin' ? 'badge-erp-purple' : 'badge-erp-gray' %>"><%= u.rol %></span></td>
+                    <td><span class="font-mono text-primary fw-semibold"><%= u.usuario %></span></td>
+                    <td><span class="badge <%= u.rol === 'admin' ? 'text-bg-primary' : 'text-bg-secondary' %>"><%= u.rol %></span></td>
                     <td class="font-tabular"><%= u.carnet %></td>
                     <td><%= u.email %></td>
                     <td><small class="text-muted"><%= u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-BO') : 'Nunca' %></small></td>
                     <td>
-                      <span class="badge-erp <%= u.activo ? 'badge-erp-success' : 'badge-erp-danger' %>">
+                      <span class="badge <%= u.activo ? 'text-bg-success' : 'text-bg-danger' %>">
                         <%= u.activo ? 'ACTIVO' : 'INACTIVO' %>
                       </span>
                     </td>

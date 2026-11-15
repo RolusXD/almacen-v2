@@ -1,42 +1,42 @@
 <%- include('../layouts/header', { title: 'Movimientos de Equipos', activeNav: 'mov-equipos' }) %>
 
 <div class="row g-3">
-  <!-- Panel de Registro (Box Estilo Mikrowisp / AdminLTE) -->
+  <!-- Panel de Registro (Card AdminLTE 4) -->
   <div class="col-12 col-xl-4">
-    <div class="erp-box erp-box-teal">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-box-arrow-right text-success"></i> Registrar Movimiento
-        </div>
+    <div class="card card-success card-outline shadow-sm mb-4">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-box-arrow-right text-success me-2"></i> Registrar Movimiento
+        </h3>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         <form method="POST" action="/movimientos/equipos" id="formMovEquipo">
           
           <!-- Búsqueda Instantánea por Serie / MAC -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">
+            <label class="form-label fw-semibold">
               <i class="bi bi-upc-scan me-1 text-primary"></i> N° DE SERIE O MAC <span class="text-danger">*</span>
             </label>
-            <input type="text" name="numero_serie_mac" id="inputSerie" class="erp-input w-100 font-mono" list="equipos_disponibles_list" placeholder="Escriba o elija una serie..." required autocomplete="off" autofocus>
+            <input type="text" name="numero_serie_mac" id="inputSerie" class="form-control font-mono" list="equipos_disponibles_list" placeholder="Escriba o elija una serie..." required autocomplete="off" autofocus>
             <datalist id="equipos_disponibles_list">
               <% equiposDisponibles.forEach(eq => { %>
                 <option value="<%= eq.numero_serie_mac %>"><%= eq.codigo %> - <%= eq.nombre %> (<%= eq.modelo || 'Sin mod' %>) [<%= eq.estado %>]</option>
               <% }); %>
             </datalist>
-            <small class="text-muted" style="font-size: 11px;">Al seleccionar la serie se mostrará la ficha del equipo abajo.</small>
+            <div class="form-text">Al seleccionar la serie se mostrará la ficha del equipo abajo.</div>
           </div>
 
           <!-- Ficha de Verificación del Equipo Seleccionado -->
-          <div class="p-2 mb-3 rounded" id="fichaEquipo" style="background: #F8FAFC; border: 1px dashed #CBD5E1; font-size: 12px;">
-            <div class="text-muted text-uppercase" style="font-size: 10px; font-weight: 700;">Equipo Identificado:</div>
+          <div class="p-2 mb-3 bg-light rounded border" id="fichaEquipo" style="font-size: 12px;">
+            <div class="text-muted text-uppercase fw-bold" style="font-size: 10px;">Equipo Identificado:</div>
             <div id="fichaNombre" class="fw-bold text-primary">Sin selección</div>
-            <div class="text-muted" id="fichaDetalles">Modelo: - | Marca: - | Estado actual: -</div>
+            <div class="text-muted small" id="fichaDetalles">Modelo: - | Marca: - | Estado actual: -</div>
           </div>
 
           <!-- Tipo de Movimiento -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
-            <select name="tipo_movimiento" id="tipoMovimiento" class="erp-select w-100" required>
+            <label class="form-label fw-semibold">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
+            <select name="tipo_movimiento" id="tipoMovimiento" class="form-select" required>
               <option value="SALIDA">SALIDA (Egreso de almacén / Asignación)</option>
               <option value="ENTRADA">ENTRADA (Retorno / Devolución a almacén)</option>
               <option value="MANTENIMIENTO">MANTENIMIENTO (Envío a taller / revisión)</option>
@@ -46,10 +46,10 @@
 
           <!-- Destino -->
           <div class="mb-3" id="campoDestino">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">
+            <label class="form-label fw-semibold">
               <i class="bi bi-geo-alt me-1 text-danger"></i> DESTINO / ÁREA <span class="text-danger">*</span>
             </label>
-            <select name="destino" id="selectDestino" class="erp-select w-100" required>
+            <select name="destino" id="selectDestino" class="form-select" required>
               <option value="">Seleccione destino...</option>
               <option value="INSTALACIONES">INSTALACIONES (Clientes)</option>
               <option value="INFRAESTRUCTURA">INFRAESTRUCTURA (Nodos/Torres)</option>
@@ -63,8 +63,8 @@
 
           <!-- Asunto -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
-            <select name="asunto" class="erp-select w-100" required>
+            <label class="form-label fw-semibold">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
+            <select name="asunto" class="form-select" required>
               <option value="RCA">RCA (Requerimiento de Cambio/Alta)</option>
               <option value="INSTALACIÓN">INSTALACIÓN NUEVA</option>
               <option value="MANTENIMIENTO">MANTENIMIENTO PREVENTIVO/CORRECTIVO</option>
@@ -76,25 +76,25 @@
 
           <!-- Encargado -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">
+            <label class="form-label fw-semibold">
               <i class="bi bi-person me-1"></i> TÉCNICO / ENCARGADO <span class="text-danger">*</span>
             </label>
-            <input type="text" name="encargado" class="erp-input w-100" placeholder="Nombre del responsable que retira o entrega..." required>
+            <input type="text" name="encargado" class="form-control" placeholder="Nombre del responsable que retira o entrega..." required>
           </div>
 
           <!-- Fecha -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">FECHA <span class="text-danger">*</span></label>
-            <input type="date" name="fecha_movimiento" class="erp-input w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>" required>
+            <label class="form-label fw-semibold">FECHA <span class="text-danger">*</span></label>
+            <input type="date" name="fecha_movimiento" class="form-control font-tabular" value="<%= new Date().toISOString().split('T')[0] %>" required>
           </div>
 
           <!-- Observaciones -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">OBSERVACIONES / DETALLES</label>
-            <textarea name="observaciones" rows="2" class="erp-textarea w-100" placeholder="Número de ticket, cliente o motivo específico..."></textarea>
+            <label class="form-label fw-semibold">OBSERVACIONES / DETALLES</label>
+            <textarea name="observaciones" rows="2" class="form-control" placeholder="Número de ticket, cliente o motivo específico..."></textarea>
           </div>
 
-          <button type="submit" class="btn-erp btn-erp-success w-100 py-2">
+          <button type="submit" class="btn btn-success w-100 py-2">
             <i class="bi bi-check2-circle me-1"></i> Registrar Movimiento
           </button>
         </form>
@@ -102,27 +102,27 @@
     </div>
   </div>
 
-  <!-- Historial de Movimientos de Equipos -->
+  <!-- Historial de Movimientos de Equipos (Card AdminLTE 4) -->
   <div class="col-12 col-xl-8">
-    <div class="erp-box erp-box-blue">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-list-columns-reverse text-primary"></i> Historial de Movimientos
-        </div>
-        <div class="d-flex align-items-center gap-2">
-          <span class="badge-erp badge-erp-primary"><%= movimientos.length %> Registros</span>
-          <a href="/reportes/exportar/movimientos-equipos" class="btn-erp btn-erp-default btn-sm" title="Descargar Excel (.xlsx)">
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title">
+          <i class="bi bi-list-columns-reverse text-primary me-2"></i> Historial de Movimientos de Equipos
+        </h3>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <span class="badge text-bg-primary"><%= movimientos.length %> Registros</span>
+          <a href="/reportes/exportar/movimientos-equipos" class="btn btn-outline-secondary btn-sm" title="Descargar Excel (.xlsx)">
             <i class="bi bi-file-earmark-excel text-success me-1"></i> Exportar (.xlsx)
           </a>
         </div>
       </div>
 
-      <div class="erp-box-body">
-        <!-- Barra de Control Estilo DataTables -->
-        <div class="datatables-header-bar mb-3">
+      <div class="card-body">
+        <!-- Toolbar de Filtros y Búsqueda -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3 bg-light p-2 rounded border">
           <form method="GET" action="/movimientos/equipos" class="d-flex flex-wrap align-items-center gap-2">
-            <label style="font-size: 11.5px; font-weight: 600; color: #4B646F;">Destino:</label>
-            <select name="destino" class="erp-select-sm" onchange="this.form.submit()">
+            <label class="form-label mb-0 small fw-bold text-secondary">Destino:</label>
+            <select name="destino" class="form-select form-select-sm" style="width: auto;" onchange="this.form.submit()">
               <option value="">Todos los destinos</option>
               <% destinos.forEach(d => { %>
                 <option value="<%= d %>" <%= destinoFiltro === d ? 'selected' : '' %>><%= d %></option>
@@ -130,23 +130,23 @@
             </select>
 
             <div class="d-flex align-items-center gap-1">
-              <input type="text" name="filtro" class="erp-input-sm font-mono" placeholder="Buscar serie, técnico, asunto..." value="<%= filtro || '' %>" style="min-width: 200px;">
-              <button type="submit" class="btn-erp btn-erp-primary btn-sm" title="Buscar"><i class="bi bi-search"></i></button>
+              <input type="text" name="filtro" class="form-control form-control-sm font-mono" placeholder="Buscar serie, técnico..." value="<%= filtro || '' %>" style="min-width: 200px;">
+              <button type="submit" class="btn btn-primary btn-sm" title="Buscar"><i class="bi bi-search"></i></button>
               <% if (filtro || destinoFiltro) { %>
-                <a href="/movimientos/equipos" class="btn-erp btn-erp-default btn-sm" title="Limpiar"><i class="bi bi-x-lg"></i></a>
+                <a href="/movimientos/equipos" class="btn btn-outline-secondary btn-sm" title="Limpiar"><i class="bi bi-x-lg"></i></a>
               <% } %>
             </div>
           </form>
 
-          <div class="datatables-length-select">
-            Mostrando <strong class="font-tabular"><%= movimientos.length %></strong> movimientos
+          <div class="small text-muted ms-auto">
+            Mostrando <strong class="text-dark font-tabular"><%= movimientos.length %></strong> movimientos
           </div>
         </div>
 
-        <!-- Tabla de Historial Sin Cortes -->
-        <div class="table-responsive-erp">
-          <table class="table-erp">
-            <thead>
+        <!-- Tabla Oficial AdminLTE 4 / Bootstrap 5 -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
                 <th>FECHA</th>
                 <th>TIPO</th>
@@ -162,34 +162,39 @@
               <% if (movimientos && movimientos.length > 0) { %>
                 <% movimientos.forEach(m => { %>
                   <tr>
-                    <td class="col-fecha font-tabular"><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
+                    <td class="font-tabular small"><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
                     <td>
                       <% if (m.tipo_movimiento === 'SALIDA') { %>
-                        <span class="badge-erp badge-erp-danger">SALIDA</span>
+                        <span class="badge text-bg-danger">SALIDA</span>
                       <% } else if (m.tipo_movimiento === 'ENTRADA') { %>
-                        <span class="badge-erp badge-erp-success">ENTRADA</span>
+                        <span class="badge text-bg-success">ENTRADA</span>
                       <% } else { %>
-                        <span class="badge-erp badge-erp-warning"><%= m.tipo_movimiento %></span>
+                        <span class="badge text-bg-warning"><%= m.tipo_movimiento %></span>
                       <% } %>
                     </td>
                     <td>
-                      <span class="font-mono text-primary" style="font-weight: 600;">
+                      <span class="font-mono text-primary fw-semibold">
                         <%= m.numero_serie_mac %>
                         <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
                           <i class="bi bi-clipboard"></i>
                         </button>
                       </span>
                     </td>
-                    <td><strong><%= m.nombre_equipo || '-' %></strong> <small class="text-muted">(<%= m.modelo_equipo || '-' %>)</small></td>
+                    <td>
+                      <strong><%= m.nombre_equipo || '-' %></strong>
+                      <% if (m.modelo_equipo) { %>
+                        <small class="text-muted">(<%= m.modelo_equipo %>)</small>
+                      <% } %>
+                    </td>
                     <td>
                       <% if (m.destino) { %>
-                        <span class="badge-erp badge-erp-purple"><i class="bi bi-geo-alt me-1"></i><%= m.destino %></span>
+                        <span class="badge text-bg-light border text-dark"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
                       <% } else { %>
                         <span class="text-muted">-</span>
                       <% } %>
                     </td>
                     <td><%= m.encargado %></td>
-                    <td><small><%= m.asunto %></small></td>
+                    <td><small class="text-secondary"><%= m.asunto %></small></td>
                     <td><small class="text-muted"><%= m.observaciones || '-' %></small></td>
                   </tr>
                 <% }); %>

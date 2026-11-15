@@ -1,79 +1,102 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>Almacén TOI (AdminLTE 4)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>Almacén TOI (ERP / Mikrowisp)</title>
   
-  <!-- Tipografía Clásica & Fuentes Google -->
+  <!-- Google Font: Source Sans 3 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="/css/mikrowisp-style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons & AdminLTE 4 CSS Oficial -->
+  <link rel="stylesheet" href="/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/adminlte/css/adminlte.min.css">
+  <link rel="stylesheet" href="/css/mikrowisp-style.css">
 </head>
-<body>
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
   <div class="app-wrapper">
+    <!-- Navbar Superior Oficial AdminLTE 4 -->
+    <nav class="app-header navbar navbar-expand bg-body shadow-sm">
+      <div class="container-fluid">
+        <!-- Start navbar links -->
+        <ul class="navbar-nav align-items-center">
+          <li class="nav-item">
+            <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button" title="Alternar Menú"><i class="bi bi-list fs-5"></i></a>
+          </li>
+          <li class="nav-item d-none d-md-block ms-2">
+            <a href="/dashboard" class="nav-link">Dashboard</a>
+          </li>
+          <li class="nav-item d-none d-md-block">
+            <a href="/equipos" class="nav-link">Equipos</a>
+          </li>
+          <li class="nav-item d-none d-md-block">
+            <a href="/accesorios" class="nav-link">Materiales</a>
+          </li>
+        </ul>
+        <!-- End navbar links -->
+
+        <!-- Right navbar links -->
+        <ul class="navbar-nav ms-auto align-items-center">
+          <!-- Alerta de Stock Bajo -->
+          <li class="nav-item me-2">
+            <a class="nav-link text-warning d-flex align-items-center" href="/accesorios?stockBajo=1" title="Ver alertas de stock crítico">
+              <i class="bi bi-bell-fill fs-5"></i>
+              <span class="badge text-bg-danger ms-1" style="font-size: 10px;">Alertas</span>
+            </a>
+          </li>
+
+          <!-- Menú de Usuario -->
+          <li class="nav-item dropdown user-menu">
+            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown">
+              <i class="bi bi-person-circle fs-5 me-1 text-primary"></i>
+              <span class="d-none d-md-inline fw-semibold"><%= user ? user.usuario.toUpperCase() : 'ADMIN' %></span>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end shadow">
+              <li class="user-header text-bg-primary text-center p-3">
+                <i class="bi bi-person-circle display-6 mb-2"></i>
+                <p class="mb-0 fw-bold"><%= user ? user.nombre_completo : 'Administrador Principal' %></p>
+                <small class="text-white-50"><%= user ? user.rol : 'Admin' %> • TOI Almacén</small>
+              </li>
+              <li class="user-footer d-flex justify-content-between p-2 bg-light">
+                <a href="/dashboard" class="btn btn-outline-secondary btn-sm">Inicio</a>
+                <a href="/auth/logout" class="btn btn-outline-danger btn-sm"><i class="bi bi-box-arrow-right me-1"></i>Cerrar Sesión</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </div>
+    </nav>
+    <!-- End Navbar -->
+
+    <!-- Sidebar Lateral -->
     <%- include('sidebar') %>
-    
-    <div class="main-content">
-      <!-- TOPBAR BLANCA (#FFFFFF, ALTURA 52px) -->
-      <header class="top-navbar">
-        <div class="top-left-group">
-          <button id="sidebarToggle" class="btn-sidebar-toggle" title="Ocultar/Mostrar Menú">
-            <i class="bi bi-list"></i>
-          </button>
-          <div class="topbar-page-breadcrumb">
-            <i class="bi bi-boxes text-primary"></i>
-            <span><%= typeof title !== 'undefined' ? title : 'Almacén TOI' %></span>
-          </div>
-        </div>
-        
-        <div class="top-right-group">
-          <!-- Buscador Rápido Topbar (Ctrl + K) -->
-          <div class="topbar-search-box d-none d-md-flex" onclick="focusQuickSearch()" title="Buscar en inventario">
-            <i class="bi bi-search text-muted"></i>
-            <input type="text" placeholder="Buscar..." readonly style="cursor: pointer;">
-            <kbd>Ctrl K</kbd>
-          </div>
 
-          <!-- Acceso Rápido / Notificación Stock Crítico -->
-          <a href="/accesorios?stock_bajo=true" class="btn-erp btn-erp-default btn-erp-sm text-decoration-none" title="Ver alertas de stock">
-            <i class="bi bi-bell-fill text-warning"></i>
-            <span class="badge-erp badge-erp-danger ms-1" style="font-size: 10px; padding: 1px 4px;">Alerta</span>
-          </a>
-
-          <!-- Usuario Dropdown Pill -->
-          <div class="user-menu-pill">
-            <i class="bi bi-person-circle text-primary"></i>
-            <span><%= user ? user.usuario.toUpperCase() : 'ADMIN' %> ▼</span>
-          </div>
-
-          <!-- Salir -->
-          <a href="/auth/logout" class="btn-erp btn-erp-danger btn-erp-sm text-decoration-none" title="Cerrar sesión">
-            <i class="bi bi-box-arrow-right"></i> Salir
-          </a>
-        </div>
-      </header>
-
-      <!-- CONTENIDO PRINCIPAL (#ECF0F5) -->
-      <main class="content-body">
-        <div class="content-header-title">
-          <h1>
-            <%= typeof title !== 'undefined' ? title : 'Panel de Control' %>
-            <small>Sistema Integrado de Gestión de Inventario</small>
-          </h1>
-          <div class="text-muted" style="font-size: 11.5px;">
-            <i class="bi bi-calendar3 me-1"></i> <%= new Date().toLocaleDateString('es-BO', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) %>
-          </div>
-        </div>
-
-        <% if (typeof flash !== 'undefined' && flash && flash.message) { %>
-          <div class="alert-erp <%= flash.type === 'error' ? 'alert-erp-danger' : 'alert-erp-success' %>">
-            <i class="bi <%= flash.type === 'error' ? 'bi-exclamation-octagon-fill fs-5' : 'bi-check-circle-fill fs-5' %>"></i>
-            <div>
-              <strong><%= flash.type === 'error' ? 'Aviso del Sistema:' : 'Operación Exitosa:' %></strong>
-              <span class="ms-1"><%= flash.message %></span>
+    <!-- Main Content Wrapper -->
+    <main class="app-main">
+      <div class="app-content-header py-3">
+        <div class="container-fluid">
+          <div class="row align-items-center">
+            <div class="col-sm-6">
+              <h4 class="mb-0 fw-bold text-dark"><%= typeof title !== 'undefined' ? title : 'Almacén TOI' %></h4>
+            </div>
+            <div class="col-sm-6">
+              <ol class="breadcrumb float-sm-end mb-0">
+                <li class="breadcrumb-item"><a href="/dashboard" class="text-decoration-none">Inicio</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= typeof title !== 'undefined' ? title : 'Panel' %></li>
+              </ol>
             </div>
           </div>
-        <% } %>
+        </div>
+      </div>
+
+      <div class="app-content">
+        <div class="container-fluid">
+          <% if (typeof flash !== 'undefined' && flash && flash.message) { %>
+            <div class="alert alert-<%= flash.type === 'error' ? 'danger' : 'success' %> alert-dismissible fade show shadow-sm" role="alert">
+              <i class="bi <%= flash.type === 'error' ? 'bi-exclamation-octagon-fill' : 'bi-check-circle-fill' %> me-2"></i>
+              <strong><%= flash.type === 'error' ? 'Aviso del Sistema:' : 'Operación Exitosa:' %></strong> <%= flash.message %>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          <% } %>

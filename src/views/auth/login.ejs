@@ -1,90 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Acceso al Sistema - Almacén TOI (AdminLTE 4)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acceso al Sistema - Almacén TOI (ERP / Mikrowisp)</title>
   
-  <!-- Tipografía & Iconos -->
+  <!-- Google Font: Source Sans 3 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link href="/css/mikrowisp-style.css" rel="stylesheet">
-  <style>
-    body {
-      background-color: #222D32;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 1.5rem;
-      margin: 0;
-      font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    .login-box-erp {
-      width: 100%;
-      max-width: 390px;
-      background: #FFFFFF;
-      border-top: 4px solid #3C8DBC;
-      border-radius: 4px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
-      overflow: hidden;
-    }
-    .login-header-erp {
-      background: #1E282C;
-      color: #FFFFFF;
-      padding: 1.5rem 1.25rem;
-      text-align: center;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    }
-    .login-body-erp {
-      padding: 1.75rem 1.75rem 1.5rem;
-      background-color: #FFFFFF;
-    }
-    .login-field-erp {
-      margin-bottom: 1.15rem;
-    }
-  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  
+  <!-- Bootstrap Icons & AdminLTE 4 CSS Oficial -->
+  <link rel="stylesheet" href="/bootstrap-icons/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="/adminlte/css/adminlte.min.css">
+  <link rel="stylesheet" href="/css/mikrowisp-style.css">
 </head>
-<body>
-  <div class="login-box-erp">
-    <div class="login-header-erp">
-      <div style="width: 46px; height: 46px; background: #3C8DBC; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-        <i class="bi bi-boxes" style="font-size: 1.55rem; color: #FFFFFF;"></i>
+<body class="login-page bg-body-secondary d-flex align-items-center justify-content-center" style="min-height: 100vh;">
+  <div class="login-box" style="width: 380px;">
+    <div class="card card-outline card-primary shadow">
+      <div class="card-header text-center py-3">
+        <a href="/" class="link-dark text-decoration-none d-flex align-items-center justify-content-center">
+          <i class="bi bi-boxes text-primary fs-2 me-2"></i>
+          <h2 class="mb-0 fw-bold"><b>Almacén</b> TOI</h2>
+        </a>
+        <div class="text-muted small text-uppercase fw-semibold mt-1">AdminLTE v4 • Gestión Operativa</div>
       </div>
-      <h2 style="font-size: 1.3rem; font-weight: 800; margin: 0.25rem 0 0.15rem; color: #FFFFFF;">Almacén TOI</h2>
-      <div style="font-size: 0.72rem; color: #B8C7CE; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Sistema Integrado de Inventarios</div>
-    </div>
-    
-    <div class="login-body-erp">
-      <% if (error) { %>
-        <div class="alert-erp alert-erp-danger mb-3">
-          <i class="bi bi-exclamation-triangle-fill"></i>
-          <span><%= error %></span>
-        </div>
-      <% } %>
+      <div class="card-body login-card-body p-4">
+        <p class="login-box-msg text-center text-secondary small mb-3">Inicie sesión para acceder al sistema</p>
 
-      <form method="POST" action="/auth/login">
-        <div class="login-field-erp">
-          <label for="usuario" class="form-label"><i class="bi bi-person me-1 text-primary"></i> Usuario</label>
-          <input type="text" id="usuario" name="usuario" class="erp-input w-100" placeholder="Ej: admin" required autofocus autocomplete="username">
-        </div>
-        
-        <div class="login-field-erp">
-          <label for="password" class="form-label"><i class="bi bi-lock me-1 text-primary"></i> Contraseña</label>
-          <input type="password" id="password" name="password" class="erp-input w-100" placeholder="••••••••" required autocomplete="current-password">
-        </div>
-        
-        <button type="submit" class="btn-erp btn-erp-primary w-100 py-2 mt-3" style="font-size: 13.5px;">
-          <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar al Sistema
-        </button>
-      </form>
+        <% if (error) { %>
+          <div class="alert alert-danger alert-dismissible fade show small py-2 mb-3" role="alert">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i>
+            <span><%= error %></span>
+          </div>
+        <% } %>
 
-      <div class="text-center mt-3 pt-3 border-top text-muted" style="font-size: 11px;">
-        TOI Almacén v4 • ERP Industrial Standard
+        <form method="POST" action="/auth/login">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Usuario</label>
+            <div class="input-group">
+              <input type="text" name="usuario" class="form-control" placeholder="Ej: admin" required autofocus autocomplete="username">
+              <span class="input-group-text"><i class="bi bi-person"></i></span>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Contraseña</label>
+            <div class="input-group">
+              <input type="password" name="password" class="form-control" placeholder="••••••••" required autocomplete="current-password">
+              <span class="input-group-text"><i class="bi bi-lock"></i></span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 py-2 mt-2 fw-semibold">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Ingresar al Sistema
+          </button>
+        </form>
       </div>
     </div>
   </div>
+
+  <script src="/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="/adminlte/js/adminlte.min.js"></script>
 </body>
 </html>

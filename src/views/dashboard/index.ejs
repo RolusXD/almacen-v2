@@ -1,70 +1,68 @@
 <%- include('../layouts/header', { title: 'Dashboard General', activeNav: 'dashboard' }) %>
 
-<!-- 4 TARJETAS KPI SUPERIORES (ESTILO MIKROWISP / ADMINLTE - COLORES SÓLIDOS VIBRANTES) -->
-<div class="kpi-row-mikrowisp">
+<!-- 4 TARJETAS KPI SUPERIORES (OFICIAL ADMINLTE 4: SMALL-BOX) -->
+<div class="row g-3 mb-4">
   
-  <!-- KPI 1: Teal (#00A65A) - Stock y Equipos Disponibles -->
-  <div class="kpi-box kpi-teal">
-    <div class="kpi-box-inner">
-      <div class="kpi-box-number"><%= statsEquipos.disponibles %></div>
-      <div class="kpi-box-title">Equipos Disponibles</div>
-      <div class="kpi-box-sub">
-        Total en almacén: <strong><%= statsEquipos.total %></strong> equipos
+  <!-- KPI 1: text-bg-success - Equipos Disponibles -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="small-box text-bg-success shadow-sm rounded">
+      <div class="inner">
+        <h3 class="fw-bold"><%= statsEquipos.disponibles %></h3>
+        <p class="mb-0">Equipos Disponibles</p>
+        <small class="text-white-50">Total en almacén: <%= statsEquipos.total %></small>
       </div>
-      <i class="bi bi-router kpi-box-icon"></i>
+      <i class="small-box-icon bi bi-router"></i>
+      <a href="/equipos?estado=DISPONIBLE" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+        Ver catálogo <i class="bi bi-arrow-right-circle ms-1"></i>
+      </a>
     </div>
-    <a href="/equipos?estado=DISPONIBLE" class="kpi-box-footer">
-      <span>Ver detalle de disponibles</span>
-      <i class="bi bi-arrow-right-circle-fill"></i>
-    </a>
   </div>
 
-  <!-- KPI 2: Azul Corporativo (#0073B7) - Equipos Asignados / Ocupados -->
-  <div class="kpi-box kpi-blue">
-    <div class="kpi-box-inner">
-      <div class="kpi-box-number"><%= statsEquipos.asignados %></div>
-      <div class="kpi-box-title">Equipos en Servicio</div>
-      <div class="kpi-box-sub">
-        Asignados a clientes y proyectos
+  <!-- KPI 2: text-bg-info - Equipos en Servicio -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="small-box text-bg-info shadow-sm rounded">
+      <div class="inner">
+        <h3 class="fw-bold"><%= statsEquipos.asignados %></h3>
+        <p class="mb-0">Equipos en Servicio</p>
+        <small class="text-white-50">Clientes e infraestructura</small>
       </div>
-      <i class="bi bi-box-arrow-up-right kpi-box-icon"></i>
+      <i class="small-box-icon bi bi-box-arrow-up-right"></i>
+      <a href="/equipos?estado=OCUPADO" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+        Ver activos <i class="bi bi-arrow-right-circle ms-1"></i>
+      </a>
     </div>
-    <a href="/equipos?estado=OCUPADO" class="kpi-box-footer">
-      <span>Ver equipos en servicio</span>
-      <i class="bi bi-arrow-right-circle-fill"></i>
-    </a>
   </div>
 
-  <!-- KPI 3: Violeta / Índigo (#605CA8) - Accesorios & Materiales en Bodega -->
-  <div class="kpi-box kpi-purple">
-    <div class="kpi-box-inner">
-      <div class="kpi-box-number"><%= statsAccesorios.totalUnidades %></div>
-      <div class="kpi-box-title">Materiales y Fibra</div>
-      <div class="kpi-box-sub">
-        <strong><%= statsAccesorios.totalItems %></strong> rubros registrados
+  <!-- KPI 3: text-bg-primary - Materiales y Fibra -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="small-box text-bg-primary shadow-sm rounded">
+      <div class="inner">
+        <h3 class="fw-bold"><%= statsAccesorios.totalUnidades %></h3>
+        <p class="mb-0">Materiales y Fibra</p>
+        <small class="text-white-50"><%= statsAccesorios.totalItems %> rubros en catálogo</small>
       </div>
-      <i class="bi bi-tools kpi-box-icon"></i>
+      <i class="small-box-icon bi bi-tools"></i>
+      <a href="/accesorios" class="small-box-footer link-light link-underline-opacity-0 link-underline-opacity-50-hover">
+        Ver existencias <i class="bi bi-arrow-right-circle ms-1"></i>
+      </a>
     </div>
-    <a href="/accesorios" class="kpi-box-footer">
-      <span>Gestionar materiales</span>
-      <i class="bi bi-arrow-right-circle-fill"></i>
-    </a>
   </div>
 
-  <!-- KPI 4: Naranja / Ámbar (#F39C12) - Alertas de Stock Crítico (< 10) -->
-  <div class="kpi-box <%= statsAccesorios.stockBajo > 0 ? 'kpi-orange' : 'kpi-teal' %>">
-    <div class="kpi-box-inner">
-      <div class="kpi-box-number"><%= statsAccesorios.stockBajo %></div>
-      <div class="kpi-box-title">Stock Crítico (< 10)</div>
-      <div class="kpi-box-sub">
-        <%= statsAccesorios.stockBajo > 0 ? 'Artículos por reponer urgente' : 'Nivel de stock adecuado' %>
+  <!-- KPI 4: text-bg-warning - Alertas de Stock Crítico -->
+  <div class="col-12 col-sm-6 col-xl-3">
+    <div class="small-box <%= statsAccesorios.stockBajo > 0 ? 'text-bg-warning' : 'text-bg-secondary' %> shadow-sm rounded">
+      <div class="inner">
+        <h3 class="fw-bold"><%= statsAccesorios.stockBajo %></h3>
+        <p class="mb-0">Alertas de Stock (< 10)</p>
+        <small class="<%= statsAccesorios.stockBajo > 0 ? 'text-dark-50' : 'text-white-50' %>">
+          <%= statsAccesorios.stockBajo > 0 ? 'Artículos por reponer' : 'Nivel óptimo' %>
+        </small>
       </div>
-      <i class="bi bi-shield-exclamation kpi-box-icon"></i>
+      <i class="small-box-icon bi bi-shield-exclamation"></i>
+      <a href="/accesorios?stockBajo=1" class="small-box-footer <%= statsAccesorios.stockBajo > 0 ? 'link-dark' : 'link-light' %> link-underline-opacity-0 link-underline-opacity-50-hover">
+        Revisar alertas <i class="bi bi-arrow-right-circle ms-1"></i>
+      </a>
     </div>
-    <a href="/accesorios?stock_bajo=true" class="kpi-box-footer">
-      <span>Ver artículos críticos</span>
-      <i class="bi bi-arrow-right-circle-fill"></i>
-    </a>
   </div>
 
 </div>
@@ -72,77 +70,77 @@
 <!-- FILA INFERIOR: RESUMEN LATERAL + TABLA DE MOVIMIENTOS RECIENTES -->
 <div class="row g-3">
   
-  <!-- Panel de Resumen Lateral (Widgets con Badges de Colores) -->
+  <!-- Panel de Resumen Lateral (Card AdminLTE 4) -->
   <div class="col-12 col-xl-4">
-    <div class="erp-box erp-box-blue">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-speedometer text-primary"></i> Estado General de Bodega
-        </div>
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header">
+        <h3 class="card-title">
+          <i class="bi bi-speedometer text-primary me-2"></i> Estado General de Bodega
+        </h3>
       </div>
-      <div class="erp-box-body p-0">
-        <ul class="list-group list-group-flush" style="font-size: 13px;">
+      <div class="card-body p-0">
+        <ul class="list-group list-group-flush">
           <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-            <span><i class="bi bi-check-circle-fill text-success me-2"></i>Equipos en Stock Listo</span>
-            <span class="badge-erp badge-erp-success font-tabular"><%= statsEquipos.disponibles %> Unidades</span>
+            <span><i class="bi bi-check-circle-fill text-success me-2"></i>Equipos Disponibles</span>
+            <span class="badge text-bg-success font-tabular"><%= statsEquipos.disponibles %> Unidades</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-            <span><i class="bi bi-broadcast text-primary me-2"></i>Equipos en Clientes (Ocupados)</span>
-            <span class="badge-erp badge-erp-primary font-tabular"><%= statsEquipos.asignados %> Unidades</span>
+            <span><i class="bi bi-broadcast text-primary me-2"></i>Equipos en Servicio</span>
+            <span class="badge text-bg-primary font-tabular"><%= statsEquipos.asignados %> Unidades</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-            <span><i class="bi bi-wrench-adjustable text-purple me-2"></i>Equipos en Taller / Reparación</span>
-            <span class="badge-erp badge-erp-purple font-tabular"><%= statsEquipos.mantenimiento %> Unidades</span>
+            <span><i class="bi bi-wrench-adjustable text-warning me-2"></i>Equipos en Taller / Falla</span>
+            <span class="badge text-bg-warning font-tabular"><%= statsEquipos.mantenimiento %> Unidades</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-            <span><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Materiales Stock Crítico</span>
-            <span class="badge-erp badge-erp-warning font-tabular"><%= statsAccesorios.stockBajo %> Artículos</span>
+            <span><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i>Materiales Stock Crítico</span>
+            <span class="badge text-bg-danger font-tabular"><%= statsAccesorios.stockBajo %> Artículos</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
-            <span><i class="bi bi-layers text-info me-2"></i>Valor Estimado en Materiales</span>
-            <span class="badge-erp badge-erp-gray font-tabular fw-bold text-dark">Bs. <%= Number(statsAccesorios.valorTotal || 0).toFixed(2) %></span>
+            <span><i class="bi bi-currency-dollar text-info me-2"></i>Valor Estimado Materiales</span>
+            <span class="badge text-bg-light border text-dark font-tabular fw-bold">Bs. <%= Number(statsAccesorios.valorTotal || 0).toFixed(2) %></span>
           </li>
         </ul>
       </div>
-      <div class="p-3 bg-light border-top d-flex gap-2 flex-wrap">
-        <a href="/movimientos/equipos" class="btn-erp btn-erp-primary btn-erp-sm">
-          <i class="bi bi-arrow-left-right"></i> Mover Equipo
+      <div class="card-footer bg-light d-flex gap-2 flex-wrap">
+        <a href="/movimientos/equipos" class="btn btn-primary btn-sm">
+          <i class="bi bi-arrow-left-right me-1"></i> Mover Equipo
         </a>
-        <a href="/movimientos/accesorios" class="btn-erp btn-erp-success btn-erp-sm">
-          <i class="bi bi-box-arrow-up-right"></i> Despacho Accesorio
+        <a href="/movimientos/accesorios" class="btn btn-success btn-sm">
+          <i class="bi bi-box-arrow-up-right me-1"></i> Despacho Material
         </a>
       </div>
     </div>
   </div>
 
-  <!-- Tabla Administrativa: Últimos Movimientos Estilo DataTables -->
+  <!-- Tabla Administrativa: Últimos Movimientos (Card AdminLTE 4) -->
   <div class="col-12 col-xl-8">
-    <div class="erp-box erp-box-teal">
-      <div class="erp-box-header">
-        <div class="erp-box-title">
-          <i class="bi bi-clock-history text-success"></i> Últimos Movimientos Registrados en Kardex
+    <div class="card card-success card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">
+          <i class="bi bi-clock-history text-success me-2"></i> Últimos Movimientos Registrados
+        </h3>
+        <div class="card-tools ms-auto">
+          <a href="/movimientos/equipos" class="btn btn-outline-secondary btn-sm">
+            Ver Kardex Completo <i class="bi bi-arrow-right ms-1"></i>
+          </a>
         </div>
-        <a href="/movimientos/equipos" class="btn-erp btn-erp-default btn-erp-sm">
-          Ver Kardex Completo →
-        </a>
       </div>
-      <div class="erp-box-body">
+      <div class="card-body">
         
-        <!-- Controles Superiores Estilo DataTables -->
-        <div class="datatables-header-bar">
-          <div class="datatables-length-select">
-            <span>Mostrando últimos movimientos</span>
-          </div>
-          <div class="datatables-search-filter">
-            <label>Buscar en tabla:</label>
-            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Serie, equipo, destino..." style="width: 180px;">
+        <!-- Controles Superiores de Búsqueda -->
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+          <span class="text-muted small">Registros recientes de operaciones</span>
+          <div class="d-flex align-items-center gap-2">
+            <label class="form-label mb-0 small text-muted">Buscar:</label>
+            <input type="text" id="quickTableSearch" class="form-control form-control-sm" placeholder="Serie, equipo, destino..." style="width: 200px;">
           </div>
         </div>
 
-        <!-- Tabla Estilo DataTables / AdminLTE -->
-        <div class="table-responsive-erp">
-          <table class="table-erp">
-            <thead>
+        <!-- Tabla Estilo AdminLTE 4 -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
               <tr>
                 <th>FECHA</th>
                 <th>TIPO</th>
@@ -150,27 +148,27 @@
                 <th>EQUIPO</th>
                 <th>DESTINO</th>
                 <th>ENCARGADO</th>
-                <th class="actions-cell">ACCIONES</th>
+                <th class="text-end">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
               <% if (ultimosMovimientos && ultimosMovimientos.length > 0) { %>
                 <% ultimosMovimientos.forEach(m => { %>
                   <tr>
-                    <td class="font-tabular">
+                    <td class="font-tabular small">
                       <%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %>
                     </td>
                     <td>
                       <% if (m.tipo_movimiento === 'SALIDA') { %>
-                        <span class="badge-erp badge-erp-danger">SALIDA</span>
+                        <span class="badge text-bg-danger">SALIDA</span>
                       <% } else if (m.tipo_movimiento === 'ENTRADA') { %>
-                        <span class="badge-erp badge-erp-success">ENTRADA</span>
+                        <span class="badge text-bg-success">ENTRADA</span>
                       <% } else { %>
-                        <span class="badge-erp badge-erp-info"><%= m.tipo_movimiento %></span>
+                        <span class="badge text-bg-info"><%= m.tipo_movimiento %></span>
                       <% } %>
                     </td>
                     <td>
-                      <span class="font-mono">
+                      <span class="font-mono text-primary fw-semibold">
                         <%= m.numero_serie_mac %>
                         <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
                           <i class="bi bi-clipboard"></i>
@@ -180,20 +178,20 @@
                     <td>
                       <strong><%= m.nombre_equipo || 'Equipo' %></strong>
                       <% if (m.modelo_equipo) { %>
-                        <span class="text-muted ms-1">(<%= m.modelo_equipo %>)</span>
+                        <span class="text-muted small ms-1">(<%= m.modelo_equipo %>)</span>
                       <% } %>
                     </td>
                     <td>
                       <% if (m.destino) { %>
-                        <span class="badge-erp badge-erp-gray"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
+                        <span class="badge text-bg-light border text-dark"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
                       <% } else { %>
                         <span class="text-muted">-</span>
                       <% } %>
                     </td>
                     <td><%= m.encargado || '-' %></td>
-                    <td class="actions-cell">
-                      <a href="/movimientos/equipos" class="btn-erp btn-erp-default btn-erp-sm btn-erp-icon" title="Ver en kardex">
-                        <i class="bi bi-eye text-primary"></i>
+                    <td class="text-end">
+                      <a href="/movimientos/equipos" class="btn btn-outline-primary btn-sm" title="Ver en kardex">
+                        <i class="bi bi-eye"></i>
                       </a>
                     </td>
                   </tr>
