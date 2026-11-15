@@ -23,6 +23,10 @@ import { DespachoController } from './controllers/despacho.controller';
 
 export const app = express();
 
+// Habilitar 'trust proxy' para despliegues detrás de reverse proxies (Coolify, Traefik, Nginx)
+// Permite leer X-Forwarded-Proto para HTTPS, cookies seguras, express-rate-limit e IP real de auditoría
+app.set('trust proxy', 1);
+
 // Configuración de vistas EJS y archivos estáticos
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
