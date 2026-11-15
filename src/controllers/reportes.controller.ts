@@ -1,180 +1,214 @@
 import { Request, Response } from 'express';
-import ExcelJS from 'exceljs';
-import { EquipoRepository } from '../repositories/equipo.repository';
-import { AccesorioRepository } from '../repositories/accesorio.repository';
+import { ReportesRepository, FiltrosReporte } from '../repositories/reportes.repository';
 import { MovimientoRepository } from '../repositories/movimiento.repository';
+import { UsuarioRepository } from '../repositories/usuario.repository';
+import { PdfService } from '../services/pdf.service';
+import { ExcelService } from '../services/excel.service';
+import { MailService } from '../services/mail.service';
 
-const equipoRepo = new EquipoRepository();
-const accesorioRepo = new AccesorioRepository();
+const reportesRepo = new ReportesRepository();
 const movimientoRepo = new MovimientoRepository();
+const userRepo = new UsuarioRepository();
 
 export class ReportesController {
-  static async exportarEquipos(req: Request, res: Response) {
+  /**
+   * Generación y descarga del Comprobante de Entrega / Remisión en PDF (con protección Anti-IDOR)
+   */
+  static async descargarComprobante(req: Request, res: Response) {
     try {
-      const equipos = await equipoRepo.getAll();
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet('Equipos TOI');
+      const id = parseInt(req.params.id, 10);
+      const tipo = (req.query.tipo as string || 'EQUIPO').toUpperCase();
+      const user = req.user;
+      const userId = req.session.userId;
+      const userRole = req.session.userRole;
 
-      sheet.columns = [
-        { header: 'ID', key: 'id_equipo', width: 10 },
-        { header: 'NOMBRE', key: 'nombre', width: 28 },
-        { header: 'CÓDIGO', key: 'codigo', width: 14 },
-        { header: 'N° SERIE / MAC', key: 'numero_serie_mac', width: 25 },
-        { header: 'MODELO', key: 'modelo', width: 20 },
-        { header: 'MARCA', key: 'marca', width: 18 },
-        { header: 'PRECIO (Bs.)', key: 'precio', width: 15 },
-        { header: 'ESTADO', key: 'estado', width: 16 },
-        { header: 'CALIDAD', key: 'calidad', width: 12 },
-        { header: 'PROVEEDOR', key: 'proveedor', width: 20 },
-        { header: 'FECHA INGRESO', key: 'fecha_entrada', width: 16 },
-      ];
+      if (!id) {
+        req.session.flash = { type: 'error', message: 'Identificador de comprobante inválido.' };
+        return res.redirect('/movimientos/equipos');
+      }
 
-      // Formato cabecera
-      sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      sheet.getRow(1).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF1E3A5F' },
+      let result: any = null;
+      if (tipo === 'ACCESORIO') {
+        result = await reportesRepo.getComprobanteAccesorio(id);
+      } else {
+        result = await reportesRepo.getComprobanteEquipo(id);
+      }
+
+      if (!result || !result.comprobante) {
+        return res.status(404).render('error', {
+          title: 'Comprobante no encontrado (404)',
+          status: 404,
+          message: 'No existe registro del movimiento solicitado o no generó remisión.',
+          user
+        });
+      }
+
+      // ==========================================
+      // VALIDACIÓN ANTI-IDOR ESTRICTA
+      // ==========================================
+      // Si el rol es 'usuario', solo puede acceder a comprobantes creados por su propia cuenta
+      if (userRole !== 'admin' && result.created_by !== userId) {
+        console.warn(`[SEGURIDAD] Intento de acceso no autorizado (IDOR) a comprobante ${id} por usuario ${userId}`);
+        return res.status(403).render('error', {
+          title: 'Acceso Denegado (403)',
+          status: 403,
+          message: 'No posees autorización para visualizar o descargar comprobantes generados por otro operador.',
+          user
+        });
+      }
+
+      const pdfBuffer = await PdfService.generarComprobanteDespacho(result.comprobante);
+
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', `inline; filename="Comprobante-${result.comprobante.numero_remision}.pdf"`);
+      res.setHeader('Content-Length', pdfBuffer.length);
+      return res.end(pdfBuffer);
+    } catch (err: any) {
+      console.error('Error generando comprobante PDF:', err);
+      return res.status(500).render('error', {
+        title: 'Error de Generación de Comprobante (500)',
+        status: 500,
+        message: 'Ocurrió un inconveniente al generar el documento PDF.',
+        user: req.user
+      });
+    }
+  }
+
+  /**
+   * Vista principal del Centro de Reportes (Multi-criterio para Admin / "Mis Movimientos" para Usuario)
+   */
+  static async index(req: Request, res: Response) {
+    try {
+      const userRole = req.session.userRole;
+      const userId = req.session.userId;
+      const esAdmin = userRole === 'admin';
+
+      const filtros: FiltrosReporte = {
+        fechaInicio: req.query.fechaInicio as string || '',
+        fechaFin: req.query.fechaFin as string || '',
+        tipoMovimiento: req.query.tipoMovimiento as string || 'TODOS',
+        tipoItem: (req.query.tipoItem as any) || 'TODOS',
+        destino: req.query.destino as string || 'TODOS',
+        idUsuario: esAdmin && req.query.idUsuario ? parseInt(req.query.idUsuario as string, 10) : undefined,
+        buscar: req.query.buscar as string || ''
       };
 
-      equipos.forEach(eq => {
-        sheet.addRow({
-          ...eq,
-          fecha_entrada: eq.fecha_entrada ? new Date(eq.fecha_entrada).toISOString().split('T')[0] : '',
-        });
+      // Si no es admin, forzar estrictamente su propio userId en el backend
+      const forzarUserId = esAdmin ? undefined : userId;
+
+      const items = await reportesRepo.getReportesUnificados(filtros, forzarUserId);
+      const destinos = await movimientoRepo.getDestinosUnicos();
+      const usuarios = esAdmin ? await userRepo.getAll() : [];
+
+      res.render('reportes/index', {
+        items,
+        destinos,
+        usuarios,
+        filtros,
+        esAdmin,
+        title: esAdmin ? 'Centro de Reportes Multi-criterio' : 'Historial de Mis Movimientos',
+        activeNav: 'reportes'
       });
+    } catch (err: any) {
+      console.error('Error cargando centro de reportes:', err);
+      res.status(500).render('error', {
+        title: 'Error de Consulta de Reportes (500)',
+        status: 500,
+        message: 'No fue posible consultar el centro de reportes.',
+        user: req.user
+      });
+    }
+  }
+
+  /**
+   * Exportación a Excel (.xlsx) nativo formateado profesionalmente
+   */
+  static async exportarExcel(req: Request, res: Response) {
+    try {
+      const userRole = req.session.userRole;
+      const userId = req.session.userId;
+      const esAdmin = userRole === 'admin';
+
+      const filtros: FiltrosReporte = {
+        fechaInicio: req.query.fechaInicio as string || '',
+        fechaFin: req.query.fechaFin as string || '',
+        tipoMovimiento: req.query.tipoMovimiento as string || 'TODOS',
+        tipoItem: (req.query.tipoItem as any) || 'TODOS',
+        destino: req.query.destino as string || 'TODOS',
+        idUsuario: esAdmin && req.query.idUsuario ? parseInt(req.query.idUsuario as string, 10) : undefined,
+        buscar: req.query.buscar as string || ''
+      };
+
+      const forzarUserId = esAdmin ? undefined : userId;
+      const items = await reportesRepo.getReportesUnificados(filtros, forzarUserId);
+
+      const titulo = esAdmin ? 'Movimientos Globales de Almacén' : `Movimientos Operador - ${req.session.userName || 'Usuario'}`;
+      const excelBuffer = await ExcelService.generarReporteMovimientos(items, titulo);
 
       res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=Equipos_TOI_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-      await workbook.xlsx.write(res);
-      res.end();
-    } catch (err) {
-      console.error('Error exportando equipos:', err);
-      res.status(500).send('Error generando archivo Excel');
+      res.setHeader('Content-Disposition', `attachment; filename="Reporte-Almacen-${new Date().toISOString().split('T')[0]}.xlsx"`);
+      res.setHeader('Content-Length', excelBuffer.length);
+      return res.end(excelBuffer);
+    } catch (err: any) {
+      console.error('Error exportando Excel:', err);
+      req.session.flash = { type: 'error', message: 'Error al generar el archivo Excel.' };
+      res.redirect('/reportes');
     }
+  }
+
+  /**
+   * Despacho opcional de reporte por correo electrónico con archivo adjunto
+   */
+  static async enviarCorreoReporte(req: Request, res: Response) {
+    try {
+      const { email_destino, formato } = req.body;
+      const userRole = req.session.userRole;
+      const userId = req.session.userId;
+      const esAdmin = userRole === 'admin';
+
+      if (!email_destino || email_destino.trim() === '') {
+        return res.status(400).json({ success: false, message: 'Ingrese una dirección de correo válida.' });
+      }
+
+      const forzarUserId = esAdmin ? undefined : userId;
+      const items = await reportesRepo.getReportesUnificados({}, forzarUserId);
+      const titulo = esAdmin ? 'Movimientos Globales de Almacén' : 'Mis Movimientos Registrados';
+
+      const excelBuffer = await ExcelService.generarReporteMovimientos(items, titulo);
+      const filename = `Reporte-Almacen-${new Date().toISOString().split('T')[0]}.xlsx`;
+
+      const result = await MailService.sendReportWithAttachment({
+        destinatario: email_destino.trim(),
+        asunto: `Reporte de Movimientos - Almacén TOI (${new Date().toLocaleDateString('es-BO')})`,
+        mensaje: `Se adjunta el reporte consolidado de operaciones generado por ${req.session.userName || 'Almacén TOI'}.`,
+        archivo: {
+          nombre: filename,
+          contenido: excelBuffer,
+          contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        }
+      });
+
+      return res.json(result);
+    } catch (err: any) {
+      console.error('Error enviando reporte por correo:', err);
+      return res.status(500).json({ success: false, message: err.message || 'Error al enviar reporte.' });
+    }
+  }
+
+  // Rutas legacy de exportación simple preservadas para compatibilidad
+  static async exportarEquipos(req: Request, res: Response) {
+    res.redirect('/reportes/exportar/excel?tipoItem=EQUIPOS');
   }
 
   static async exportarAccesorios(req: Request, res: Response) {
-    try {
-      const accesorios = await accesorioRepo.getAll();
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet('Accesorios TOI');
-
-      sheet.columns = [
-        { header: 'ID', key: 'id_accesorio', width: 10 },
-        { header: 'CÓDIGO', key: 'codigo', width: 15 },
-        { header: 'DESCRIPCIÓN / NOMBRE', key: 'nombre', width: 30 },
-        { header: 'CANTIDAD', key: 'cantidad', width: 14 },
-        { header: 'UNIDAD', key: 'unidad_medida', width: 14 },
-        { header: 'COSTO UNIT. (Bs.)', key: 'costo', width: 18 },
-        { header: 'CALIDAD', key: 'calidad', width: 12 },
-        { header: 'PROVEEDOR', key: 'nombre_proveedor', width: 22 },
-      ];
-
-      sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      sheet.getRow(1).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF1E3A5F' },
-      };
-
-      accesorios.forEach(a => sheet.addRow(a));
-
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=Accesorios_TOI_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-      await workbook.xlsx.write(res);
-      res.end();
-    } catch (err) {
-      console.error('Error exportando accesorios:', err);
-      res.status(500).send('Error generando archivo Excel');
-    }
+    res.redirect('/reportes/exportar/excel?tipoItem=ACCESORIOS');
   }
 
   static async exportarMovimientosEquipos(req: Request, res: Response) {
-    try {
-      const movimientos = await movimientoRepo.getMovimientosEquipos(undefined, undefined, undefined, 2000);
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet('Movimientos Equipos');
-
-      sheet.columns = [
-        { header: 'FECHA', key: 'fecha_movimiento', width: 14 },
-        { header: 'TIPO', key: 'tipo_movimiento', width: 14 },
-        { header: 'N° SERIE / MAC', key: 'numero_serie_mac', width: 24 },
-        { header: 'PRODUCTO', key: 'nombre_equipo', width: 26 },
-        { header: 'MODELO', key: 'modelo_equipo', width: 18 },
-        { header: 'DESTINO', key: 'destino', width: 22 },
-        { header: 'ENCARGADO', key: 'encargado', width: 22 },
-        { header: 'ASUNTO', key: 'asunto', width: 20 },
-        { header: 'OBSERVACIONES', key: 'observaciones', width: 30 },
-      ];
-
-      sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      sheet.getRow(1).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF1E3A5F' },
-      };
-
-      movimientos.forEach(m => {
-        sheet.addRow({
-          ...m,
-          fecha_movimiento: m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '',
-        });
-      });
-
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=Movimientos_Equipos_TOI_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-      await workbook.xlsx.write(res);
-      res.end();
-    } catch (err) {
-      console.error('Error exportando movimientos equipos:', err);
-      res.status(500).send('Error generando archivo Excel');
-    }
+    res.redirect('/reportes/exportar/excel?tipoItem=EQUIPOS');
   }
 
   static async exportarMovimientosAccesorios(req: Request, res: Response) {
-    try {
-      const movimientos = await movimientoRepo.getMovimientosAccesorios(undefined, undefined, 2000);
-      const workbook = new ExcelJS.Workbook();
-      const sheet = workbook.addWorksheet('Movimientos Accesorios');
-
-      sheet.columns = [
-        { header: 'FECHA', key: 'fecha_movimiento', width: 14 },
-        { header: 'TIPO', key: 'tipo_movimiento', width: 14 },
-        { header: 'MATERIAL', key: 'nombre_accesorio', width: 28 },
-        { header: 'CANTIDAD', key: 'cantidad', width: 14 },
-        { header: 'UNIDAD', key: 'unidad_medida', width: 14 },
-        { header: 'DESTINO', key: 'destino', width: 22 },
-        { header: 'ENCARGADO', key: 'encargado', width: 22 },
-        { header: 'ASUNTO', key: 'asunto', width: 20 },
-        { header: 'OBSERVACIONES', key: 'observaciones', width: 30 },
-      ];
-
-      sheet.getRow(1).font = { bold: true, color: { argb: 'FFFFFFFF' } };
-      sheet.getRow(1).fill = {
-        type: 'pattern',
-        pattern: 'solid',
-        fgColor: { argb: 'FF1E3A5F' },
-      };
-
-      movimientos.forEach(m => {
-        sheet.addRow({
-          ...m,
-          fecha_movimiento: m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '',
-        });
-      });
-
-      res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-      res.setHeader('Content-Disposition', `attachment; filename=Movimientos_Accesorios_TOI_${new Date().toISOString().split('T')[0]}.xlsx`);
-
-      await workbook.xlsx.write(res);
-      res.end();
-    } catch (err) {
-      console.error('Error exportando movimientos accesorios:', err);
-      res.status(500).send('Error generando archivo Excel');
-    }
+    res.redirect('/reportes/exportar/excel?tipoItem=ACCESORIOS');
   }
 }

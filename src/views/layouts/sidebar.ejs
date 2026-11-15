@@ -59,6 +59,12 @@
             <p>Mover Accesorios</p>
           </a>
         </li>
+        <li class="nav-item">
+          <a href="/reportes" class="nav-link <%= activeNav === 'reportes' ? 'active' : '' %>">
+            <i class="nav-icon bi bi-file-earmark-bar-graph"></i>
+            <p><%= (user && user.rol === 'admin') ? 'Centro de Reportes' : 'Mis Movimientos' %></p>
+          </a>
+        </li>
 
         <li class="nav-header text-uppercase text-secondary fw-bold mt-2" style="font-size: 11px;">Gestión Maestra</li>
         <li class="nav-item">
@@ -106,6 +112,12 @@
             <a href="/usuarios" class="nav-link <%= activeNav === 'usuarios' ? 'active' : '' %>">
               <i class="nav-icon bi bi-people"></i>
               <p>Usuarios del Sistema</p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="/configuracion/smtp" class="nav-link <%= activeNav === 'config-smtp' ? 'active' : '' %>">
+              <i class="nav-icon bi bi-envelope-gear"></i>
+              <p>Configuración SMTP</p>
             </a>
           </li>
         <% } %>

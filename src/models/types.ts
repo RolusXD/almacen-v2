@@ -173,6 +173,41 @@ export interface Mantenimiento {
   nombre_equipo?: string;
 }
 
+export interface ConfiguracionSmtp {
+  id?: number;
+  host: string;
+  puerto: number;
+  usuario?: string | null;
+  password_cifrado?: string | null;
+  secure: boolean;
+  remitente_email: string;
+  remitente_nombre: string;
+  activo: boolean;
+  updated_at?: string;
+}
+
+export interface ComprobanteDespacho {
+  id_movimiento: number;
+  tipo_item: 'EQUIPO' | 'ACCESORIO';
+  numero_remision: string;
+  fecha_movimiento: string;
+  tipo_movimiento: string;
+  asunto: string;
+  encargado: string;
+  destino: string;
+  observaciones?: string | null;
+  operador_nombre: string;
+  operador_carnet?: string;
+  descripcion: string;
+  codigo?: string | null;
+  marca?: string | null;
+  modelo?: string | null;
+  numero_serie_mac?: string | null;
+  cantidad: number;
+  unidad_medida: string;
+}
+
+
 export interface Prestamo {
   id_prestamo: number;
   id_equipo?: number | null;
@@ -198,3 +233,38 @@ export interface Prestamo {
   // Joins
   nombre_equipo?: string;
 }
+
+export interface ConfiguracionSmtp {
+  id?: number;
+  host: string;
+  puerto: number;
+  usuario?: string | null;
+  password_cifrado?: string | null;
+  secure: boolean;
+  remitente_email: string;
+  remitente_nombre: string;
+  activo: boolean;
+  updated_at?: string;
+}
+
+export interface ComprobanteDespacho {
+  id_movimiento: number;
+  tipo_item: 'EQUIPO' | 'ACCESORIO';
+  numero_remision: string;
+  fecha_movimiento: string;
+  tipo_movimiento: string;
+  asunto: string;
+  encargado: string;
+  destino: string;
+  observaciones?: string | null;
+  operador_nombre: string;
+  operador_carnet?: string;
+  descripcion: string;
+  codigo?: string | null;
+  marca?: string | null;
+  modelo?: string | null;
+  numero_serie_mac?: string | null;
+  cantidad: number;
+  unidad_medida: string;
+}
+

@@ -83,8 +83,55 @@ export class UsuarioRepository {
       }
     }
 
-    if (fields.length === 0) return;
-    values.push(id);
-    await query(`UPDATE usuarios SET ${fields.join(', ')} WHERE id_usuario = $${idx}`, values);
+    if (fields.length > 0) {
+      values.push(id);
+      await query(
+        `UPDATE usuarios SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP WHERE id_usuario = $${idx}`,
+        values
+      );
+    }
+  }
+
+  async findByEmail(email: string): Promise<Usuario | null> {
+    return queryOne<Usuario>(
+      'SELECT * FROM usuarios WHERE LOWER(email) = LOWER($1) AND activo = 1',
+      [email.trim()]
+    );
+  }
+
+  async findByUsuarioOrEmail(identifier: string): Promise<Usuario | null> {
+    return queryOne<Usuario>(
+      'SELECT * FROM usuarios WHERE (LOWER(usuario) = LOWER($1) OR LOWER(email) = LOWER($1)) AND activo = 1',
+      [identifier.trim()]
+    );
+  }
+
+  async setResetToken(id: number, hashedToken: string, expires: Date): Promise<void> {
+    await query(
+      'UPDATE usuarios SET reset_token = $1, reset_token_expires = $2 WHERE id_usuario = $3',
+      [hashedToken, expires, id]
+    );
+  }
+
+  async findByResetToken(hashedToken: string): Promise<Usuario | null> {
+    return queryOne<Usuario>(
+      'SELECT * FROM usuarios WHERE reset_token = $1 AND reset_token_expires > CURRENT_TIMESTAMP AND activo = 1',
+      [hashedToken]
+    );
+  }
+
+  async updatePassword(id: number, passwordHash: string): Promise<void> {
+    await query(
+      'UPDATE usuarios SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL, updated_at = CURRENT_TIMESTAMP WHERE id_usuario = $2',
+      [passwordHash, id]
+    );
+  }
+
+  async toggleActivo(id: number): Promise<number> {
+    const res = await query<{ activo: number }>(
+      'UPDATE usuarios SET activo = CASE WHEN activo = 1 THEN 0 ELSE 1 END, updated_at = CURRENT_TIMESTAMP WHERE id_usuario = $1 RETURNING activo',
+      [id]
+    );
+    return res[0]?.activo ?? 0;
   }
 }

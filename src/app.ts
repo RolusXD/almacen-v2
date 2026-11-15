@@ -6,7 +6,8 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { ENV } from './config/env';
 import { pool } from './db';
-import { attachUserMiddleware, requireAuth, requireAdmin } from './middlewares/auth.middleware';
+import { attachUserMiddleware, requireAuth, requireAdmin, requireRole } from './middlewares/auth.middleware';
+import { authLimiter, mailLimiter } from './middlewares/rate-limit.middleware';
 
 // Controladores
 import { AuthController } from './controllers/auth.controller';
@@ -17,6 +18,7 @@ import { MovimientosController } from './controllers/movimientos.controller';
 import { MaestrosController } from './controllers/maestros.controller';
 import { UsuariosController } from './controllers/usuarios.controller';
 import { ReportesController } from './controllers/reportes.controller';
+import { ConfigController } from './controllers/config.controller';
 
 export const app = express();
 
@@ -81,8 +83,14 @@ app.get('/health', async (req, res) => {
 });
 
 app.get('/auth/login', AuthController.showLogin);
-app.post('/auth/login', AuthController.handleLogin);
+app.post('/auth/login', authLimiter, AuthController.handleLogin);
 app.get('/auth/logout', AuthController.handleLogout);
+
+// Recuperación de Contraseña (Flujo Seguro con Rate Limiting)
+app.get('/auth/forgot-password', AuthController.showForgotPassword);
+app.post('/auth/forgot-password', authLimiter, AuthController.handleForgotPassword);
+app.get('/auth/reset-password', AuthController.showResetPassword);
+app.post('/auth/reset-password', authLimiter, AuthController.handleResetPassword);
 
 // Redirección raíz
 app.get('/', (req, res) => {
@@ -103,7 +111,7 @@ app.get('/equipos/nuevo', EquiposController.nuevoForm);
 app.post('/equipos/nuevo', EquiposController.nuevoSubmit);
 app.get('/equipos/editar/:id', EquiposController.editarForm);
 app.post('/equipos/editar/:id', EquiposController.editarSubmit);
-app.get('/equipos/eliminar/:id', EquiposController.eliminar);
+app.get('/equipos/eliminar/:id', requireAdmin, EquiposController.eliminar);
 app.get('/api/equipos/buscar', EquiposController.apiBuscar);
 
 // Accesorios
@@ -112,33 +120,34 @@ app.get('/accesorios/nuevo', AccesoriosController.nuevoForm);
 app.post('/accesorios/nuevo', AccesoriosController.nuevoSubmit);
 app.get('/accesorios/editar/:id', AccesoriosController.editarForm);
 app.post('/accesorios/editar/:id', AccesoriosController.editarSubmit);
-app.get('/accesorios/eliminar/:id', AccesoriosController.eliminar);
+app.get('/accesorios/eliminar/:id', requireAdmin, AccesoriosController.eliminar);
 
 // Movimientos
 app.get('/movimientos/equipos', MovimientosController.equiposIndex);
 app.post('/movimientos/equipos', MovimientosController.equiposSubmit);
 app.get('/movimientos/accesorios', MovimientosController.accesoriosIndex);
 app.post('/movimientos/accesorios', MovimientosController.accesoriosSubmit);
+app.get('/movimientos/comprobante/:id', ReportesController.descargarComprobante);
 
 // Maestros: Tipos de Equipos
 app.get('/maestros/tipos', MaestrosController.tiposIndex);
 app.post('/maestros/tipos', MaestrosController.tiposSubmit);
-app.get('/maestros/tipos/eliminar/:id', MaestrosController.tiposEliminar);
+app.get('/maestros/tipos/eliminar/:id', requireAdmin, MaestrosController.tiposEliminar);
 
 // Maestros: Proveedores
 app.get('/maestros/proveedores', MaestrosController.proveedoresIndex);
 app.post('/maestros/proveedores', MaestrosController.proveedoresSubmit);
-app.get('/maestros/proveedores/eliminar/:id', MaestrosController.proveedoresEliminar);
+app.get('/maestros/proveedores/eliminar/:id', requireAdmin, MaestrosController.proveedoresEliminar);
 
 // Maestros: Categorías
 app.get('/maestros/categorias', MaestrosController.categoriasIndex);
 app.post('/maestros/categorias', MaestrosController.categoriasSubmit);
-app.get('/maestros/categorias/eliminar/:id', MaestrosController.categoriasEliminar);
+app.get('/maestros/categorias/eliminar/:id', requireAdmin, MaestrosController.categoriasEliminar);
 
 // Maestros: Marcas
 app.get('/maestros/marcas', MaestrosController.marcasIndex);
 app.post('/maestros/marcas', MaestrosController.marcasSubmit);
-app.get('/maestros/marcas/eliminar/:id', MaestrosController.marcasEliminar);
+app.get('/maestros/marcas/eliminar/:id', requireAdmin, MaestrosController.marcasEliminar);
 
 // Maestros: Mantenimientos y Préstamos
 app.get('/maestros/mantenimientos', MaestrosController.mantenimientosIndex);
@@ -148,7 +157,10 @@ app.get('/maestros/prestamos', MaestrosController.prestamosIndex);
 app.post('/maestros/prestamos', MaestrosController.prestamosSubmit);
 app.post('/maestros/prestamos/devolver/:id', MaestrosController.prestamosDevolver);
 
-// Reportes y Exportación
+// Centro de Reportes y Exportación
+app.get('/reportes', ReportesController.index);
+app.get('/reportes/exportar/excel', ReportesController.exportarExcel);
+app.post('/reportes/enviar-correo', mailLimiter, ReportesController.enviarCorreoReporte);
 app.get('/reportes/exportar/equipos', ReportesController.exportarEquipos);
 app.get('/reportes/exportar/accesorios', ReportesController.exportarAccesorios);
 app.get('/reportes/exportar/movimientos-equipos', ReportesController.exportarMovimientosEquipos);
@@ -157,6 +169,14 @@ app.get('/reportes/exportar/movimientos-accesorios', ReportesController.exportar
 // Usuarios (Solo Administradores)
 app.get('/usuarios', requireAdmin, UsuariosController.index);
 app.post('/usuarios/nuevo', requireAdmin, UsuariosController.nuevoSubmit);
+app.post('/usuarios/editar/:id', requireAdmin, UsuariosController.editarSubmit);
+app.post('/usuarios/password/:id', requireAdmin, UsuariosController.cambiarPasswordSubmit);
+app.post('/usuarios/toggle/:id', requireAdmin, UsuariosController.toggleActivo);
+
+// Configuración SMTP (Solo Administradores)
+app.get('/configuracion/smtp', requireAdmin, ConfigController.smtpIndex);
+app.post('/configuracion/smtp', requireAdmin, ConfigController.smtpSubmit);
+app.post('/configuracion/smtp/test', requireAdmin, mailLimiter, ConfigController.smtpTest);
 
 // Manejo 404
 app.use((req, res) => {

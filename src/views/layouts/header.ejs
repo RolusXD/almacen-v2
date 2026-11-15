@@ -133,9 +133,16 @@
       <div class="app-content">
         <div class="container-fluid">
           <% if (typeof flash !== 'undefined' && flash && flash.message) { %>
-            <div class="alert alert-<%= flash.type === 'error' ? 'danger' : 'success' %> alert-dismissible fade show shadow-sm" role="alert">
-              <i class="bi <%= flash.type === 'error' ? 'bi-exclamation-octagon-fill' : 'bi-check-circle-fill' %> me-2"></i>
-              <strong><%= flash.type === 'error' ? 'Aviso del Sistema:' : 'Operación Exitosa:' %></strong> <%= flash.message %>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <div class="alert alert-<%= flash.type === 'error' ? 'danger' : 'success' %> alert-dismissible fade show shadow-sm d-flex align-items-center justify-content-between flex-wrap gap-2" role="alert">
+              <div>
+                <i class="bi <%= flash.type === 'error' ? 'bi-exclamation-octagon-fill' : 'bi-check-circle-fill' %> me-2"></i>
+                <strong><%= flash.type === 'error' ? 'Aviso del Sistema:' : 'Operación Exitosa:' %></strong> <%= flash.message %>
+              </div>
+              <% if (flash.link) { %>
+                <a href="<%= flash.link.url %>" class="btn btn-sm btn-dark shadow-sm" target="_blank">
+                  <i class="bi bi-file-earmark-pdf-fill text-danger me-1"></i> <%= flash.link.text %>
+                </a>
+              <% } %>
+              <button type="button" class="btn-close ms-2" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
           <% } %>

@@ -7,6 +7,7 @@ export const ENV = {
   APP_NAME: process.env.APP_NAME || 'Sistema de Almacén TOI',
   APP_URL: process.env.APP_URL || 'http://localhost:3000',
   SESSION_SECRET: process.env.SESSION_SECRET || 'toi_super_secret_session_key_2026_xyz',
+  ENCRYPTION_KEY: process.env.ENCRYPTION_KEY || '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef', // 32 bytes (256-bit hex)
   
   // Base de datos (acepta DATABASE_URL completa o variables individuales)
   DATABASE_URL: process.env.DATABASE_URL || '',

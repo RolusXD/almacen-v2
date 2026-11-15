@@ -37,6 +37,7 @@
                 <th>CORREO</th>
                 <th>ÚLTIMO ACCESO</th>
                 <th>ESTADO</th>
+                <th class="text-end">ACCIONES</th>
               </tr>
             </thead>
             <tbody>
@@ -45,20 +46,58 @@
                   <tr>
                     <td><strong class="text-body"><%= u.nombre_completo %></strong></td>
                     <td><span class="font-mono text-primary fw-semibold"><%= u.usuario %></span></td>
-                    <td><span class="badge <%= u.rol === 'admin' ? 'text-bg-primary' : 'text-bg-secondary' %>"><%= u.rol %></span></td>
+                    <td>
+                      <span class="badge <%= u.rol === 'admin' ? 'text-bg-primary' : 'text-bg-secondary' %>">
+                        <%= u.rol === 'admin' ? 'ADMINISTRADOR' : 'OPERADOR' %>
+                      </span>
+                    </td>
                     <td class="font-tabular"><%= u.carnet %></td>
                     <td><%= u.email %></td>
                     <td><small class="text-body-secondary"><%= u.ultimo_acceso ? new Date(u.ultimo_acceso).toLocaleString('es-BO') : 'Nunca' %></small></td>
                     <td>
-                      <span class="badge <%= u.activo ? 'text-bg-success' : 'text-bg-danger' %>">
-                        <%= u.activo ? 'ACTIVO' : 'INACTIVO' %>
-                      </span>
+                      <% if (u.activo === 1) { %>
+                        <span class="badge text-bg-success"><i class="bi bi-check-circle me-1"></i> ACTIVO</span>
+                      <% } else { %>
+                        <span class="badge text-bg-danger"><i class="bi bi-x-circle me-1"></i> INACTIVO</span>
+                      <% } %>
+                    </td>
+                    <td class="text-end">
+                      <div class="btn-group btn-group-sm">
+                        <!-- Botón Editar Datos -->
+                        <button type="button" class="btn btn-outline-primary btn-sm btn-edit-user"
+                          data-id="<%= u.id_usuario %>"
+                          data-nombre="<%= u.nombre_completo %>"
+                          data-usuario="<%= u.usuario %>"
+                          data-carnet="<%= u.carnet %>"
+                          data-email="<%= u.email %>"
+                          data-rol="<%= u.rol %>"
+                          data-fecha="<%= u.fecha_nacimiento ? new Date(u.fecha_nacimiento).toISOString().split('T')[0] : '' %>"
+                          title="Editar cuenta">
+                          <i class="bi bi-pencil"></i>
+                        </button>
+
+                        <!-- Botón Cambiar Contraseña -->
+                        <button type="button" class="btn btn-outline-warning btn-sm btn-pass-user"
+                          data-id="<%= u.id_usuario %>"
+                          data-nombre="<%= u.nombre_completo %>"
+                          data-usuario="<%= u.usuario %>"
+                          title="Cambiar contraseña">
+                          <i class="bi bi-key"></i>
+                        </button>
+
+                        <!-- Botón Activar / Desactivar -->
+                        <form method="POST" action="/usuarios/toggle/<%= u.id_usuario %>" style="display: inline;" onsubmit="return confirm('¿Confirmar cambio de estado para <%= u.usuario %>?');">
+                          <button type="submit" class="btn <%= u.activo === 1 ? 'btn-outline-danger' : 'btn-outline-success' %> btn-sm" title="<%= u.activo === 1 ? 'Desactivar cuenta' : 'Reactivar cuenta' %>">
+                            <i class="bi <%= u.activo === 1 ? 'bi-person-slash' : 'bi-person-check' %>"></i>
+                          </button>
+                        </form>
+                      </div>
                     </td>
                   </tr>
                 <% }); %>
               <% } else { %>
                 <tr>
-                  <td colspan="7" class="text-center text-muted py-4">No hay usuarios registrados.</td>
+                  <td colspan="8" class="text-center text-muted py-4">No hay usuarios registrados.</td>
                 </tr>
               <% } %>
             </tbody>
@@ -94,7 +133,7 @@
 
             <div class="col-md-6">
               <label class="form-label fw-semibold">CONTRASEÑA INICIAL <span class="text-danger">*</span></label>
-              <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+              <input type="password" name="password" class="form-control" placeholder="••••••••" required minlength="6">
             </div>
 
             <div class="col-md-3">
@@ -131,5 +170,131 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Flotante de Edición de Usuario -->
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalEditarUsuarioLabel">
+          <i class="bi bi-pencil-square me-2"></i> Modificar Datos de Usuario
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" id="formEditarUsuario" action="">
+        <div class="modal-body p-4">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">NOMBRE COMPLETO <span class="text-danger">*</span></label>
+              <input type="text" name="nombre_completo" id="editNombre" class="form-control" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">NOMBRE DE USUARIO</label>
+              <input type="text" id="editUsuarioReadOnly" class="form-control font-mono bg-body-secondary" readonly disabled>
+              <div class="form-text">El nombre de usuario no puede modificarse por auditoría.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">CARNET / CI <span class="text-danger">*</span></label>
+              <input type="text" name="carnet" id="editCarnet" class="form-control font-tabular" required>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">ROL DE ACCESO <span class="text-danger">*</span></label>
+              <select name="rol" id="editRol" class="form-select" required>
+                <option value="usuario">Operador (Usuario)</option>
+                <option value="admin">Administrador</option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">FECHA NACIMIENTO <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_nacimiento" id="editFecha" class="form-control font-tabular" required>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label fw-semibold">CORREO ELECTRÓNICO <span class="text-danger">*</span></label>
+              <input type="email" name="email" id="editEmail" class="form-control" required>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-primary px-4">
+            <i class="bi bi-save me-1"></i> Actualizar Usuario
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Cambio Seguro de Contraseña -->
+<div class="modal fade" id="modalCambiarPassword" tabindex="-1" aria-labelledby="modalCambiarPasswordLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title fw-bold" id="modalCambiarPasswordLabel">
+          <i class="bi bi-key-fill me-2"></i> Cambiar Contraseña de Cuenta
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <form method="POST" id="formCambiarPassword" action="">
+        <div class="modal-body p-4">
+          <p class="small text-body-secondary mb-3">
+            Usuario objetivo: <strong class="text-primary font-mono" id="passModalUsuario"></strong>
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">NUEVA CONTRASEÑA <span class="text-danger">*</span></label>
+            <input type="password" name="nueva_password" class="form-control" placeholder="Mínimo 6 caracteres" required minlength="6" autofocus>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label fw-semibold">CONFIRMAR NUEVA CONTRASEÑA <span class="text-danger">*</span></label>
+            <input type="password" name="confirmar_password" class="form-control" placeholder="Repite la contraseña" required minlength="6">
+          </div>
+        </div>
+        <div class="modal-footer bg-body-tertiary">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-warning px-4">
+            <i class="bi bi-shield-check me-1"></i> Establecer Contraseña
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Event listeners para modales de edición y contraseña
+  document.querySelectorAll('.btn-edit-user').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const id = this.dataset.id;
+      document.getElementById('formEditarUsuario').action = '/usuarios/editar/' + id;
+      document.getElementById('editNombre').value = this.dataset.nombre || '';
+      document.getElementById('editUsuarioReadOnly').value = this.dataset.usuario || '';
+      document.getElementById('editCarnet').value = this.dataset.carnet || '';
+      document.getElementById('editEmail').value = this.dataset.email || '';
+      document.getElementById('editRol').value = this.dataset.rol || 'usuario';
+      document.getElementById('editFecha').value = this.dataset.fecha || '1995-01-01';
+
+      const modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
+      modal.show();
+    });
+  });
+
+  document.querySelectorAll('.btn-pass-user').forEach(btn => {
+    btn.addEventListener('click', function () {
+      const id = this.dataset.id;
+      document.getElementById('formCambiarPassword').action = '/usuarios/password/' + id;
+      document.getElementById('passModalUsuario').textContent = this.dataset.usuario + ' (' + this.dataset.nombre + ')';
+
+      const modal = new bootstrap.Modal(document.getElementById('modalCambiarPassword'));
+      modal.show();
+    });
+  });
+</script>
 
 <%- include('../layouts/footer') %>

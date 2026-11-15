@@ -1,0 +1,178 @@
+<%- include('../layouts/header', { title: 'Configuración Servidor SMTP', activeNav: 'config-smtp' }) %>
+
+<div class="row g-3">
+  <div class="col-12 col-xl-8 mx-auto">
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title">
+          <i class="bi bi-envelope-gear text-primary me-2"></i> Configuración de Correo Electrónico (Servidor SMTP)
+        </h3>
+        <div class="card-tools ms-auto">
+          <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalTestSmtp">
+            <i class="bi bi-send-check me-1"></i> Probar Conexión
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body p-4">
+        <div class="alert alert-info py-2 px-3 small mb-4 d-flex align-items-center">
+          <i class="bi bi-info-circle-fill me-2 fs-5"></i>
+          <div>
+            Esta configuración habilita las <strong>notificaciones de stock crítico</strong>, el envío de <strong>comprobantes de despacho</strong> y la <strong>recuperación de contraseñas</strong>. Las credenciales se almacenan con cifrado de grado militar (AES-256-GCM).
+          </div>
+        </div>
+
+        <form method="POST" action="/configuracion/smtp">
+          <div class="row g-3 mb-3">
+            <div class="col-md-8">
+              <label class="form-label fw-semibold">HOST DEL SERVIDOR SMTP <span class="text-danger">*</span></label>
+              <input type="text" name="host" class="form-control" placeholder="Ej: mail.toi.bo o smtp.gmail.com" value="<%= config ? config.host : '' %>" required autofocus>
+              <div class="form-text">Dirección IP o FQDN del servidor de correo saliente.</div>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label fw-semibold">PUERTO <span class="text-danger">*</span></label>
+              <input type="number" name="puerto" class="form-control font-tabular" placeholder="587" value="<%= config ? config.puerto : 587 %>" required>
+              <div class="form-text">Habitual: 587 (STARTTLS), 465 (SSL) o 25.</div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">USUARIO / CASILLA SMTP</label>
+              <input type="text" name="usuario" class="form-control" placeholder="Ej: no-reply@toi.bo" value="<%= config ? (config.usuario || '') : '' %>">
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">CONTRASEÑA DE LA CASILLA</label>
+              <input type="password" name="password" class="form-control" placeholder="<%= config && config.password_cifrado ? '•••••••••••• (Cifrada en BD)' : 'Escriba la contraseña' %>">
+              <div class="form-text">Deje vacío si no desea modificar la contraseña guardada.</div>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">CORREO REMITENTE (FROM) <span class="text-danger">*</span></label>
+              <input type="email" name="remitente_email" class="form-control" placeholder="notificaciones@toi.bo" value="<%= config ? config.remitente_email : '' %>" required>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label fw-semibold">NOMBRE DEL REMITENTE</label>
+              <input type="text" name="remitente_nombre" class="form-control" placeholder="Almacén TOI" value="<%= config ? config.remitente_nombre : 'Almacén TOI' %>">
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="secure" id="checkSecure" value="true" <%= config && config.secure ? 'checked' : '' %>>
+                <label class="form-check-label fw-semibold" for="checkSecure">
+                  Usar SSL/TLS Estricto (Puerto 465)
+                </label>
+              </div>
+              <div class="form-text">Para puerto 587 desactive esta casilla (usa STARTTLS).</div>
+            </div>
+
+            <div class="col-md-6">
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input" type="checkbox" name="activo" id="checkActivo" value="true" <%= !config || config.activo ? 'checked' : '' %>>
+                <label class="form-check-label fw-semibold text-success" for="checkActivo">
+                  Servicio SMTP Habilitado
+                </label>
+              </div>
+              <div class="form-text">Permite habilitar o deshabilitar globalmente los envíos.</div>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top">
+            <button type="submit" class="btn btn-primary px-4">
+              <i class="bi bi-save me-1"></i> Guardar Configuración SMTP
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante de Prueba de Conexión SMTP -->
+<div class="modal fade" id="modalTestSmtp" tabindex="-1" aria-labelledby="modalTestSmtpLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalTestSmtpLabel">
+          <i class="bi bi-send-check me-2"></i> Prueba de Conexión SMTP
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="text-body-secondary small mb-3">
+          Ingresa un correo electrónico donde recibir el mensaje de comprobación. El sistema verificará el apretón de manos (*handshake*) y las credenciales del servidor.
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">CORREO DESTINATARIO DE PRUEBA <span class="text-danger">*</span></label>
+          <input type="email" id="inputEmailTest" class="form-control" placeholder="tu-correo@ejemplo.com" required value="<%= user ? user.email : '' %>">
+        </div>
+
+        <div id="resultadoTestSmtp" class="d-none"></div>
+      </div>
+      <div class="modal-footer bg-body-tertiary">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary px-3" id="btnEjecutarTest">
+          <span class="spinner-border spinner-border-sm me-1 d-none" id="spinnerTest" role="status"></span>
+          <i class="bi bi-send me-1" id="iconSendTest"></i> Enviar Correo de Prueba
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('btnEjecutarTest').addEventListener('click', async function () {
+    const emailInput = document.getElementById('inputEmailTest');
+    const email = emailInput.value.trim();
+    const resultDiv = document.getElementById('resultadoTestSmtp');
+    const spinner = document.getElementById('spinnerTest');
+    const icon = document.getElementById('iconSendTest');
+    const btn = this;
+
+    if (!email) {
+      emailInput.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    resultDiv.className = 'alert alert-info py-2 small';
+    resultDiv.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Conectando al servidor SMTP y verificando credenciales...';
+    resultDiv.classList.remove('d-none');
+
+    try {
+      const res = await fetch('/configuracion/smtp/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email_destino: email })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        resultDiv.className = 'alert alert-success py-2 small';
+        resultDiv.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + data.message;
+      } else {
+        resultDiv.className = 'alert alert-danger py-2 small';
+        resultDiv.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> ' + (data.message || 'Error desconocido.');
+      }
+    } catch (err) {
+      resultDiv.className = 'alert alert-danger py-2 small';
+      resultDiv.innerHTML = '<i class="bi bi-exclamation-octagon-fill me-1"></i> Error de conexión: ' + err.message;
+    } finally {
+      btn.disabled = false;
+      spinner.classList.add('d-none');
+      icon.classList.remove('d-none');
+    }
+  });
+</script>
+
+<%- include('../layouts/footer') %>

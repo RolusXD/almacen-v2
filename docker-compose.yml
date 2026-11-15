@@ -18,6 +18,7 @@ services:
       - APP_NAME=Sistema de Almacén TOI
       - APP_URL=${APP_URL:-http://localhost:3000}
       - SESSION_SECRET=${SESSION_SECRET:-toi_almacen_session_secret_production_2026_xyz}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY:-c2ae56f3696a3b475846e5698302d2895d03b53f39935d1a05353a4def177a85}
       - DATABASE_URL=postgresql://${DB_USER:-almacen_toi}:${DB_PASS:-almacen_secure_password_2026}@db:5432/${DB_NAME:-almacen_toi}
     depends_on:
       db:

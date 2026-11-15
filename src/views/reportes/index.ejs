@@ -1,0 +1,255 @@
+<%- include('../layouts/header', { title: title || 'Centro de Reportes', activeNav: 'reportes' }) %>
+
+<div class="row g-3">
+  <!-- Centro de Reportes (100% Ancho Full-Width) -->
+  <div class="col-12">
+    <div class="card card-primary card-outline shadow-sm mb-4">
+      <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h3 class="card-title">
+          <i class="bi bi-file-earmark-bar-graph text-primary me-2"></i>
+          <%= esAdmin ? 'Centro de Reportes y Auditoría Multi-criterio' : 'Historial de Mis Movimientos' %>
+        </h3>
+        <div class="card-tools d-flex align-items-center gap-2 ms-auto">
+          <!-- Botón Exportar a Excel -->
+          <a href="/reportes/exportar/excel?<%= new URLSearchParams(filtros).toString() %>" class="btn btn-outline-success btn-sm" title="Descargar en formato Excel (.xlsx) nativo">
+            <i class="bi bi-file-earmark-excel me-1"></i> Exportar Excel (.xlsx)
+          </a>
+
+          <!-- Botón Enviar por Correo -->
+          <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalEnviarReporteEmail" title="Enviar reporte actual por correo electrónico">
+            <i class="bi bi-envelope me-1"></i> Enviar por Correo
+          </button>
+
+          <span class="badge text-bg-primary"><%= items.length %> Registros</span>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <!-- Toolbar de Filtros Multi-criterio AdminLTE 4 -->
+        <div class="bg-body-tertiary p-3 rounded border mb-3">
+          <form method="GET" action="/reportes" class="row g-2 align-items-end">
+            <!-- Rango de Fechas -->
+            <div class="col-12 col-sm-6 col-md-2">
+              <label class="form-label mb-1 small fw-bold text-body">Desde:</label>
+              <input type="date" name="fechaInicio" class="form-control form-control-sm font-tabular" value="<%= filtros.fechaInicio || '' %>">
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-2">
+              <label class="form-label mb-1 small fw-bold text-body">Hasta:</label>
+              <input type="date" name="fechaFin" class="form-control form-control-sm font-tabular" value="<%= filtros.fechaFin || '' %>">
+            </div>
+
+            <!-- Tipo de Movimiento -->
+            <div class="col-12 col-sm-6 col-md-2">
+              <label class="form-label mb-1 small fw-bold text-body">Tipo Movimiento:</label>
+              <select name="tipoMovimiento" class="form-select form-select-sm">
+                <option value="TODOS" <%= filtros.tipoMovimiento === 'TODOS' ? 'selected' : '' %>>Todos los tipos</option>
+                <option value="SALIDA" <%= filtros.tipoMovimiento === 'SALIDA' ? 'selected' : '' %>>SALIDA</option>
+                <option value="ENTRADA" <%= filtros.tipoMovimiento === 'ENTRADA' ? 'selected' : '' %>>ENTRADA</option>
+                <option value="MANTENIMIENTO" <%= filtros.tipoMovimiento === 'MANTENIMIENTO' ? 'selected' : '' %>>MANTENIMIENTO</option>
+                <option value="REVISION" <%= filtros.tipoMovimiento === 'REVISION' ? 'selected' : '' %>>REVISIÓN</option>
+              </select>
+            </div>
+
+            <!-- Tipo de Ítem -->
+            <div class="col-12 col-sm-6 col-md-2">
+              <label class="form-label mb-1 small fw-bold text-body">Categoría Ítem:</label>
+              <select name="tipoItem" class="form-select form-select-sm">
+                <option value="TODOS" <%= filtros.tipoItem === 'TODOS' ? 'selected' : '' %>>Equipos y Materiales</option>
+                <option value="EQUIPOS" <%= filtros.tipoItem === 'EQUIPOS' ? 'selected' : '' %>>Solo Equipos de Red</option>
+                <option value="ACCESORIOS" <%= filtros.tipoItem === 'ACCESORIOS' ? 'selected' : '' %>>Solo Materiales / Fibra</option>
+              </select>
+            </div>
+
+            <!-- Destino -->
+            <div class="col-12 col-sm-6 col-md-2">
+              <label class="form-label mb-1 small fw-bold text-body">Destino:</label>
+              <select name="destino" class="form-select form-select-sm">
+                <option value="TODOS" <%= filtros.destino === 'TODOS' ? 'selected' : '' %>>Todos los destinos</option>
+                <% destinos.forEach(d => { %>
+                  <option value="<%= d %>" <%= filtros.destino === d ? 'selected' : '' %>><%= d %></option>
+                <% }); %>
+              </select>
+            </div>
+
+            <!-- Operador (Solo para Administradores) -->
+            <% if (esAdmin && usuarios && usuarios.length > 0) { %>
+              <div class="col-12 col-sm-6 col-md-2">
+                <label class="form-label mb-1 small fw-bold text-body">Operador:</label>
+                <select name="idUsuario" class="form-select form-select-sm">
+                  <option value="">Todos los operadores</option>
+                  <% usuarios.forEach(u => { %>
+                    <option value="<%= u.id_usuario %>" <%= filtros.idUsuario === u.id_usuario ? 'selected' : '' %>>
+                      <%= u.nombre_completo %> (<%= u.usuario %>)
+                    </option>
+                  <% }); %>
+                </select>
+              </div>
+            <% } %>
+
+            <!-- Búsqueda y Botones -->
+            <div class="col-12 <%= esAdmin ? 'col-md-12' : 'col-md-2' %> d-flex gap-2 align-items-center mt-2">
+              <input type="text" name="buscar" class="form-control form-control-sm font-mono" placeholder="Buscar serie, código, técnico..." value="<%= filtros.buscar || '' %>">
+              <button type="submit" class="btn btn-primary btn-sm px-3" title="Aplicar filtros">
+                <i class="bi bi-filter"></i> Filtrar
+              </button>
+              <a href="/reportes" class="btn btn-outline-secondary btn-sm" title="Limpiar filtros">
+                <i class="bi bi-x-lg"></i>
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Tabla Dinámica de Resultados -->
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
+              <tr>
+                <th>FECHA</th>
+                <th>TIPO</th>
+                <th>CÓDIGO</th>
+                <th>DESCRIPCIÓN</th>
+                <th>SERIE / MAC / SKU</th>
+                <th class="text-end">CANTIDAD</th>
+                <th>DESTINO</th>
+                <th>ENCARGADO</th>
+                <th>ASUNTO</th>
+                <th>OPERADOR</th>
+                <th>OBSERVACIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (items && items.length > 0) { %>
+                <% items.forEach(row => { %>
+                  <tr>
+                    <td class="font-tabular small"><%= row.fecha %></td>
+                    <td>
+                      <% if (row.tipo === 'SALIDA') { %>
+                        <span class="badge text-bg-danger">SALIDA</span>
+                      <% } else if (row.tipo === 'ENTRADA') { %>
+                        <span class="badge text-bg-success">ENTRADA</span>
+                      <% } else { %>
+                        <span class="badge text-bg-info"><%= row.tipo %></span>
+                      <% } %>
+                    </td>
+                    <td><span class="font-mono text-body-secondary small"><%= row.codigo %></span></td>
+                    <td><strong class="text-body"><%= row.descripcion %></strong></td>
+                    <td>
+                      <% if (row.serie_mac && row.serie_mac !== '-') { %>
+                        <span class="font-mono text-primary fw-semibold"><%= row.serie_mac %></span>
+                      <% } else { %>
+                        <span class="text-body-secondary small">-</span>
+                      <% } %>
+                    </td>
+                    <td class="text-end font-tabular">
+                      <span class="badge bg-body-secondary border text-body">
+                        <%= row.cantidad %> <%= row.unidad %>
+                      </span>
+                    </td>
+                    <td>
+                      <% if (row.destino && row.destino !== '-') { %>
+                        <span class="badge bg-body-secondary border text-body"><i class="bi bi-geo-alt me-1 text-primary"></i><%= row.destino %></span>
+                      <% } else { %>
+                        <span class="text-body-secondary">-</span>
+                      <% } %>
+                    </td>
+                    <td><%= row.encargado %></td>
+                    <td><small class="text-body-secondary"><%= row.asunto %></small></td>
+                    <td><small class="fw-semibold text-body"><%= row.operador %></small></td>
+                    <td><small class="text-body-secondary"><%= row.observaciones || '-' %></small></td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="11" class="text-center text-muted py-4">No se encontraron movimientos con los criterios de búsqueda especificados.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Flotante para Enviar Reporte por Correo -->
+<div class="modal fade" id="modalEnviarReporteEmail" tabindex="-1" aria-labelledby="modalEnviarReporteEmailLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title fw-bold" id="modalEnviarReporteEmailLabel">
+          <i class="bi bi-envelope-at me-2"></i> Enviar Reporte por Correo Electrónico
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body p-4">
+        <p class="small text-body-secondary mb-3">
+          Se generará el archivo con los movimientos actualmente listados en formato <strong>Excel (.xlsx)</strong> y se despachará como archivo adjunto.
+        </p>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">CORREO ELECTRÓNICO DESTINATARIO <span class="text-danger">*</span></label>
+          <input type="email" id="inputEmailReporte" class="form-control" placeholder="supervisor@toi.bo" required value="<%= user ? user.email : '' %>">
+        </div>
+
+        <div id="resultadoEnvioReporte" class="d-none"></div>
+      </div>
+      <div class="modal-footer bg-body-tertiary">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        <button type="button" class="btn btn-primary px-3" id="btnConfirmarEnvioReporte">
+          <span class="spinner-border spinner-border-sm me-1 d-none" id="spinnerReporteMail" role="status"></span>
+          <i class="bi bi-send me-1" id="iconReporteMail"></i> Despachar Reporte
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('btnConfirmarEnvioReporte').addEventListener('click', async function () {
+    const emailInput = document.getElementById('inputEmailReporte');
+    const email = emailInput.value.trim();
+    const resultDiv = document.getElementById('resultadoEnvioReporte');
+    const spinner = document.getElementById('spinnerReporteMail');
+    const icon = document.getElementById('iconReporteMail');
+    const btn = this;
+
+    if (!email) {
+      emailInput.focus();
+      return;
+    }
+
+    btn.disabled = true;
+    spinner.classList.remove('d-none');
+    icon.classList.add('d-none');
+    resultDiv.className = 'alert alert-info py-2 small';
+    resultDiv.innerHTML = '<i class="bi bi-arrow-repeat me-1"></i> Generando archivo Excel y enviando correo...';
+    resultDiv.classList.remove('d-none');
+
+    try {
+      const res = await fetch('/reportes/enviar-correo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email_destino: email, formato: 'excel' })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        resultDiv.className = 'alert alert-success py-2 small';
+        resultDiv.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i> ' + data.message;
+      } else {
+        resultDiv.className = 'alert alert-danger py-2 small';
+        resultDiv.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i> ' + (data.message || 'Error al enviar.');
+      }
+    } catch (err) {
+      resultDiv.className = 'alert alert-danger py-2 small';
+      resultDiv.innerHTML = '<i class="bi bi-exclamation-octagon-fill me-1"></i> Error de red: ' + err.message;
+    } finally {
+      btn.disabled = false;
+      spinner.classList.add('d-none');
+      icon.classList.remove('d-none');
+    }
+  });
+</script>
+
+<%- include('../layouts/footer') %>

@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { MovimientoRepository } from '../repositories/movimiento.repository';
 import { EquipoRepository } from '../repositories/equipo.repository';
 import { AccesorioRepository } from '../repositories/accesorio.repository';
+import { MailService } from '../services/mail.service';
+import { pool } from '../db';
 
 const movimientoRepo = new MovimientoRepository();
 const equipoRepo = new EquipoRepository();
@@ -47,7 +49,7 @@ export class MovimientosController {
         return res.redirect('/movimientos/equipos');
       }
 
-      await movimientoRepo.registrarMovimientoEquipo({
+      const mov = await movimientoRepo.registrarMovimientoEquipo({
         numero_serie_mac: numero_serie_mac.trim(),
         tipo_movimiento,
         asunto,
@@ -58,7 +60,19 @@ export class MovimientosController {
         created_by: req.session.userId,
       });
 
-      req.session.flash = { type: 'success', message: `Movimiento de equipo (${tipo_movimiento}) registrado exitosamente.` };
+      const flashData: any = {
+        type: 'success',
+        message: `Movimiento de equipo (${tipo_movimiento}) registrado exitosamente.`
+      };
+
+      if (tipo_movimiento === 'SALIDA' && mov && mov.id_movimiento) {
+        flashData.link = {
+          url: `/movimientos/comprobante/${mov.id_movimiento}?tipo=EQUIPO`,
+          text: 'Descargar Comprobante PDF'
+        };
+      }
+
+      req.session.flash = flashData;
       res.redirect('/movimientos/equipos');
     } catch (err: any) {
       console.error('Error registrando movimiento de equipo:', err);
@@ -114,8 +128,9 @@ export class MovimientosController {
         return res.redirect('/movimientos/accesorios');
       }
 
-      await movimientoRepo.registrarMovimientoAccesorio({
-        id_accesorio: parseInt(id_accesorio, 10),
+      const idAccNum = parseInt(id_accesorio, 10);
+      const mov = await movimientoRepo.registrarMovimientoAccesorio({
+        id_accesorio: idAccNum,
         tipo_movimiento,
         cantidad: cantNum,
         asunto,
@@ -126,7 +141,42 @@ export class MovimientosController {
         created_by: req.session.userId,
       });
 
-      req.session.flash = { type: 'success', message: `Movimiento de accesorio (${tipo_movimiento}) registrado con éxito.` };
+      // Hook de Alerta Automática de Stock Bajo (Fase 2 - Ajuste 3)
+      if (tipo_movimiento === 'SALIDA') {
+        pool.query<{ nombre: string; codigo: string; cantidad: number; stock_minimo: number }>(
+          'SELECT nombre, codigo, cantidad, COALESCE(stock_minimo, 10) as stock_minimo FROM accesorios WHERE id_accesorio = $1',
+          [idAccNum]
+        ).then(res => {
+          if (res.rows.length > 0) {
+            const acc = res.rows[0];
+            if (acc.cantidad <= acc.stock_minimo) {
+              MailService.sendStockAlert({
+                nombre: acc.nombre,
+                codigo: acc.codigo,
+                stockActual: acc.cantidad,
+                stockMinimo: acc.stock_minimo,
+                tipo: 'ACCESORIO',
+                destino,
+                encargado
+              }).catch(err => console.warn('Aviso: Falló envío alerta stock:', err));
+            }
+          }
+        }).catch(err => console.warn('Aviso: Error consultando stock para alerta:', err));
+      }
+
+      const flashData: any = {
+        type: 'success',
+        message: `Movimiento de accesorio (${tipo_movimiento}) registrado con éxito.`
+      };
+
+      if (tipo_movimiento === 'SALIDA' && mov && mov.id_movimiento) {
+        flashData.link = {
+          url: `/movimientos/comprobante/${mov.id_movimiento}?tipo=ACCESORIO`,
+          text: 'Descargar Comprobante PDF'
+        };
+      }
+
+      req.session.flash = flashData;
       res.redirect('/movimientos/accesorios');
     } catch (err: any) {
       console.error('Error registrando movimiento accesorio:', err);

@@ -7,7 +7,11 @@ declare module 'express-session' {
     userId?: number;
     userName?: string;
     userRole?: 'admin' | 'usuario';
-    flash?: { type: 'success' | 'error'; message: string };
+    flash?: {
+      type: 'success' | 'error';
+      message: string;
+      link?: { url: string; text: string };
+    };
   }
 }
 
@@ -30,6 +34,7 @@ export async function attachUserMiddleware(req: Request, res: Response, next: Ne
       const user = await userRepo.findById(req.session.userId);
       if (user && user.activo === 1) {
         req.user = user;
+        req.session.userRole = user.rol;
         res.locals.user = user;
         return next();
       }
@@ -51,12 +56,31 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-export function requireAdmin(req: Request, res: Response, next: NextFunction) {
-  if (!req.session || !req.session.userId || req.session.userRole !== 'admin') {
-    if (req.session) {
-      req.session.flash = { type: 'error', message: 'Acceso restringido a administradores.' };
+export function requireRole(allowedRoles: Array<'admin' | 'usuario'>) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.session || !req.session.userId) {
+      return res.redirect('/auth/login');
     }
-    return res.redirect('/dashboard');
-  }
-  next();
+    const role = (req.session.userRole || (req.user && req.user.rol)) as 'admin' | 'usuario';
+    if (!role || !allowedRoles.includes(role)) {
+      if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+        return res.status(403).json({ error: 'Acceso denegado: permisos insuficientes.' });
+      }
+      req.session.flash = { 
+        type: 'error', 
+        message: 'Acceso denegado (403): Tu rol de usuario no tiene permisos para realizar esta acción.' 
+      };
+      return res.status(403).render('error', {
+        title: 'Acceso Denegado (403)',
+        status: 403,
+        message: 'No posees privilegios suficientes para acceder al recurso solicitado.',
+        user: req.user || null
+      });
+    }
+    next();
+  };
+}
+
+export function requireAdmin(req: Request, res: Response, next: NextFunction) {
+  return requireRole(['admin'])(req, res, next);
 }
