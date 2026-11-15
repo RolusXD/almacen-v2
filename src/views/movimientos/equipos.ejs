@@ -1,23 +1,23 @@
 <%- include('../layouts/header', { title: 'Movimientos de Equipos', activeNav: 'mov-equipos' }) %>
 
 <div class="row g-3">
-  <!-- Panel de Registro -->
+  <!-- Panel de Registro (Box Estilo Mikrowisp / AdminLTE) -->
   <div class="col-12 col-xl-4">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title">
-          <i class="bi bi-box-arrow-right text-primary"></i> Registrar Movimiento
-        </span>
+    <div class="erp-box erp-box-teal">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-box-arrow-right text-success"></i> Registrar Movimiento
+        </div>
       </div>
-      <div class="mw-card-body">
+      <div class="erp-box-body">
         <form method="POST" action="/movimientos/equipos" id="formMovEquipo">
           
           <!-- Búsqueda Instantánea por Serie / MAC -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">
               <i class="bi bi-upc-scan me-1 text-primary"></i> N° DE SERIE O MAC <span class="text-danger">*</span>
             </label>
-            <input type="text" name="numero_serie_mac" id="inputSerie" class="mw-input w-100" list="equipos_disponibles_list" placeholder="Escriba o elija una serie..." required autocomplete="off">
+            <input type="text" name="numero_serie_mac" id="inputSerie" class="erp-input w-100 font-mono" list="equipos_disponibles_list" placeholder="Escriba o elija una serie..." required autocomplete="off" autofocus>
             <datalist id="equipos_disponibles_list">
               <% equiposDisponibles.forEach(eq => { %>
                 <option value="<%= eq.numero_serie_mac %>"><%= eq.codigo %> - <%= eq.nombre %> (<%= eq.modelo || 'Sin mod' %>) [<%= eq.estado %>]</option>
@@ -27,7 +27,7 @@
           </div>
 
           <!-- Ficha de Verificación del Equipo Seleccionado -->
-          <div class="p-2 mb-3 rounded" id="fichaEquipo" style="background: #f8fafc; border: 1px dashed #cbd5e1; font-size: 12px;">
+          <div class="p-2 mb-3 rounded" id="fichaEquipo" style="background: #F8FAFC; border: 1px dashed #CBD5E1; font-size: 12px;">
             <div class="text-muted text-uppercase" style="font-size: 10px; font-weight: 700;">Equipo Identificado:</div>
             <div id="fichaNombre" class="fw-bold text-primary">Sin selección</div>
             <div class="text-muted" id="fichaDetalles">Modelo: - | Marca: - | Estado actual: -</div>
@@ -35,8 +35,8 @@
 
           <!-- Tipo de Movimiento -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
-            <select name="tipo_movimiento" id="tipoMovimiento" class="mw-select w-100" required>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TIPO DE MOVIMIENTO <span class="text-danger">*</span></label>
+            <select name="tipo_movimiento" id="tipoMovimiento" class="erp-select w-100" required>
               <option value="SALIDA">SALIDA (Egreso de almacén / Asignación)</option>
               <option value="ENTRADA">ENTRADA (Retorno / Devolución a almacén)</option>
               <option value="MANTENIMIENTO">MANTENIMIENTO (Envío a taller / revisión)</option>
@@ -44,12 +44,12 @@
             </select>
           </div>
 
-          <!-- Destino (Requisito clave) -->
+          <!-- Destino -->
           <div class="mb-3" id="campoDestino">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">
               <i class="bi bi-geo-alt me-1 text-danger"></i> DESTINO / ÁREA <span class="text-danger">*</span>
             </label>
-            <select name="destino" id="selectDestino" class="mw-select w-100" required>
+            <select name="destino" id="selectDestino" class="erp-select w-100" required>
               <option value="">Seleccione destino...</option>
               <option value="INSTALACIONES">INSTALACIONES (Clientes)</option>
               <option value="INFRAESTRUCTURA">INFRAESTRUCTURA (Nodos/Torres)</option>
@@ -63,8 +63,8 @@
 
           <!-- Asunto -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
-            <select name="asunto" class="mw-select w-100" required>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">ASUNTO / MOTIVO <span class="text-danger">*</span></label>
+            <select name="asunto" class="erp-select w-100" required>
               <option value="RCA">RCA (Requerimiento de Cambio/Alta)</option>
               <option value="INSTALACIÓN">INSTALACIÓN NUEVA</option>
               <option value="MANTENIMIENTO">MANTENIMIENTO PREVENTIVO/CORRECTIVO</option>
@@ -76,26 +76,26 @@
 
           <!-- Encargado -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">
               <i class="bi bi-person me-1"></i> TÉCNICO / ENCARGADO <span class="text-danger">*</span>
             </label>
-            <input type="text" name="encargado" class="mw-input w-100" placeholder="Nombre del responsable que retira o entrega..." required>
+            <input type="text" name="encargado" class="erp-input w-100" placeholder="Nombre del responsable que retira o entrega..." required>
           </div>
 
           <!-- Fecha -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">FECHA <span class="text-danger">*</span></label>
-            <input type="date" name="fecha_movimiento" class="mw-input w-100" value="<%= new Date().toISOString().split('T')[0] %>" required>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">FECHA <span class="text-danger">*</span></label>
+            <input type="date" name="fecha_movimiento" class="erp-input w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>" required>
           </div>
 
           <!-- Observaciones -->
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">OBSERVACIONES / DETALLES</label>
-            <textarea name="observaciones" rows="2" class="mw-input w-100" placeholder="Número de ticket, cliente o motivo específico..."></textarea>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">OBSERVACIONES / DETALLES</label>
+            <textarea name="observaciones" rows="2" class="erp-textarea w-100" placeholder="Número de ticket, cliente o motivo específico..."></textarea>
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.6rem; justify-content: center;">
-            <i class="bi bi-check2-circle"></i> Registrar Movimiento
+          <button type="submit" class="btn-erp btn-erp-success w-100 py-2">
+            <i class="bi bi-check2-circle me-1"></i> Registrar Movimiento
           </button>
         </form>
       </div>
@@ -104,24 +104,25 @@
 
   <!-- Historial de Movimientos de Equipos -->
   <div class="col-12 col-xl-8">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title">
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
           <i class="bi bi-list-columns-reverse text-primary"></i> Historial de Movimientos
-        </span>
-        <div class="d-flex gap-2">
-          <a href="/reportes/exportar/movimientos-equipos" class="mw-btn mw-btn-outline mw-btn-sm" title="Descargar Excel">
-            <i class="bi bi-file-earmark-excel text-success"></i> Exportar
+        </div>
+        <div class="d-flex align-items-center gap-2">
+          <span class="badge-erp badge-erp-primary"><%= movimientos.length %> Registros</span>
+          <a href="/reportes/exportar/movimientos-equipos" class="btn-erp btn-erp-default btn-sm" title="Descargar Excel (.xlsx)">
+            <i class="bi bi-file-earmark-excel text-success me-1"></i> Exportar (.xlsx)
           </a>
         </div>
       </div>
 
-      <div class="mw-card-body">
-        <!-- Filtros Rápidos -->
-        <form method="GET" action="/movimientos/equipos" class="mw-toolbar">
-          <div class="mw-toolbar-group">
-            <label class="text-muted" style="font-size: 11.5px;">Destino:</label>
-            <select name="destino" class="mw-select" onchange="this.form.submit()">
+      <div class="erp-box-body">
+        <!-- Barra de Control Estilo DataTables -->
+        <div class="datatables-header-bar mb-3">
+          <form method="GET" action="/movimientos/equipos" class="d-flex flex-wrap align-items-center gap-2">
+            <label style="font-size: 11.5px; font-weight: 600; color: #4B646F;">Destino:</label>
+            <select name="destino" class="erp-select-sm" onchange="this.form.submit()">
               <option value="">Todos los destinos</option>
               <% destinos.forEach(d => { %>
                 <option value="<%= d %>" <%= destinoFiltro === d ? 'selected' : '' %>><%= d %></option>
@@ -129,21 +130,22 @@
             </select>
 
             <div class="d-flex align-items-center gap-1">
-              <input type="text" name="filtro" class="mw-input" placeholder="Buscar serie, técnico, asunto..." value="<%= filtro || '' %>" style="min-width: 200px;">
-              <button type="submit" class="mw-btn mw-btn-primary mw-btn-sm"><i class="bi bi-search"></i></button>
+              <input type="text" name="filtro" class="erp-input-sm font-mono" placeholder="Buscar serie, técnico, asunto..." value="<%= filtro || '' %>" style="min-width: 200px;">
+              <button type="submit" class="btn-erp btn-erp-primary btn-sm" title="Buscar"><i class="bi bi-search"></i></button>
               <% if (filtro || destinoFiltro) { %>
-                <a href="/movimientos/equipos" class="mw-btn mw-btn-outline mw-btn-sm"><i class="bi bi-x-lg"></i></a>
+                <a href="/movimientos/equipos" class="btn-erp btn-erp-default btn-sm" title="Limpiar"><i class="bi bi-x-lg"></i></a>
               <% } %>
             </div>
+          </form>
+
+          <div class="datatables-length-select">
+            Mostrando <strong class="font-tabular"><%= movimientos.length %></strong> movimientos
           </div>
-          <div class="text-muted" style="font-size: 11.5px;">
-            Total: <strong><%= movimientos.length %></strong> registros
-          </div>
-        </form>
+        </div>
 
         <!-- Tabla de Historial Sin Cortes -->
-        <div class="mw-table-container">
-          <table class="mw-table">
+        <div class="table-responsive-erp">
+          <table class="table-erp">
             <thead>
               <tr>
                 <th>FECHA</th>
@@ -163,15 +165,15 @@
                     <td class="col-fecha font-tabular"><%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %></td>
                     <td>
                       <% if (m.tipo_movimiento === 'SALIDA') { %>
-                        <span class="badge-mw badge-wms-critico">SALIDA</span>
+                        <span class="badge-erp badge-erp-danger">SALIDA</span>
                       <% } else if (m.tipo_movimiento === 'ENTRADA') { %>
-                        <span class="badge-mw badge-wms-optimo">ENTRADA</span>
+                        <span class="badge-erp badge-erp-success">ENTRADA</span>
                       <% } else { %>
-                        <span class="badge-mw badge-wms-transito"><%= m.tipo_movimiento %></span>
+                        <span class="badge-erp badge-erp-warning"><%= m.tipo_movimiento %></span>
                       <% } %>
                     </td>
                     <td>
-                      <span class="font-mono">
+                      <span class="font-mono text-primary" style="font-weight: 600;">
                         <%= m.numero_serie_mac %>
                         <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
                           <i class="bi bi-clipboard"></i>
@@ -181,7 +183,7 @@
                     <td><strong><%= m.nombre_equipo || '-' %></strong> <small class="text-muted">(<%= m.modelo_equipo || '-' %>)</small></td>
                     <td>
                       <% if (m.destino) { %>
-                        <span class="badge-mw badge-neutral"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
+                        <span class="badge-erp badge-erp-purple"><i class="bi bi-geo-alt me-1"></i><%= m.destino %></span>
                       <% } else { %>
                         <span class="text-muted">-</span>
                       <% } %>

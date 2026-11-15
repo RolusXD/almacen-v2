@@ -2,7 +2,7 @@
 
 <div class="row justify-content-center py-5">
   <div class="col-12 col-md-8 col-lg-6 text-center">
-    <div class="mw-card p-4">
+    <div class="erp-box erp-box-orange p-4">
       <div class="mb-3">
         <i class="bi <%= status === 404 ? 'bi-question-circle text-warning' : 'bi-exclamation-octagon text-danger' %>" style="font-size: 3.5rem;"></i>
       </div>
@@ -10,11 +10,11 @@
       <p class="text-muted mb-4"><%= message || 'Ocurrió un evento inesperado en el procesamiento de la solicitud.' %></p>
       
       <div class="d-flex justify-content-center gap-2">
-        <a href="javascript:history.back()" class="mw-btn mw-btn-outline mw-btn-touch">
-          <i class="bi bi-arrow-left"></i> Volver atrás
+        <a href="javascript:history.back()" class="btn-erp btn-erp-default">
+          <i class="bi bi-arrow-left me-1"></i> Volver atrás
         </a>
-        <a href="/dashboard" class="mw-btn mw-btn-primary mw-btn-touch">
-          <i class="bi bi-speedometer2"></i> Ir al Dashboard
+        <a href="/dashboard" class="btn-erp btn-erp-primary">
+          <i class="bi bi-speedometer2 me-1"></i> Ir al Dashboard
         </a>
       </div>
     </div>

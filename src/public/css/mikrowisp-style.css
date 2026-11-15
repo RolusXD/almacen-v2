@@ -565,7 +565,301 @@ body {
 }
 
 .erp-box-body {
-  padding: 1rem;
+  padding: 1.15rem;
+}
+
+/* ----------------------------------------------------------
+   FORMULARIOS ADMINISTRATIVOS (ESTILO ADMINLTE / MIKROWISP)
+   ---------------------------------------------------------- */
+.form-label,
+.form-label-wms,
+label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #4B646F;
+  text-transform: uppercase;
+  margin-bottom: 0.35rem;
+  letter-spacing: 0.3px;
+}
+
+.erp-input,
+.erp-select,
+.erp-textarea,
+.mw-input,
+.mw-select,
+.form-control,
+.form-select,
+input[type="text"],
+input[type="number"],
+input[type="date"],
+input[type="password"],
+input[type="email"],
+input[type="search"],
+select,
+textarea {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.75rem;
+  font-size: 13px;
+  line-height: 1.45;
+  color: #333333;
+  background-color: #FFFFFF;
+  background-clip: padding-box;
+  border: 1px solid #D2D6DE;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  min-height: 38px;
+  box-sizing: border-box;
+}
+
+select,
+.erp-select,
+.mw-select,
+.form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 14px 10px;
+  appearance: none;
+  padding-right: 2.25rem;
+  cursor: pointer;
+}
+
+textarea,
+.erp-textarea {
+  min-height: 75px;
+  resize: vertical;
+}
+
+.erp-input:focus,
+.erp-select:focus,
+.erp-textarea:focus,
+.mw-input:focus,
+.mw-select:focus,
+.form-control:focus,
+.form-select:focus,
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="date"]:focus,
+input[type="password"]:focus,
+input[type="email"]:focus,
+input[type="search"]:focus,
+select:focus,
+textarea:focus {
+  border-color: #3C8DBC;
+  box-shadow: 0 0 0 2px rgba(60, 141, 188, 0.25);
+  outline: 0;
+  background-color: #FFFFFF;
+}
+
+/* Inputs pequeños / compactos */
+.erp-input-sm,
+.erp-select-sm {
+  min-height: 30px;
+  padding: 0.25rem 0.55rem;
+  font-size: 12px;
+  width: auto;
+  display: inline-block;
+}
+
+/* Aliases para cajas / cards */
+.mw-card,
+.card {
+  background: #FFFFFF;
+  border-top: 3px solid #3C8DBC;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.25rem;
+  border-left: 1px solid #DEE2E6;
+  border-right: 1px solid #DEE2E6;
+  border-bottom: 1px solid #DEE2E6;
+}
+
+.mw-card-header,
+.card-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #F4F4F4;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  background-color: #FFFFFF;
+}
+
+.mw-card-title,
+.card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #333333;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.mw-card-body,
+.card-body {
+  padding: 1.15rem;
+}
+
+/* Aliases para tablas */
+.mw-table-container {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 3px;
+}
+
+.mw-table,
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  background-color: #FFFFFF;
+  border: 1px solid #E5E7EB;
+}
+
+.mw-table thead th,
+.table thead th {
+  background-color: #F8F9FA;
+  color: #374151;
+  font-weight: 700;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 0.65rem 0.75rem;
+  border-bottom: 2px solid #DEE2E6;
+  border-top: 1px solid #E5E7EB;
+  border-right: 1px solid #E5E7EB;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.mw-table tbody td,
+.table tbody td {
+  padding: 0.55rem 0.75rem;
+  border-bottom: 1px solid #E5E7EB;
+  border-right: 1px solid #E5E7EB;
+  vertical-align: middle;
+  white-space: nowrap;
+  background-color: #FFFFFF;
+}
+
+.mw-table tbody tr:nth-of-type(even) td,
+.table tbody tr:nth-of-type(even) td {
+  background-color: #F9FAFB;
+}
+
+.mw-table tbody tr:hover td,
+.table tbody tr:hover td {
+  background-color: #F1F5F9;
+}
+
+/* Aliases para botones */
+.mw-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 0.45rem 0.95rem;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  min-height: 38px;
+}
+
+.mw-btn-primary {
+  background-color: #00A65A;
+  border-color: #008D4C;
+  color: #FFFFFF;
+}
+.mw-btn-primary:hover {
+  background-color: #008D4C;
+  color: #FFFFFF;
+}
+
+.mw-btn-outline {
+  background-color: #F4F4F4;
+  border-color: #D2D6DE;
+  color: #444444;
+}
+.mw-btn-outline:hover {
+  background-color: #E6E6E6;
+  border-color: #B5B5B5;
+  color: #222222;
+}
+
+.mw-btn-danger,
+.mw-btn-danger-outline {
+  background-color: #DD4B39;
+  border-color: #D73925;
+  color: #FFFFFF;
+}
+.mw-btn-danger:hover,
+.mw-btn-danger-outline:hover {
+  background-color: #D73925;
+  color: #FFFFFF;
+}
+
+.mw-btn-sm {
+  min-height: 28px;
+  padding: 0.2rem 0.55rem;
+  font-size: 11.5px;
+}
+
+.mw-btn-icon {
+  width: 30px;
+  height: 30px;
+  min-height: 30px;
+  padding: 0;
+}
+
+.badge-mw {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.55rem;
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: 3px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  line-height: 1.2;
+}
+
+.badge-neutral {
+  background-color: #E2E8F0;
+  color: #334155;
+  border: 1px solid #CBD5E1;
+}
+
+.badge-wms-optimo,
+.badge-disponible {
+  background-color: #00A65A;
+  color: #FFFFFF;
+}
+
+.badge-wms-critico,
+.badge-baja {
+  background-color: #DD4B39;
+  color: #FFFFFF;
+}
+
+.badge-wms-transito {
+  background-color: #F39C12;
+  color: #FFFFFF;
+}
+
+.badge-wms-bajo {
+  background-color: #F39C12;
+  color: #FFFFFF;
 }
 
 /* ----------------------------------------------------------

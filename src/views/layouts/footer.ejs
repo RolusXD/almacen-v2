@@ -63,7 +63,7 @@
       if (quickSearch) {
         quickSearch.addEventListener('input', function () {
           const val = this.value.toLowerCase().trim();
-          const rows = document.querySelectorAll('.mw-table tbody tr');
+          const rows = document.querySelectorAll('.table-erp tbody tr, .mw-table tbody tr, table tbody tr');
           rows.forEach(row => {
             const text = row.textContent.toLowerCase();
             row.style.display = text.includes(val) ? '' : 'none';

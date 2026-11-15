@@ -1,42 +1,45 @@
 <%- include('../layouts/header', { title: equipo ? 'Editar Equipo' : 'Nuevo Equipo', activeNav: 'equipos' }) %>
 
 <div class="row justify-content-center">
-  <div class="col-12 col-xl-9">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title">
-          <i class="bi <%= equipo ? 'bi-pencil-square' : 'bi-plus-circle' %> text-primary"></i>
-          <%= equipo ? 'Editar Equipo: ' + equipo.numero_serie_mac : 'Registro de Nuevo Equipo de Red' %>
-        </span>
-        <a href="/equipos" class="mw-btn mw-btn-outline mw-btn-sm">
-          <i class="bi bi-arrow-left"></i> Volver a Equipos
+  <div class="col-12 col-xl-10">
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi <%= equipo ? 'bi-pencil-square text-primary' : 'bi-plus-circle text-success' %>"></i>
+          <span><%= equipo ? 'Editar Ficha de Equipo: ' + equipo.numero_serie_mac : 'Registro de Nuevo Equipo de Red' %></span>
+        </div>
+        <a href="/equipos" class="btn-erp btn-erp-default btn-sm">
+          <i class="bi bi-arrow-left me-1"></i> Volver a Equipos
         </a>
       </div>
 
-      <div class="mw-card-body">
+      <div class="erp-box-body">
         <form method="POST" action="<%= equipo ? '/equipos/editar/' + equipo.id_equipo : '/equipos/nuevo' %>">
           
           <!-- SECCIÓN 1: IDENTIFICACIÓN -->
-          <h6 style="font-weight: 700; color: #1e3a5f; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem; margin-bottom: 0.9rem;">
-            <i class="bi bi-upc-scan me-1"></i> 1. Identificación del Equipo
-          </h6>
+          <div style="background-color: #F8F9FA; border-left: 3px solid #3C8DBC; padding: 0.5rem 0.85rem; margin-bottom: 1.15rem; border-radius: 2px;">
+            <strong style="color: #333333; font-size: 12.5px; text-transform: uppercase;">
+              <i class="bi bi-upc-scan me-1 text-primary"></i> 1. Identificación del Equipo
+            </strong>
+          </div>
+
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">N° DE SERIE O MAC <span class="text-danger">*</span></label>
-              <input type="text" name="numero_serie_mac" class="mw-input w-100" placeholder="Ej: 445121884JXX o F4:8E:38:XX:XX" value="<%= equipo ? equipo.numero_serie_mac : '' %>" required <%= equipo ? 'readonly style="background-color: #f1f5f9;"' : '' %>>
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">N° DE SERIE O MAC <span class="text-danger">*</span></label>
+              <input type="text" name="numero_serie_mac" class="erp-input w-100 font-mono" placeholder="Ej: 445121884JXX o F4:8E:38:XX:XX" value="<%= equipo ? equipo.numero_serie_mac : '' %>" required <%= equipo ? 'readonly style="background-color: #F1F5F9;"' : 'autofocus' %>>
               <small class="text-muted" style="font-size: 11px;">Identificador único físico del equipo.</small>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DESCRIPCIÓN / NOMBRE <span class="text-danger">*</span></label>
-              <input type="text" name="nombre" class="mw-input w-100" placeholder="Ej: ROUTER DUAL BAND o ONT GPON" value="<%= equipo ? equipo.nombre : '' %>" required>
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DESCRIPCIÓN / NOMBRE <span class="text-danger">*</span></label>
+              <input type="text" name="nombre" class="erp-input w-100" placeholder="Ej: ROUTER DUAL BAND o ONT GPON" value="<%= equipo ? equipo.nombre : '' %>" required>
             </div>
           </div>
 
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TIPO DE EQUIPO (CÓDIGO)</label>
-              <select name="codigo" id="select_codigo" class="mw-select w-100">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TIPO DE EQUIPO (CÓDIGO)</label>
+              <select name="codigo" id="select_codigo" class="erp-select w-100">
                 <option value="">Seleccione tipo...</option>
                 <% tipos.forEach(t => { %>
                   <option value="<%= t.codigo %>" <%= equipo && equipo.codigo === t.codigo ? 'selected' : '' %>>
@@ -47,22 +50,24 @@
             </div>
 
             <div class="col-md-6">
-              <!-- Requisito Estricto: Calidad bloqueada a NUEVO -->
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CALIDAD (ESTADO DE INGRESO)</label>
-              <input type="text" class="mw-input w-100" value="NUEVO" readonly style="background-color: #f8fafc; font-weight: 700; color: #0284c7; cursor: not-allowed;" title="Configurado estrictamente para altas de almacén">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CALIDAD (ESTADO DE INGRESO)</label>
+              <input type="text" class="erp-input w-100" value="NUEVO" readonly style="background-color: #F8FAFC; font-weight: 700; color: #0284c7; cursor: not-allowed;" title="Configurado estrictamente para altas de almacén">
               <input type="hidden" name="calidad" value="NUEVO">
               <small class="text-muted" style="font-size: 11px;">Restringido por norma de almacén: todo registro nuevo entra como NUEVO.</small>
             </div>
           </div>
 
           <!-- SECCIÓN 2: CARACTERÍSTICAS TÉCNICAS -->
-          <h6 style="font-weight: 700; color: #1e3a5f; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem; margin-top: 1.25rem; margin-bottom: 0.9rem;">
-            <i class="bi bi-cpu me-1"></i> 2. Características Técnicas
-          </h6>
+          <div style="background-color: #F8F9FA; border-left: 3px solid #605CA8; padding: 0.5rem 0.85rem; margin-top: 1.5rem; margin-bottom: 1.15rem; border-radius: 2px;">
+            <strong style="color: #333333; font-size: 12.5px; text-transform: uppercase;">
+              <i class="bi bi-cpu me-1 text-purple"></i> 2. Características Técnicas
+            </strong>
+          </div>
+
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">MODELO</label>
-              <input type="text" name="modelo" id="input_modelo" list="modelos_list" class="mw-input w-100" placeholder="Ej: WR940N, V2802GW" value="<%= equipo ? equipo.modelo : '' %>">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">MODELO</label>
+              <input type="text" name="modelo" id="input_modelo" list="modelos_list" class="erp-input w-100" placeholder="Ej: WR940N, V2802GW" value="<%= equipo ? equipo.modelo : '' %>">
               <datalist id="modelos_list">
                 <% modelosRef.forEach(m => { %>
                   <option value="<%= m.modelo %>"><%= m.marca %> - <%= m.nombre %></option>
@@ -72,43 +77,51 @@
             </div>
 
             <div class="col-md-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">MARCA</label>
-              <input type="text" name="marca" id="input_marca" class="mw-input w-100" placeholder="Ej: TP-LINK, HUAWEI, VSOL, MIKROTIK" value="<%= equipo ? equipo.marca : '' %>">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">MARCA</label>
+              <input type="text" name="marca" id="input_marca" class="erp-input w-100" placeholder="Ej: TP-LINK, HUAWEI, VSOL, MIKROTIK" value="<%= equipo ? equipo.marca : '' %>">
             </div>
           </div>
 
           <!-- SECCIÓN 3: INFORMACIÓN COMERCIAL -->
-          <h6 style="font-weight: 700; color: #1e3a5f; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.4rem; margin-top: 1.25rem; margin-bottom: 0.9rem;">
-            <i class="bi bi-currency-dollar me-1"></i> 3. Información Comercial y Origen
-          </h6>
+          <div style="background-color: #F8F9FA; border-left: 3px solid #00A65A; padding: 0.5rem 0.85rem; margin-top: 1.5rem; margin-bottom: 1.15rem; border-radius: 2px;">
+            <strong style="color: #333333; font-size: 12.5px; text-transform: uppercase;">
+              <i class="bi bi-currency-dollar me-1 text-success"></i> 3. Información Comercial y Origen
+            </strong>
+          </div>
+
           <div class="row g-3 mb-3">
             <div class="col-md-4">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PRECIO UNITARIO (Bs.)</label>
-              <input type="number" step="0.01" name="precio" class="mw-input w-100" placeholder="0.00" value="<%= equipo ? equipo.precio : '0.00' %>">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">PRECIO UNITARIO (Bs.)</label>
+              <input type="number" step="0.01" name="precio" class="erp-input w-100 font-tabular text-right" placeholder="0.00" value="<%= equipo ? equipo.precio : '0.00' %>">
             </div>
 
             <div class="col-md-4">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PROVEEDOR</label>
-              <input type="text" name="proveedor" class="mw-input w-100" placeholder="Ej: DIGICORP, COMRADE" value="<%= equipo ? equipo.proveedor : '' %>">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">PROVEEDOR</label>
+              <input type="text" name="proveedor" class="erp-input w-100" placeholder="Ej: DIGICORP, COMRADE" value="<%= equipo ? equipo.proveedor : '' %>">
             </div>
 
             <div class="col-md-4">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">FECHA DE INGRESO</label>
-              <input type="date" name="fecha_entrada" class="mw-input w-100" value="<%= equipo && equipo.fecha_entrada ? new Date(equipo.fecha_entrada).toISOString().split('T')[0] : new Date().toISOString().split('T')[0] %>">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">FECHA DE INGRESO</label>
+              <input type="date" name="fecha_entrada" class="erp-input w-100 font-tabular" value="<%= equipo && equipo.fecha_entrada ? new Date(equipo.fecha_entrada).toISOString().split('T')[0] : new Date().toISOString().split('T')[0] %>">
             </div>
           </div>
 
           <!-- SECCIÓN 4: OBSERVACIONES -->
-          <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">OBSERVACIONES / DETALLES ADICIONALES</label>
-            <textarea name="observaciones" rows="3" class="mw-input w-100" placeholder="Notas sobre el lote, estado de empaque, destino previsto..."><%= equipo ? equipo.observaciones : '' %></textarea>
+          <div style="background-color: #F8F9FA; border-left: 3px solid #F39C12; padding: 0.5rem 0.85rem; margin-top: 1.5rem; margin-bottom: 1.15rem; border-radius: 2px;">
+            <strong style="color: #333333; font-size: 12.5px; text-transform: uppercase;">
+              <i class="bi bi-chat-left-text me-1 text-warning"></i> 4. Observaciones y Notas
+            </strong>
           </div>
 
-          <div class="d-flex gap-2 pt-3 border-top mt-4">
-            <button type="submit" class="mw-btn mw-btn-primary" style="padding: 0.55rem 1.4rem;">
-              <i class="bi bi-save"></i> <%= equipo ? 'Guardar Cambios' : 'Registrar Equipo' %>
+          <div class="mb-4">
+            <textarea name="observaciones" rows="3" class="erp-textarea w-100" placeholder="Notas sobre el lote, estado de empaque, destino previsto..."><%= equipo ? equipo.observaciones : '' %></textarea>
+          </div>
+
+          <div class="d-flex align-items-center gap-2 pt-3 border-top">
+            <button type="submit" class="btn-erp btn-erp-success py-2 px-4">
+              <i class="bi bi-save me-1"></i> <%= equipo ? 'Guardar Cambios' : 'Registrar Equipo' %>
             </button>
-            <a href="/equipos" class="mw-btn mw-btn-outline" style="padding: 0.55rem 1rem;">
+            <a href="/equipos" class="btn-erp btn-erp-default py-2 px-3">
               Cancelar
             </a>
           </div>
