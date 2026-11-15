@@ -87,7 +87,7 @@ Sistema web integral para el control de inventario, trazabilidad de equipos de t
 almacen-v2/
 ├── .env.example              # Plantilla de variables de entorno para producción
 ├── Dockerfile                # Compilación multi-stage optimizada (Node 22 Alpine)
-├── docker-compose.yml        # Orquestación local de App y PostgreSQL 14
+├── docker-compose.local.yml  # Orquestación de desarrollo local (App y PostgreSQL 14)
 ├── package.json              # Dependencias y scripts de construcción
 ├── tsconfig.json             # Configuración TypeScript
 ├── backups/                  # Backups consolidados (.gitignore)
@@ -125,8 +125,8 @@ cd almacen-v2
 # 2. Configurar variables de entorno
 cp .env.example .env
 
-# 3. Levantar servicios con Docker Compose
-docker compose up -d --build
+# 3. Levantar servicios con Docker Compose (desarrollo local)
+docker compose -f docker-compose.local.yml up -d --build
 
 # 4. Acceder al sistema
 # Abrir en el navegador: http://localhost:3000

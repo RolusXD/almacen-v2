@@ -1,16 +1,17 @@
 import rateLimit from 'express-rate-limit';
 
-// Limitador estricto para autenticación y recuperación de credenciales
+// Limitador para autenticación y recuperación de credenciales
+// Ajustado a 15 intentos cada 15 minutos para tolerar múltiples operadores compartiendo la misma IP de oficina
 export const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 5, // Máximo 5 intentos por ventana
+  max: 15, // Máximo 15 intentos por ventana
   standardHeaders: true,
   legacyHeaders: false,
   message: (req: any, res: any) => {
     res.status(429).render('error', {
       title: 'Demasiados Intentos (429)',
       status: 429,
-      message: 'Has excedido el número máximo de intentos permitidos. Por seguridad, espera 15 minutos antes de volver a intentar.',
+      message: 'Has excedido el número máximo de intentos permitidos (15 intentos). Por seguridad, espera 15 minutos antes de volver a intentar.',
       user: null
     });
   }

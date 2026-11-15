@@ -70,7 +70,7 @@ app.use(
       maxAge: 30 * 24 * 60 * 60 * 1000, // 30 días
       httpOnly: true,
       sameSite: 'lax',
-      secure: ENV.NODE_ENV === 'production' && ENV.APP_URL.startsWith('https'),
+      secure: 'auto', // Requiere trust proxy activo; aplica Secure si la conexión es HTTPS (Traefik)
     },
   })
 );

@@ -16,7 +16,18 @@ const server = app.listen(ENV.PORT, async () => {
 
   try {
     const res = await pool.query('SELECT current_database(), version()');
-    console.log(`✅ Base de datos conectada: ${res.rows[0].current_database}`);
+    let dbHost = ENV.DB_HOST;
+    let dbName = res.rows[0].current_database || ENV.DB_NAME;
+    if (ENV.DATABASE_URL) {
+      try {
+        const parsedUrl = new URL(ENV.DATABASE_URL);
+        dbHost = parsedUrl.hostname;
+        dbName = parsedUrl.pathname.replace(/^\//, '') || dbName;
+      } catch (e) {
+        // Fallback a valores por defecto
+      }
+    }
+    console.log(`✅ Base de datos conectada: [Host: ${dbHost}] [Base: ${dbName}]`);
 
     // Cargar y aplicar zona horaria configurada
     const config = await configRepo.getConfiguracion();

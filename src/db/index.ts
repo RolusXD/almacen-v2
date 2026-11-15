@@ -7,6 +7,9 @@ if (ENV.DATABASE_URL) {
   poolConfig = {
     connectionString: ENV.DATABASE_URL,
     ssl: ENV.DB_SSL ? { rejectUnauthorized: false } : false,
+    max: 20,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 5000,
   };
 } else {
   poolConfig = {
