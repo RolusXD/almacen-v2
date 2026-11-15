@@ -1,75 +1,88 @@
 <%- include('../layouts/header', { title: 'Gestión de Mantenimientos y Taller', activeNav: 'mantenimientos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Ingreso a Taller -->
+  <!-- Formulario de Ingreso a Taller (Box Estilo Mikrowisp / AdminLTE) -->
   <div class="col-12 col-xl-4">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-wrench-adjustable text-primary"></i> Ingreso a Taller / Mantenimiento</span>
+    <div class="erp-box erp-box-orange">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-wrench-adjustable text-warning"></i> Ingreso a Taller / Mantenimiento
+        </div>
       </div>
-      <div class="mw-card-body">
+      <div class="erp-box-body">
         <form method="POST" action="/maestros/mantenimientos">
-          <div class="form-group-wms">
-            <label class="form-label-wms">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
-            <input type="text" name="numero_serie_mac" class="mw-input w-100 font-mono" placeholder="Ej: 445121884JXX" required autofocus>
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
+            <input type="text" name="numero_serie_mac" class="erp-input-sm w-100 font-mono" placeholder="Ej: 445121884JXX" required autofocus>
           </div>
 
-          <div class="form-group-wms">
-            <label class="form-label-wms">TIPO DE MANTENIMIENTO <span class="text-danger">*</span></label>
-            <select name="tipo_mantenimiento" class="mw-select w-100" required>
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TIPO DE MANTENIMIENTO <span class="text-danger">*</span></label>
+            <select name="tipo_mantenimiento" class="erp-select-sm w-100" required>
               <option value="CORRECTIVO" selected>CORRECTIVO (Reparación de falla)</option>
               <option value="PREVENTIVO">PREVENTIVO (Limpieza y calibración)</option>
               <option value="EVOLUTIVO">EVOLUTIVO (Actualización de firmware)</option>
             </select>
           </div>
 
-          <div class="form-group-wms">
-            <label class="form-label-wms">DESCRIPCIÓN DE LA FALLA / TRABAJO <span class="text-danger">*</span></label>
-            <textarea name="descripcion" rows="2" class="mw-input w-100" placeholder="Ej: No sincroniza puerto PON, puertos ethernet quemados..." required></textarea>
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DESCRIPCIÓN DE LA FALLA / TRABAJO <span class="text-danger">*</span></label>
+            <textarea name="descripcion" rows="2" class="erp-input-sm w-100" placeholder="Ej: No sincroniza puerto PON, puertos ethernet quemados..." required></textarea>
           </div>
 
-          <div class="form-group-wms">
-            <label class="form-label-wms">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
-            <input type="text" name="tecnico_responsable" class="mw-input w-100" placeholder="Nombre del técnico responsable..." required>
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TÉCNICO RESPONSABLE <span class="text-danger">*</span></label>
+            <input type="text" name="tecnico_responsable" class="erp-input-sm w-100" placeholder="Nombre del técnico responsable..." required>
           </div>
 
-          <div class="row g-2">
-            <div class="col-6 form-group-wms">
-              <label class="form-label-wms">COSTO EST. (Bs.)</label>
-              <input type="number" step="0.01" name="costo" class="mw-input w-100 font-tabular text-right" value="0.00">
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">COSTO EST. (Bs.)</label>
+              <input type="number" step="0.01" name="costo" class="erp-input-sm w-100 font-tabular text-right" value="0.00">
             </div>
-            <div class="col-6 form-group-wms">
-              <label class="form-label-wms">FECHA INGRESO</label>
-              <input type="date" name="fecha_ingreso" class="mw-input w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">FECHA INGRESO</label>
+              <input type="date" name="fecha_ingreso" class="erp-input-sm w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
             </div>
           </div>
 
-          <div class="form-group-wms">
-            <label class="form-label-wms">REPUESTOS / OBSERVACIONES</label>
-            <input type="text" name="repuestos_cambiados" class="mw-input w-100" placeholder="Ej: Fuente 12V 2A reemplazada">
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">REPUESTOS / OBSERVACIONES</label>
+            <input type="text" name="repuestos_cambiados" class="erp-input-sm w-100" placeholder="Ej: Fuente 12V 2A reemplazada">
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100 mw-btn-touch mt-2">
-            <i class="bi bi-save"></i> Ingresar Equipo a Taller
+          <button type="submit" class="btn-erp btn-erp-warning w-100 py-2">
+            <i class="bi bi-save me-1"></i> Ingresar Equipo a Taller
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Listado de Mantenimientos WMS UI Pro -->
+  <!-- Listado de Mantenimientos Estilo DataTables -->
   <div class="col-12 col-xl-8">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-card-checklist text-primary"></i> Historial de Equipos en Taller</span>
-        <div class="d-flex align-items-center gap-2">
-          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar por serie, técnico..." style="width: 220px;">
-          <span class="badge-mw badge-neutral"><%= mantenimientos.length %> registros</span>
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-card-checklist text-primary"></i> Historial de Equipos en Taller
         </div>
+        <span class="badge-erp badge-erp-primary"><%= mantenimientos.length %> Registros</span>
       </div>
-      <div class="mw-card-body p-0">
-        <div class="mw-table-container">
-          <table class="mw-table">
+      <div class="erp-box-body">
+        
+        <!-- Barra de Control Estilo DataTables -->
+        <div class="datatables-header-bar">
+          <div class="datatables-length-select">
+            <span>Mostrar <strong>10</strong> registros por página</span>
+          </div>
+          <div class="datatables-search-filter">
+            <label>Buscar:</label>
+            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar por serie, técnico..." style="width: 200px;">
+          </div>
+        </div>
+
+        <div class="table-responsive-erp">
+          <table class="table-erp">
             <thead>
               <tr>
                 <th>FECHA</th>
@@ -90,7 +103,7 @@
                       <%= m.fecha_ingreso ? new Date(m.fecha_ingreso).toISOString().split('T')[0] : '-' %>
                     </td>
                     <td>
-                      <span class="font-mono">
+                      <span class="font-mono text-primary" style="font-weight: 600;">
                         <%= m.numero_serie_mac %>
                         <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
                           <i class="bi bi-clipboard"></i>
@@ -104,7 +117,7 @@
                       <% } %>
                     </td>
                     <td>
-                      <span class="badge-mw badge-neutral" style="font-size: 10px;"><%= m.tipo_mantenimiento %></span>
+                      <span class="badge-erp badge-erp-purple" style="font-size: 10px;"><%= m.tipo_mantenimiento %></span>
                       <div class="text-truncate" style="max-width: 180px;" title="<%= m.descripcion %>">
                         <%= m.descripcion %>
                       </div>
@@ -115,17 +128,17 @@
                     </td>
                     <td>
                       <% if (m.estado === 'EN_PROCESO') { %>
-                        <span class="badge-mw badge-wms-transito">EN PROCESO</span>
+                        <span class="badge-erp badge-erp-warning">EN PROCESO</span>
                       <% } else if (m.estado === 'COMPLETADO') { %>
-                        <span class="badge-mw badge-wms-optimo">COMPLETADO</span>
+                        <span class="badge-erp badge-erp-success">COMPLETADO</span>
                       <% } else { %>
-                        <span class="badge-mw badge-wms-critico"><%= m.estado %></span>
+                        <span class="badge-erp badge-erp-danger"><%= m.estado %></span>
                       <% } %>
                     </td>
                     <td class="actions-cell">
                       <% if (m.estado === 'EN_PROCESO') { %>
                         <form method="POST" action="/maestros/mantenimientos/completar/<%= m.id_mantenimiento %>" style="display: inline;" onsubmit="return confirm('¿Confirmar que el mantenimiento finalizó y el equipo regresa a DISPONIBLE?');">
-                          <button type="submit" class="mw-btn mw-btn-success mw-btn-sm" title="Finalizar mantenimiento">
+                          <button type="submit" class="btn-erp btn-erp-success btn-sm" title="Finalizar mantenimiento">
                             <i class="bi bi-check-lg"></i> Listo
                           </button>
                         </form>

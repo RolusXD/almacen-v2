@@ -1,77 +1,90 @@
 <%- include('../layouts/header', { title: 'Control de Préstamos', activeNav: 'prestamos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Préstamo -->
+  <!-- Formulario de Préstamo (Box Estilo Mikrowisp / AdminLTE) -->
   <div class="col-12 col-xl-4">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-handbag text-primary"></i> Registrar Préstamo de Equipo</span>
+    <div class="erp-box erp-box-purple">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-handbag text-purple"></i> Registrar Préstamo de Equipo
+        </div>
       </div>
-      <div class="mw-card-body">
+      <div class="erp-box-body">
         <form method="POST" action="/maestros/prestamos">
-          <div class="form-group-wms">
-            <label class="form-label-wms">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
-            <input type="text" name="numero_serie_mac" class="mw-input w-100 font-mono" placeholder="Ej: 445121884JXX" required autofocus>
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">N° SERIE / MAC DEL EQUIPO <span class="text-danger">*</span></label>
+            <input type="text" name="numero_serie_mac" class="erp-input-sm w-100 font-mono" placeholder="Ej: 445121884JXX" required autofocus>
           </div>
 
-          <div class="form-group-wms">
-            <label class="form-label-wms">NOMBRE DEL SOLICITANTE <span class="text-danger">*</span></label>
-            <input type="text" name="nombre_solicita" class="mw-input w-100" placeholder="Nombre de la persona solicitante" required>
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NOMBRE DEL SOLICITANTE <span class="text-danger">*</span></label>
+            <input type="text" name="nombre_solicita" class="erp-input-sm w-100" placeholder="Nombre de la persona solicitante" required>
           </div>
 
-          <div class="row g-2">
-            <div class="col-6 form-group-wms">
-              <label class="form-label-wms">DEPARTAMENTO / ÁREA</label>
-              <input type="text" name="departamento" class="mw-input w-100" placeholder="Ej: Soporte, Ventas">
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DEPARTAMENTO / ÁREA</label>
+              <input type="text" name="departamento" class="erp-input-sm w-100" placeholder="Ej: Soporte, Ventas">
             </div>
-            <div class="col-6 form-group-wms">
-              <label class="form-label-wms">TELÉFONO CONTACTO</label>
-              <input type="text" name="telefono_contacto" class="mw-input w-100 font-tabular" placeholder="Ej: 71234567">
-            </div>
-          </div>
-
-          <div class="form-group-wms">
-            <label class="form-label-wms">MOTIVO DEL PRÉSTAMO <span class="text-danger">*</span></label>
-            <textarea name="motivo_prestamo" rows="2" class="mw-input w-100" placeholder="Ej: Pruebas técnicas de laboratorio o evento" required></textarea>
-          </div>
-
-          <div class="row g-2">
-            <div class="col-6 form-group-wms">
-              <label class="form-label-wms">FECHA PRÉSTAMO</label>
-              <input type="date" name="fecha_prestamo" class="mw-input w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
-            </div>
-            <div class="col-6 form-group-wms">
-              <label class="form-label-wms">DEVOLUCIÓN ESP. <span class="text-danger">*</span></label>
-              <input type="date" name="fecha_devolucion_esperada" class="mw-input w-100 font-tabular" value="<%= new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] %>" required>
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TELÉFONO CONTACTO</label>
+              <input type="text" name="telefono_contacto" class="erp-input-sm w-100 font-tabular" placeholder="Ej: 71234567">
             </div>
           </div>
 
-          <div class="form-group-wms">
-            <label class="form-label-wms">OBSERVACIONES DE SALIDA</label>
-            <input type="text" name="observaciones_salida" class="mw-input w-100" placeholder="Accesorios entregados con el equipo...">
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">MOTIVO DEL PRÉSTAMO <span class="text-danger">*</span></label>
+            <textarea name="motivo_prestamo" rows="2" class="erp-input-sm w-100" placeholder="Ej: Pruebas técnicas de laboratorio o evento" required></textarea>
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100 mw-btn-touch mt-2">
-            <i class="bi bi-save"></i> Registrar Préstamo de Equipo
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">FECHA PRÉSTAMO</label>
+              <input type="date" name="fecha_prestamo" class="erp-input-sm w-100 font-tabular" value="<%= new Date().toISOString().split('T')[0] %>">
+            </div>
+            <div class="col-6">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DEVOLUCIÓN ESP. <span class="text-danger">*</span></label>
+              <input type="date" name="fecha_devolucion_esperada" class="erp-input-sm w-100 font-tabular" value="<%= new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0] %>" required>
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">OBSERVACIONES DE SALIDA</label>
+            <input type="text" name="observaciones_salida" class="erp-input-sm w-100" placeholder="Accesorios entregados con el equipo...">
+          </div>
+
+          <button type="submit" class="btn-erp btn-erp-purple w-100 py-2">
+            <i class="bi bi-save me-1"></i> Registrar Préstamo de Equipo
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Listado de Préstamos WMS UI Pro -->
+  <!-- Listado de Préstamos Estilo DataTables -->
   <div class="col-12 col-xl-8">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-card-checklist text-primary"></i> Control de Préstamos de Equipos</span>
-        <div class="d-flex align-items-center gap-2">
-          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar préstamos..." style="width: 220px;">
-          <span class="badge-mw badge-neutral"><%= prestamos.length %> registros</span>
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-card-checklist text-primary"></i> Control de Préstamos de Equipos
         </div>
+        <span class="badge-erp badge-erp-primary"><%= prestamos.length %> Registros</span>
       </div>
-      <div class="mw-card-body p-0">
-        <div class="mw-table-container">
-          <table class="mw-table">
+      <div class="erp-box-body">
+        
+        <!-- Barra de Control Estilo DataTables -->
+        <div class="datatables-header-bar">
+          <div class="datatables-length-select">
+            <span>Mostrar <strong>10</strong> registros por página</span>
+          </div>
+          <div class="datatables-search-filter">
+            <label>Buscar:</label>
+            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar préstamos..." style="width: 200px;">
+          </div>
+        </div>
+
+        <div class="table-responsive-erp">
+          <table class="table-erp">
             <thead>
               <tr>
                 <th>FECHA</th>
@@ -92,7 +105,7 @@
                       <%= p.fecha_prestamo ? new Date(p.fecha_prestamo).toISOString().split('T')[0] : '-' %>
                     </td>
                     <td>
-                      <span class="font-mono">
+                      <span class="font-mono text-primary" style="font-weight: 600;">
                         <%= p.numero_serie_mac %>
                         <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= p.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
                           <i class="bi bi-clipboard"></i>
@@ -117,19 +130,19 @@
                     </td>
                     <td>
                       <% if (p.estado === 'PRESTADO') { %>
-                        <span class="badge-mw badge-wms-transito">PRESTADO</span>
+                        <span class="badge-erp badge-erp-warning">PRESTADO</span>
                       <% } else if (p.estado === 'DEVUELTO') { %>
-                        <span class="badge-mw badge-wms-optimo">DEVUELTO</span>
+                        <span class="badge-erp badge-erp-success">DEVUELTO</span>
                       <% } else if (p.estado === 'ATRASADO') { %>
-                        <span class="badge-mw badge-wms-critico">ATRASADO</span>
+                        <span class="badge-erp badge-erp-danger">ATRASADO</span>
                       <% } else { %>
-                        <span class="badge-mw badge-neutral"><%= p.estado %></span>
+                        <span class="badge-erp badge-erp-purple"><%= p.estado %></span>
                       <% } %>
                     </td>
                     <td class="actions-cell">
                       <% if (p.estado === 'PRESTADO' || p.estado === 'ATRASADO') { %>
                         <form method="POST" action="/maestros/prestamos/devolver/<%= p.id_prestamo %>" style="display: inline;" onsubmit="return confirm('¿Confirmar que el equipo fue retornado a almacén y pasa a DISPONIBLE?');">
-                          <button type="submit" class="mw-btn mw-btn-success mw-btn-sm" title="Registrar retorno">
+                          <button type="submit" class="btn-erp btn-erp-success btn-sm" title="Registrar retorno">
                             <i class="bi bi-box-arrow-in-down"></i> Retornar
                           </button>
                         </form>

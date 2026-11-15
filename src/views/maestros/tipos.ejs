@@ -1,28 +1,30 @@
 <%- include('../layouts/header', { title: 'Tipos de Equipos', activeNav: 'tipos' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Nuevo Tipo -->
+  <!-- Formulario de Nuevo Tipo (Box Estilo Mikrowisp / AdminLTE) -->
   <div class="col-12 col-xl-4">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-tag text-primary"></i> Nuevo Tipo de Equipo</span>
+    <div class="erp-box erp-box-purple">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-tag text-purple"></i> Nuevo Tipo de Equipo
+        </div>
       </div>
-      <div class="mw-card-body">
+      <div class="erp-box-body">
         <form method="POST" action="/maestros/tipos">
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CÓDIGO ÚNICO <span class="text-danger">*</span></label>
-            <input type="text" name="codigo" class="mw-input w-100" placeholder="Ej: ROT2.4, ONU5G, SW8P" required style="text-transform: uppercase;">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CÓDIGO ÚNICO <span class="text-danger">*</span></label>
+            <input type="text" name="codigo" class="erp-input-sm w-100" placeholder="Ej: ROT2.4, ONU5G, SW8P" required style="text-transform: uppercase;">
             <small class="text-muted" style="font-size: 11px;">Identificador corto que se asocia a cada equipo.</small>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DESCRIPCIÓN COMPLETA <span class="text-danger">*</span></label>
-            <input type="text" name="descripcion" class="mw-input w-100" placeholder="Ej: Router Inalámbrico 2.4 GHz" required>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DESCRIPCIÓN COMPLETA <span class="text-danger">*</span></label>
+            <input type="text" name="descripcion" class="erp-input-sm w-100" placeholder="Ej: Router Inalámbrico 2.4 GHz" required>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CATEGORÍA <span class="text-danger">*</span></label>
-            <select name="categoria" class="mw-select w-100" required>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CATEGORÍA <span class="text-danger">*</span></label>
+            <select name="categoria" class="erp-select-sm w-100" required>
               <option value="ROUTER">ROUTER</option>
               <option value="ONU">ONU / ONT</option>
               <option value="SWITCH">SWITCH</option>
@@ -31,39 +33,50 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PREFIJO (OPCIONAL)</label>
-            <input type="text" name="prefijo" class="mw-input w-100" placeholder="Ej: RT, ON, SW">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">PREFIJO (OPCIONAL)</label>
+            <input type="text" name="prefijo" class="erp-input-sm w-100" placeholder="Ej: RT, ON, SW">
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">OBSERVACIONES</label>
-            <textarea name="observaciones" rows="2" class="mw-input w-100" placeholder="Notas sobre este tipo de hardware..."></textarea>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">OBSERVACIONES</label>
+            <textarea name="observaciones" rows="2" class="erp-input-sm w-100" placeholder="Notas sobre este tipo de hardware..."></textarea>
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
-            <i class="bi bi-save"></i> Guardar Tipo de Equipo
+          <button type="submit" class="btn-erp btn-erp-primary w-100 py-2">
+            <i class="bi bi-save me-1"></i> Guardar Tipo de Equipo
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Listado de Tipos -->
+  <!-- Listado de Tipos Estilo DataTables -->
   <div class="col-12 col-xl-8">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-tags text-primary"></i> Catálogo de Tipos de Equipos</span>
-        <div class="d-flex align-items-center gap-2">
-          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar tipos..." style="width: 200px;">
-          <span class="badge-mw badge-neutral"><%= tipos.length %> activos</span>
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-tags text-primary"></i> Catálogo de Tipos de Equipos
         </div>
+        <span class="badge-erp badge-erp-primary"><%= tipos.length %> Registros</span>
       </div>
-      <div class="mw-card-body p-0">
-        <div class="mw-table-container">
-          <table class="mw-table">
+      <div class="erp-box-body">
+        
+        <!-- Barra de Control Estilo DataTables -->
+        <div class="datatables-header-bar">
+          <div class="datatables-length-select">
+            <span>Mostrar <strong>10</strong> registros por página</span>
+          </div>
+          <div class="datatables-search-filter">
+            <label>Buscar:</label>
+            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar tipos..." style="width: 180px;">
+          </div>
+        </div>
+
+        <div class="table-responsive-erp">
+          <table class="table-erp">
             <thead>
               <tr>
-                <th>ID</th>
+                <th style="width: 60px;">ID</th>
                 <th>CÓDIGO</th>
                 <th>DESCRIPCIÓN</th>
                 <th>CATEGORÍA</th>
@@ -76,9 +89,9 @@
               <% if (tipos && tipos.length > 0) { %>
                 <% tipos.forEach(t => { %>
                   <tr>
-                    <td class="font-tabular"><small class="text-muted">#<%= t.id_codigo %></small></td>
+                    <td class="col-number"><small class="text-muted">#<%= t.id_codigo %></small></td>
                     <td>
-                      <span class="font-mono">
+                      <span class="font-mono text-primary" style="font-weight: 600;">
                         <%= t.codigo %>
                         <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= t.codigo %>', 'Código')" title="Copiar código">
                           <i class="bi bi-clipboard"></i>
@@ -86,11 +99,11 @@
                       </span>
                     </td>
                     <td><strong><%= t.descripcion %></strong></td>
-                    <td><span class="badge-mw badge-neutral"><%= t.categoria %></span></td>
+                    <td><span class="badge-erp badge-erp-purple"><%= t.categoria %></span></td>
                     <td><%= t.prefijo || '-' %></td>
                     <td><small class="text-muted"><%= t.observaciones || '-' %></small></td>
                     <td class="actions-cell">
-                      <a href="/maestros/tipos/eliminar/<%= t.id_codigo %>" class="mw-btn mw-btn-danger-outline mw-btn-sm mw-btn-icon" title="Desactivar" onclick="return confirm('¿Desactivar tipo <%= t.codigo %>?');">
+                      <a href="/maestros/tipos/eliminar/<%= t.id_codigo %>" class="btn-erp btn-erp-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar tipo <%= t.codigo %>?');">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>

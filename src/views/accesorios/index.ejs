@@ -1,29 +1,29 @@
 <%- include('../layouts/header', { title: 'Gestión de Accesorios', activeNav: 'accesorios' }) %>
 
-<div class="mw-card">
-  <div class="mw-card-header">
-    <div class="mw-card-title">
-      <i class="bi bi-tools text-primary"></i> Catálogo y Existencias de Materiales / Accesorios
+<div class="erp-box erp-box-teal">
+  <div class="erp-box-header">
+    <div class="erp-box-title">
+      <i class="bi bi-tools text-success"></i> Catálogo y Existencias de Materiales / Accesorios
     </div>
     <div class="d-flex gap-2">
-      <a href="/accesorios/nuevo" class="mw-btn mw-btn-primary mw-btn-touch">
-        <i class="bi bi-plus-lg"></i> + Nuevo Material
+      <a href="/accesorios/nuevo" class="btn-erp btn-erp-success">
+        <i class="bi bi-plus-lg me-1"></i> + Nuevo Material
       </a>
-      <a href="/movimientos/accesorios" class="mw-btn mw-btn-outline mw-btn-touch">
-        <i class="bi bi-box-arrow-up-right text-primary"></i> Despachar Material
+      <a href="/movimientos/accesorios" class="btn-erp btn-erp-primary">
+        <i class="bi bi-box-arrow-up-right me-1"></i> Despachar Material
       </a>
-      <a href="/reportes/exportar/accesorios" class="mw-btn mw-btn-outline mw-btn-touch" title="Descargar Excel (.xlsx)">
-        <i class="bi bi-file-earmark-excel text-success"></i> Exportar (.xlsx)
+      <a href="/reportes/exportar/accesorios" class="btn-erp btn-erp-default" title="Descargar Excel (.xlsx)">
+        <i class="bi bi-file-earmark-excel text-success me-1"></i> Exportar (.xlsx)
       </a>
     </div>
   </div>
 
-  <div class="mw-card-body">
-    <!-- Toolbar de Filtros WMS UI PRO -->
-    <div class="mw-toolbar">
-      <form method="GET" action="/accesorios" class="mw-toolbar-group">
-        <label class="text-muted" style="font-size: 11.5px; font-weight: 600;">Unidad:</label>
-        <select name="unidad" class="mw-select" onchange="this.form.submit()">
+  <div class="erp-box-body">
+    <!-- Toolbar de Filtros y Búsqueda Mikrowisp ERP -->
+    <div class="datatables-header-bar mb-3">
+      <form method="GET" action="/accesorios" class="d-flex flex-wrap align-items-center gap-2">
+        <label style="font-size: 11.5px; font-weight: 600; color: #4B646F;">Unidad:</label>
+        <select name="unidad" class="erp-select-sm" onchange="this.form.submit()">
           <option value="Todas" <%= unidadFiltro === 'Todas' ? 'selected' : '' %>>Todas las unidades</option>
           <option value="METROS" <%= unidadFiltro === 'METROS' ? 'selected' : '' %>>METROS</option>
           <option value="UNIDADES" <%= unidadFiltro === 'UNIDADES' ? 'selected' : '' %>>UNIDADES</option>
@@ -38,25 +38,25 @@
         </div>
 
         <div class="d-flex align-items-center gap-1 ms-2">
-          <input type="text" name="filtro" class="mw-input" placeholder="Buscar material o SKU..." value="<%= filtro || '' %>" style="min-width: 220px;">
-          <button type="submit" class="mw-btn mw-btn-primary mw-btn-sm" title="Buscar"><i class="bi bi-search"></i></button>
+          <input type="text" name="filtro" class="erp-input-sm" placeholder="Buscar material o SKU..." value="<%= filtro || '' %>" style="min-width: 220px;">
+          <button type="submit" class="btn-erp btn-erp-primary btn-sm" title="Buscar"><i class="bi bi-search"></i></button>
           <% if (filtro || (unidadFiltro && unidadFiltro !== 'Todas') || stockBajoFiltro) { %>
-            <a href="/accesorios" class="mw-btn mw-btn-outline mw-btn-sm" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
+            <a href="/accesorios" class="btn-erp btn-erp-default btn-sm" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
           <% } %>
         </div>
       </form>
 
-      <div class="text-muted" style="font-size: 11.5px;">
-        Mostrando <strong class="text-dark font-tabular"><%= accesorios.length %></strong> ítem(s)
+      <div class="datatables-length-select">
+        Mostrando <strong class="font-tabular"><%= accesorios.length %></strong> ítem(s)
       </div>
     </div>
 
-    <!-- Tabla Compacta de Accesorios WMS UI PRO -->
-    <div class="mw-table-container">
-      <table class="mw-table">
+    <!-- Tabla Compacta de Accesorios Estilo DataTables -->
+    <div class="table-responsive-erp">
+      <table class="table-erp">
         <thead>
           <tr>
-            <th>ID</th>
+            <th style="width: 50px;">ID</th>
             <th>CÓDIGO / SKU</th>
             <th>DESCRIPCIÓN / MATERIAL</th>
             <th class="col-number">STOCK ACTUAL</th>
@@ -71,10 +71,10 @@
           <% if (accesorios && accesorios.length > 0) { %>
             <% accesorios.forEach(a => { %>
               <tr>
-                <td class="font-tabular"><small class="text-muted">#<%= a.id_accesorio %></small></td>
+                <td class="col-number"><small class="text-muted">#<%= a.id_accesorio %></small></td>
                 <td>
                   <% if (a.codigo) { %>
-                    <span class="font-mono">
+                    <span class="font-mono text-primary" style="font-weight: 600;">
                       <%= a.codigo %>
                       <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= a.codigo %>', 'Código SKU')" title="Copiar código">
                         <i class="bi bi-clipboard"></i>
@@ -87,37 +87,37 @@
                 <td><strong><%= a.nombre %></strong></td>
                 <td class="col-number font-tabular">
                   <% if (a.cantidad <= 0) { %>
-                    <span class="badge-mw badge-wms-critico font-tabular">
+                    <span class="badge-erp badge-erp-danger font-tabular">
                       <i class="bi bi-x-circle me-1"></i>0 AGOTADO
                     </span>
                   <% } else if (a.cantidad < 10) { %>
-                    <span class="badge-mw badge-wms-bajo font-tabular">
+                    <span class="badge-erp badge-erp-warning font-tabular">
                       <i class="bi bi-exclamation-triangle me-1"></i><%= a.cantidad %> CRÍTICO
                     </span>
                   <% } else { %>
-                    <span class="badge-mw badge-wms-optimo font-tabular">
+                    <span class="badge-erp badge-erp-success font-tabular">
                       <i class="bi bi-check2 me-1"></i><%= a.cantidad %>
                     </span>
                   <% } %>
                 </td>
                 <td>
-                  <span class="badge-mw badge-neutral"><%= a.unidad_medida %></span>
+                  <span class="badge-erp badge-erp-purple"><%= a.unidad_medida %></span>
                 </td>
                 <td class="col-number font-tabular">
                   Bs. <%= Number(a.costo || 0).toFixed(2) %>
                 </td>
                 <td><%= a.nombre_proveedor || '-' %></td>
                 <td>
-                  <span class="badge-mw badge-neutral text-primary" style="font-size: 10px;">NUEVO</span>
+                  <span class="badge-erp badge-erp-info">NUEVO</span>
                 </td>
                 <td class="actions-cell">
-                  <a href="/movimientos/accesorios?id_accesorio=<%= a.id_accesorio %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-success" title="Registrar Egreso o Ingreso">
+                  <a href="/movimientos/accesorios?id_accesorio=<%= a.id_accesorio %>" class="btn-erp btn-erp-default btn-sm text-success" title="Registrar Egreso o Ingreso">
                     <i class="bi bi-arrow-left-right"></i>
                   </a>
-                  <a href="/accesorios/editar/<%= a.id_accesorio %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon text-primary" title="Editar">
+                  <a href="/accesorios/editar/<%= a.id_accesorio %>" class="btn-erp btn-erp-default btn-sm text-primary" title="Editar">
                     <i class="bi bi-pencil-square"></i>
                   </a>
-                  <a href="/accesorios/eliminar/<%= a.id_accesorio %>" class="mw-btn mw-btn-danger-outline mw-btn-sm mw-btn-icon" title="Eliminar" onclick="return confirm('¿Seguro que desea eliminar <%= a.nombre %>?');">
+                  <a href="/accesorios/eliminar/<%= a.id_accesorio %>" class="btn-erp btn-erp-danger btn-sm" title="Eliminar" onclick="return confirm('¿Seguro que desea eliminar <%= a.nombre %>?');">
                     <i class="bi bi-trash"></i>
                   </a>
                 </td>

@@ -1,50 +1,63 @@
 <%- include('../layouts/header', { title: 'Marcas', activeNav: 'marcas' }) %>
 
 <div class="row g-3">
-  <!-- Formulario -->
+  <!-- Formulario (Box Estilo Mikrowisp / AdminLTE) -->
   <div class="col-12 col-xl-4">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-bookmark-plus text-primary"></i> Registrar Marca</span>
+    <div class="erp-box erp-box-teal">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-bookmark-plus text-success"></i> Registrar Marca
+        </div>
       </div>
-      <div class="mw-card-body">
+      <div class="erp-box-body">
         <form method="POST" action="/maestros/marcas">
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NOMBRE DE LA MARCA <span class="text-danger">*</span></label>
-            <input type="text" name="nombre" class="mw-input w-100" placeholder="Ej: TP-LINK, MIKROTIK, HUAWEI, VSOL" required>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NOMBRE DE LA MARCA <span class="text-danger">*</span></label>
+            <input type="text" name="nombre" class="erp-input-sm w-100" placeholder="Ej: TP-LINK, MIKROTIK, HUAWEI, VSOL" required>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">PAÍS DE ORIGEN</label>
-            <input type="text" name="pais_origen" class="mw-input w-100" placeholder="Ej: China, Letonia, EE.UU.">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">PAÍS DE ORIGEN</label>
+            <input type="text" name="pais_origen" class="erp-input-sm w-100" placeholder="Ej: China, Letonia, EE.UU.">
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">SITIO WEB OFICIAL</label>
-            <input type="url" name="pagina_web" class="mw-input w-100" placeholder="https://www.marca.com">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">SITIO WEB OFICIAL</label>
+            <input type="url" name="pagina_web" class="erp-input-sm w-100" placeholder="https://www.marca.com">
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
-            <i class="bi bi-save"></i> Guardar Marca
+          <button type="submit" class="btn-erp btn-erp-success w-100 py-2">
+            <i class="bi bi-save me-1"></i> Guardar Marca
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Listado -->
+  <!-- Listado Estilo DataTables -->
   <div class="col-12 col-xl-8">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-bookmark-star text-primary"></i> Marcas Registradas</span>
-        <div class="d-flex align-items-center gap-2">
-          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar marcas..." style="width: 200px;">
-          <span class="badge-mw badge-neutral"><%= marcas.length %> activas</span>
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-bookmark-star text-primary"></i> Marcas Registradas
         </div>
+        <span class="badge-erp badge-erp-primary"><%= marcas.length %> Marcas</span>
       </div>
-      <div class="mw-card-body p-0">
-        <div class="mw-table-container">
-          <table class="mw-table">
+      <div class="erp-box-body">
+        
+        <!-- Barra de Control Estilo DataTables -->
+        <div class="datatables-header-bar">
+          <div class="datatables-length-select">
+            <span>Mostrar <strong>10</strong> registros por página</span>
+          </div>
+          <div class="datatables-search-filter">
+            <label>Buscar:</label>
+            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar marcas..." style="width: 180px;">
+          </div>
+        </div>
+
+        <div class="table-responsive-erp">
+          <table class="table-erp">
             <thead>
               <tr>
                 <th>NOMBRE</th>
@@ -69,11 +82,11 @@
                         <span class="text-muted">-</span>
                       <% } %>
                     </td>
-                    <td class="col-number font-tabular">
-                      <span class="badge-mw badge-wms-optimo font-tabular"><%= m.total_equipos || 0 %> equipos</span>
+                    <td class="col-number">
+                      <span class="badge-erp badge-erp-success"><%= m.total_equipos || 0 %> equipos</span>
                     </td>
                     <td class="actions-cell">
-                      <a href="/maestros/marcas/eliminar/<%= m.id_marca %>" class="mw-btn mw-btn-danger-outline mw-btn-sm mw-btn-icon" title="Desactivar" onclick="return confirm('¿Desactivar marca <%= m.nombre %>?');">
+                      <a href="/maestros/marcas/eliminar/<%= m.id_marca %>" class="btn-erp btn-erp-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar marca <%= m.nombre %>?');">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>

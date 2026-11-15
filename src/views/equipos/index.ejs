@@ -1,26 +1,26 @@
 <%- include('../layouts/header', { title: 'Gestión de Equipos', activeNav: 'equipos' }) %>
 
-<div class="mw-card">
-  <div class="mw-card-header">
-    <div class="mw-card-title">
+<div class="erp-box erp-box-blue">
+  <div class="erp-box-header">
+    <div class="erp-box-title">
       <i class="bi bi-router text-primary"></i> Catálogo e Inventario de Equipos de Red
     </div>
     <div class="d-flex gap-2">
-      <a href="/equipos/nuevo" class="mw-btn mw-btn-primary mw-btn-touch">
-        <i class="bi bi-plus-lg"></i> + Nuevo Equipo (NUEVO)
+      <a href="/equipos/nuevo" class="btn-erp btn-erp-success">
+        <i class="bi bi-plus-lg me-1"></i> + Nuevo Equipo
       </a>
-      <a href="/reportes/exportar/equipos" class="mw-btn mw-btn-outline mw-btn-touch" title="Descargar reporte Excel (.xlsx)">
-        <i class="bi bi-file-earmark-excel text-success"></i> Exportar (.xlsx)
+      <a href="/reportes/exportar/equipos" class="btn-erp btn-erp-default" title="Descargar reporte Excel (.xlsx)">
+        <i class="bi bi-file-earmark-excel text-success me-1"></i> Exportar (.xlsx)
       </a>
     </div>
   </div>
 
-  <div class="mw-card-body">
-    <!-- Toolbar de Filtros y Búsqueda WMS UI PRO -->
-    <div class="mw-toolbar">
-      <form method="GET" action="/equipos" class="mw-toolbar-group">
-        <label class="text-muted" style="font-size: 11.5px; font-weight: 600;">Estado:</label>
-        <select name="estado" class="mw-select" onchange="this.form.submit()">
+  <div class="erp-box-body">
+    <!-- Toolbar de Filtros y Búsqueda Mikrowisp ERP -->
+    <div class="datatables-header-bar mb-3">
+      <form method="GET" action="/equipos" class="d-flex flex-wrap align-items-center gap-2">
+        <label style="font-size: 11.5px; font-weight: 600; color: #4B646F;">Estado:</label>
+        <select name="estado" class="erp-select-sm" onchange="this.form.submit()">
           <option value="Todos" <%= estadoFiltro === 'Todos' ? 'selected' : '' %>>Todos los estados</option>
           <option value="DISPONIBLE" <%= estadoFiltro === 'DISPONIBLE' ? 'selected' : '' %>>DISPONIBLE (En Bodega)</option>
           <option value="OCUPADO" <%= (estadoFiltro === 'OCUPADO' || estadoFiltro === 'ASIGNADO') ? 'selected' : '' %>>OCUPADO / ASIGNADO</option>
@@ -28,8 +28,8 @@
           <option value="RETIRADO" <%= estadoFiltro === 'RETIRADO' ? 'selected' : '' %>>RETIRADO (De Baja)</option>
         </select>
 
-        <label class="text-muted" style="font-size: 11.5px; font-weight: 600;">Código / Tipo:</label>
-        <select name="codigo" class="mw-select" onchange="this.form.submit()">
+        <label style="font-size: 11.5px; font-weight: 600; color: #4B646F;">Código / Tipo:</label>
+        <select name="codigo" class="erp-select-sm" onchange="this.form.submit()">
           <option value="Todos">Todos los códigos</option>
           <% tipos.forEach(t => { %>
             <option value="<%= t.codigo %>" <%= codigoFiltro === t.codigo ? 'selected' : '' %>>
@@ -39,25 +39,25 @@
         </select>
 
         <div class="d-flex align-items-center gap-1">
-          <input type="text" name="filtro" class="mw-input font-mono" placeholder="Buscar serie, modelo, marca..." value="<%= filtro || '' %>" style="min-width: 220px;">
-          <button type="submit" class="mw-btn mw-btn-primary mw-btn-sm" title="Ejecutar búsqueda"><i class="bi bi-search"></i></button>
+          <input type="text" name="filtro" class="erp-input-sm font-mono" placeholder="Buscar serie, modelo, marca..." value="<%= filtro || '' %>" style="min-width: 220px;">
+          <button type="submit" class="btn-erp btn-erp-primary btn-sm" title="Ejecutar búsqueda"><i class="bi bi-search"></i></button>
           <% if (filtro || (estadoFiltro && estadoFiltro !== 'Todos') || (codigoFiltro && codigoFiltro !== 'Todos')) { %>
-            <a href="/equipos" class="mw-btn mw-btn-outline mw-btn-sm" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
+            <a href="/equipos" class="btn-erp btn-erp-default btn-sm" title="Limpiar filtros"><i class="bi bi-x-lg"></i></a>
           <% } %>
         </div>
       </form>
 
-      <div class="text-muted" style="font-size: 11.5px;">
-        Mostrando <strong class="text-dark font-tabular"><%= equipos.length %></strong> equipo(s)
+      <div class="datatables-length-select">
+        Mostrando <strong class="font-tabular"><%= equipos.length %></strong> equipo(s)
       </div>
     </div>
 
-    <!-- Tabla de Alta Densidad con Encabezados Fijos (Sticky) -->
-    <div class="mw-table-container">
-      <table class="mw-table">
+    <!-- Tabla de Alta Densidad con Encabezados Fijos -->
+    <div class="table-responsive-erp">
+      <table class="table-erp">
         <thead>
           <tr>
-            <th>ID</th>
+            <th style="width: 50px;">ID</th>
             <th>PRODUCTO / NOMBRE</th>
             <th>CÓDIGO</th>
             <th>N° SERIE / MAC</th>
@@ -73,13 +73,13 @@
           <% if (equipos && equipos.length > 0) { %>
             <% equipos.forEach(eq => { %>
               <tr>
-                <td class="font-tabular"><small class="text-muted">#<%= eq.id_equipo %></small></td>
+                <td class="col-number"><small class="text-muted">#<%= eq.id_equipo %></small></td>
                 <td><strong><%= eq.nombre %></strong></td>
                 <td>
-                  <span class="badge-mw badge-neutral"><%= eq.codigo || '-' %></span>
+                  <span class="badge-erp badge-erp-primary"><%= eq.codigo || '-' %></span>
                 </td>
                 <td>
-                  <span class="font-mono">
+                  <span class="font-mono text-primary" style="font-weight: 600;">
                     <%= eq.numero_serie_mac %>
                     <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= eq.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
                       <i class="bi bi-clipboard"></i>
@@ -92,27 +92,27 @@
                   Bs. <%= Number(eq.precio || 0).toFixed(2) %>
                 </td>
                 <td>
-                  <span class="badge-mw badge-neutral text-primary" style="font-size: 10px;">NUEVO</span>
+                  <span class="badge-erp badge-erp-info">NUEVO</span>
                 </td>
                 <td>
                   <% if (eq.estado === 'DISPONIBLE') { %>
-                    <span class="badge-mw badge-wms-optimo">DISPONIBLE</span>
+                    <span class="badge-erp badge-erp-success">DISPONIBLE</span>
                   <% } else if (eq.estado === 'OCUPADO' || eq.estado === 'ASIGNADO' || eq.estado === 'SALIDA') { %>
-                    <span class="badge-mw badge-wms-critico">OCUPADO</span>
+                    <span class="badge-erp badge-erp-danger">OCUPADO</span>
                   <% } else if (eq.estado === 'MANTENIMIENTO' || eq.estado === 'REVISION') { %>
-                    <span class="badge-mw badge-wms-transito">TALLER</span>
+                    <span class="badge-erp badge-erp-warning">TALLER</span>
                   <% } else { %>
-                    <span class="badge-mw badge-neutral"><%= eq.estado %></span>
+                    <span class="badge-erp badge-erp-purple"><%= eq.estado %></span>
                   <% } %>
                 </td>
                 <td class="actions-cell">
-                  <a href="/movimientos/equipos?filtro=<%= encodeURIComponent(eq.numero_serie_mac) %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon" title="Registrar movimiento o ver kardex">
+                  <a href="/movimientos/equipos?filtro=<%= encodeURIComponent(eq.numero_serie_mac) %>" class="btn-erp btn-erp-default btn-sm" title="Registrar movimiento o ver kardex">
                     <i class="bi bi-arrow-left-right text-primary"></i>
                   </a>
-                  <a href="/equipos/editar/<%= eq.id_equipo %>" class="mw-btn mw-btn-outline mw-btn-sm mw-btn-icon" title="Editar ficha">
+                  <a href="/equipos/editar/<%= eq.id_equipo %>" class="btn-erp btn-erp-default btn-sm" title="Editar ficha">
                     <i class="bi bi-pencil-square text-secondary"></i>
                   </a>
-                  <a href="/equipos/eliminar/<%= eq.id_equipo %>" class="mw-btn mw-btn-danger-outline mw-btn-sm mw-btn-icon" title="Eliminar equipo" onclick="return confirm('¿Seguro que desea eliminar el equipo <%= eq.numero_serie_mac %>?');">
+                  <a href="/equipos/eliminar/<%= eq.id_equipo %>" class="btn-erp btn-erp-danger btn-sm" title="Eliminar equipo" onclick="return confirm('¿Seguro que desea eliminar el equipo <%= eq.numero_serie_mac %>?');">
                     <i class="bi bi-trash"></i>
                   </a>
                 </td>

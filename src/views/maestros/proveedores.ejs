@@ -1,66 +1,79 @@
 <%- include('../layouts/header', { title: 'Proveedores', activeNav: 'proveedores' }) %>
 
 <div class="row g-3">
-  <!-- Formulario de Nuevo Proveedor -->
+  <!-- Formulario de Nuevo Proveedor (Box Estilo Mikrowisp / AdminLTE) -->
   <div class="col-12 col-xl-4">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-truck text-primary"></i> Registrar Proveedor</span>
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-truck text-primary"></i> Registrar Proveedor
+        </div>
       </div>
-      <div class="mw-card-body">
+      <div class="erp-box-body">
         <form method="POST" action="/maestros/proveedores">
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NOMBRE DE LA EMPRESA <span class="text-danger">*</span></label>
-            <input type="text" name="nombre_empresa" class="mw-input w-100" placeholder="Ej: DIGICORP S.R.L. o COMRADE" required>
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NOMBRE DE LA EMPRESA <span class="text-danger">*</span></label>
+            <input type="text" name="nombre_empresa" class="erp-input-sm w-100" placeholder="Ej: DIGICORP S.R.L. o COMRADE" required>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">NIT (BOLIVIA)</label>
-            <input type="text" name="nit" class="mw-input w-100" placeholder="Ej: 1028374029">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">NIT (BOLIVIA)</label>
+            <input type="text" name="nit" class="erp-input-sm w-100" placeholder="Ej: 1028374029">
           </div>
 
           <div class="row g-2 mb-3">
             <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CONTACTO</label>
-              <input type="text" name="contacto" class="mw-input w-100" placeholder="Nombre contacto">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CONTACTO</label>
+              <input type="text" name="contacto" class="erp-input-sm w-100" placeholder="Nombre contacto">
             </div>
             <div class="col-6">
-              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">TELÉFONO</label>
-              <input type="text" name="telefono" class="mw-input w-100" placeholder="70012345">
+              <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">TELÉFONO</label>
+              <input type="text" name="telefono" class="erp-input-sm w-100" placeholder="70012345">
             </div>
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">CORREO ELECTRÓNICO</label>
-            <input type="email" name="email" class="mw-input w-100" placeholder="ventas@proveedor.com">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">CORREO ELECTRÓNICO</label>
+            <input type="email" name="email" class="erp-input-sm w-100" placeholder="ventas@proveedor.com">
           </div>
 
           <div class="mb-3">
-            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #475569;">DIRECCIÓN</label>
-            <input type="text" name="direccion" class="mw-input w-100" placeholder="Ciudad, calle o zona">
+            <label class="form-label" style="font-size: 11.5px; font-weight: 700; color: #4B646F;">DIRECCIÓN</label>
+            <input type="text" name="direccion" class="erp-input-sm w-100" placeholder="Ciudad, calle o zona">
           </div>
 
-          <button type="submit" class="mw-btn mw-btn-primary w-100" style="padding: 0.55rem; justify-content: center;">
-            <i class="bi bi-save"></i> Guardar Proveedor
+          <button type="submit" class="btn-erp btn-erp-primary w-100 py-2">
+            <i class="bi bi-save me-1"></i> Guardar Proveedor
           </button>
         </form>
       </div>
     </div>
   </div>
 
-  <!-- Listado de Proveedores -->
+  <!-- Listado de Proveedores Estilo DataTables -->
   <div class="col-12 col-xl-8">
-    <div class="mw-card">
-      <div class="mw-card-header">
-        <span class="mw-card-title"><i class="bi bi-buildings text-primary"></i> Proveedores Registrados</span>
-        <div class="d-flex align-items-center gap-2">
-          <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar proveedores..." style="width: 200px;">
-          <span class="badge-mw badge-neutral"><%= proveedores.length %> activos</span>
+    <div class="erp-box erp-box-teal">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-buildings text-success"></i> Proveedores Registrados
         </div>
+        <span class="badge-erp badge-erp-success"><%= proveedores.length %> Proveedores</span>
       </div>
-      <div class="mw-card-body p-0">
-        <div class="mw-table-container">
-          <table class="mw-table">
+      <div class="erp-box-body">
+        
+        <!-- Barra de Control Estilo DataTables -->
+        <div class="datatables-header-bar">
+          <div class="datatables-length-select">
+            <span>Mostrar <strong>10</strong> registros por página</span>
+          </div>
+          <div class="datatables-search-filter">
+            <label>Buscar:</label>
+            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Filtrar proveedores..." style="width: 180px;">
+          </div>
+        </div>
+
+        <div class="table-responsive-erp">
+          <table class="table-erp">
             <thead>
               <tr>
                 <th>EMPRESA</th>
@@ -79,7 +92,7 @@
                     <td><strong><%= p.nombre_empresa %></strong></td>
                     <td>
                       <% if (p.nit) { %>
-                        <span class="font-mono font-tabular">
+                        <span class="font-mono font-tabular text-primary" style="font-weight: 600;">
                           <%= p.nit %>
                           <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= p.nit %>', 'NIT')" title="Copiar NIT">
                             <i class="bi bi-clipboard"></i>
@@ -94,7 +107,7 @@
                     <td><%= p.email || '-' %></td>
                     <td><small class="text-muted"><%= p.direccion || '-' %></small></td>
                     <td class="actions-cell">
-                      <a href="/maestros/proveedores/eliminar/<%= p.id_proveedor %>" class="mw-btn mw-btn-danger-outline mw-btn-sm mw-btn-icon" title="Desactivar" onclick="return confirm('¿Desactivar proveedor <%= p.nombre_empresa %>?');">
+                      <a href="/maestros/proveedores/eliminar/<%= p.id_proveedor %>" class="btn-erp btn-erp-danger btn-sm" title="Desactivar" onclick="return confirm('¿Desactivar proveedor <%= p.nombre_empresa %>?');">
                         <i class="bi bi-trash"></i>
                       </a>
                     </td>

@@ -1,182 +1,215 @@
-<%- include('../layouts/header', { title: 'Dashboard Operativo', activeNav: 'dashboard' }) %>
+<%- include('../layouts/header', { title: 'Dashboard General', activeNav: 'dashboard' }) %>
 
-<!-- Dashboard Operativo WMS UI PRO: Exactamente 4 Tarjetas KPI -->
-<div class="dashboard-kpi-grid">
-  <!-- KPI 1: Total Equipos -->
-  <div class="dashboard-kpi-card kpi-optimal">
-    <div>
-      <div class="kpi-label">Equipos Registrados</div>
-      <div class="kpi-number"><%= statsEquipos.total %></div>
-      <div class="kpi-subtext">
-        <span class="badge-mw badge-wms-optimo" style="padding: 1px 5px;"><%= statsEquipos.disponibles %> disp.</span>
-        <span>•</span>
-        <span class="badge-mw badge-wms-critico" style="padding: 1px 5px;"><%= statsEquipos.asignados %> ocupados</span>
+<!-- 4 TARJETAS KPI SUPERIORES (ESTILO MIKROWISP / ADMINLTE - COLORES SÓLIDOS VIBRANTES) -->
+<div class="kpi-row-mikrowisp">
+  
+  <!-- KPI 1: Teal (#00A65A) - Stock y Equipos Disponibles -->
+  <div class="kpi-box kpi-teal">
+    <div class="kpi-box-inner">
+      <div class="kpi-box-number"><%= statsEquipos.disponibles %></div>
+      <div class="kpi-box-title">Equipos Disponibles</div>
+      <div class="kpi-box-sub">
+        Total en almacén: <strong><%= statsEquipos.total %></strong> equipos
       </div>
+      <i class="bi bi-router kpi-box-icon"></i>
     </div>
-    <div class="kpi-icon-wrap" style="background: #DCFCE7; color: #166534;">
-      <i class="bi bi-router"></i>
-    </div>
+    <a href="/equipos?estado=DISPONIBLE" class="kpi-box-footer">
+      <span>Ver detalle de disponibles</span>
+      <i class="bi bi-arrow-right-circle-fill"></i>
+    </a>
   </div>
 
-  <!-- KPI 2: Stock Crítico (< 10) con enlace directo filtrado -->
-  <a href="/accesorios?stock_bajo=true" class="dashboard-kpi-card kpi-critical text-decoration-none" title="Ver accesorios con stock bajo">
-    <div>
-      <div class="kpi-label">Stock Crítico Materiales</div>
-      <div class="kpi-number" style="color: <%= statsAccesorios.stockBajo > 0 ? '#991B1B' : '#166534' %>;">
-        <%= statsAccesorios.stockBajo %>
+  <!-- KPI 2: Azul Corporativo (#0073B7) - Equipos Asignados / Ocupados -->
+  <div class="kpi-box kpi-blue">
+    <div class="kpi-box-inner">
+      <div class="kpi-box-number"><%= statsEquipos.asignados %></div>
+      <div class="kpi-box-title">Equipos en Servicio</div>
+      <div class="kpi-box-sub">
+        Asignados a clientes y proyectos
       </div>
-      <div class="kpi-subtext" style="color: <%= statsAccesorios.stockBajo > 0 ? '#991B1B' : '#64748B' %>;">
-        <i class="bi <%= statsAccesorios.stockBajo > 0 ? 'bi-exclamation-triangle-fill text-danger' : 'bi-check-circle-fill text-success' %>"></i>
-        <span><%= statsAccesorios.stockBajo > 0 ? 'Requieren reabastecimiento' : 'Stock bajo control' %></span>
-      </div>
+      <i class="bi bi-box-arrow-up-right kpi-box-icon"></i>
     </div>
-    <div class="kpi-icon-wrap" style="background: <%= statsAccesorios.stockBajo > 0 ? '#FEE2E2' : '#F1F5F9' %>; color: <%= statsAccesorios.stockBajo > 0 ? '#991B1B' : '#64748B' %>;">
-      <i class="bi bi-shield-exclamation"></i>
-    </div>
-  </a>
+    <a href="/equipos?estado=OCUPADO" class="kpi-box-footer">
+      <span>Ver equipos en servicio</span>
+      <i class="bi bi-arrow-right-circle-fill"></i>
+    </a>
+  </div>
 
-  <!-- KPI 3: Equipos en Taller / Mantenimiento -->
-  <a href="/maestros/mantenimientos" class="dashboard-kpi-card kpi-maintenance text-decoration-none" title="Ir a control de mantenimientos">
-    <div>
-      <div class="kpi-label">Equipos en Taller</div>
-      <div class="kpi-number" style="color: <%= statsEquipos.mantenimiento > 0 ? '#075985' : '#0F172A' %>;">
-        <%= statsEquipos.mantenimiento %>
+  <!-- KPI 3: Violeta / Índigo (#605CA8) - Accesorios & Materiales en Bodega -->
+  <div class="kpi-box kpi-purple">
+    <div class="kpi-box-inner">
+      <div class="kpi-box-number"><%= statsAccesorios.totalUnidades %></div>
+      <div class="kpi-box-title">Materiales y Fibra</div>
+      <div class="kpi-box-sub">
+        <strong><%= statsAccesorios.totalItems %></strong> rubros registrados
       </div>
-      <div class="kpi-subtext">
-        <i class="bi bi-wrench-adjustable text-primary"></i>
-        <span>En revisión o reparación</span>
-      </div>
+      <i class="bi bi-tools kpi-box-icon"></i>
     </div>
-    <div class="kpi-icon-wrap" style="background: #E0F2FE; color: #075985;">
-      <i class="bi bi-tools"></i>
-    </div>
-  </a>
+    <a href="/accesorios" class="kpi-box-footer">
+      <span>Gestionar materiales</span>
+      <i class="bi bi-arrow-right-circle-fill"></i>
+    </a>
+  </div>
 
-  <!-- KPI 4: Accesorios y Materiales -->
-  <a href="/accesorios" class="dashboard-kpi-card kpi-movement text-decoration-none" title="Ver catálogo de accesorios">
-    <div>
-      <div class="kpi-label">Total Materiales</div>
-      <div class="kpi-number"><%= statsAccesorios.totalUnidades %></div>
-      <div class="kpi-subtext">
-        <i class="bi bi-layers text-secondary"></i>
-        <span><%= statsAccesorios.totalItems %> categorías en bodega</span>
+  <!-- KPI 4: Naranja / Ámbar (#F39C12) - Alertas de Stock Crítico (< 10) -->
+  <div class="kpi-box <%= statsAccesorios.stockBajo > 0 ? 'kpi-orange' : 'kpi-teal' %>">
+    <div class="kpi-box-inner">
+      <div class="kpi-box-number"><%= statsAccesorios.stockBajo %></div>
+      <div class="kpi-box-title">Stock Crítico (< 10)</div>
+      <div class="kpi-box-sub">
+        <%= statsAccesorios.stockBajo > 0 ? 'Artículos por reponer urgente' : 'Nivel de stock adecuado' %>
       </div>
+      <i class="bi bi-shield-exclamation kpi-box-icon"></i>
     </div>
-    <div class="kpi-icon-wrap" style="background: #F1F5F9; color: #0F172A;">
-      <i class="bi bi-boxes"></i>
-    </div>
-  </a>
+    <a href="/accesorios?stock_bajo=true" class="kpi-box-footer">
+      <span>Ver artículos críticos</span>
+      <i class="bi bi-arrow-right-circle-fill"></i>
+    </a>
+  </div>
+
 </div>
 
-<!-- Accesos Rápidos Operativos -->
-<div class="mw-card">
-  <div class="mw-card-header">
-    <span class="mw-card-title"><i class="bi bi-lightning-charge text-warning"></i> Operaciones Inmediatas de Almacén</span>
-  </div>
-  <div class="mw-card-body d-flex gap-2 flex-wrap">
-    <a href="/movimientos/equipos" class="mw-btn mw-btn-primary mw-btn-touch">
-      <i class="bi bi-arrow-left-right"></i> Registrar Movimiento de Equipos
-    </a>
-    <a href="/movimientos/accesorios" class="mw-btn mw-btn-primary mw-btn-touch">
-      <i class="bi bi-box-arrow-up-right"></i> Despachar Accesorios con Destino
-    </a>
-    <a href="/equipos/nuevo" class="mw-btn mw-btn-outline mw-btn-touch">
-      <i class="bi bi-plus-circle text-primary"></i> Alta de Equipo (NUEVO)
-    </a>
-    <a href="/accesorios/nuevo" class="mw-btn mw-btn-outline mw-btn-touch">
-      <i class="bi bi-plus-circle text-primary"></i> Alta de Material
-    </a>
-    <a href="/reportes/exportar/equipos" class="mw-btn mw-btn-outline mw-btn-touch ms-auto">
-      <i class="bi bi-file-earmark-excel text-success"></i> Exportar Equipos
-    </a>
-  </div>
-</div>
-
-<!-- Tabla de Últimos Movimientos con Formato WMS UI Pro -->
-<div class="mw-card">
-  <div class="mw-card-header">
-    <span class="mw-card-title">
-      <i class="bi bi-clock-history text-primary"></i> Últimos Movimientos Operativos
-    </span>
-    <div class="d-flex align-items-center gap-2">
-      <input type="text" id="quickTableSearch" class="mw-input" placeholder="Filtrar por serie, equipo, destino..." style="width: 240px;">
-      <a href="/movimientos/equipos" class="mw-btn mw-btn-outline mw-btn-sm">Ver Todos</a>
+<!-- FILA INFERIOR: RESUMEN LATERAL + TABLA DE MOVIMIENTOS RECIENTES -->
+<div class="row g-3">
+  
+  <!-- Panel de Resumen Lateral (Widgets con Badges de Colores) -->
+  <div class="col-12 col-xl-4">
+    <div class="erp-box erp-box-blue">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-speedometer text-primary"></i> Estado General de Bodega
+        </div>
+      </div>
+      <div class="erp-box-body p-0">
+        <ul class="list-group list-group-flush" style="font-size: 13px;">
+          <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+            <span><i class="bi bi-check-circle-fill text-success me-2"></i>Equipos en Stock Listo</span>
+            <span class="badge-erp badge-erp-success font-tabular"><%= statsEquipos.disponibles %> Unidades</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+            <span><i class="bi bi-broadcast text-primary me-2"></i>Equipos en Clientes (Ocupados)</span>
+            <span class="badge-erp badge-erp-primary font-tabular"><%= statsEquipos.asignados %> Unidades</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+            <span><i class="bi bi-wrench-adjustable text-purple me-2"></i>Equipos en Taller / Reparación</span>
+            <span class="badge-erp badge-erp-purple font-tabular"><%= statsEquipos.mantenimiento %> Unidades</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+            <span><i class="bi bi-exclamation-triangle-fill text-warning me-2"></i>Materiales Stock Crítico</span>
+            <span class="badge-erp badge-erp-warning font-tabular"><%= statsAccesorios.stockBajo %> Artículos</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
+            <span><i class="bi bi-layers text-info me-2"></i>Valor Estimado en Materiales</span>
+            <span class="badge-erp badge-erp-gray font-tabular fw-bold text-dark">Bs. <%= Number(statsAccesorios.valorTotal || 0).toFixed(2) %></span>
+          </li>
+        </ul>
+      </div>
+      <div class="p-3 bg-light border-top d-flex gap-2 flex-wrap">
+        <a href="/movimientos/equipos" class="btn-erp btn-erp-primary btn-erp-sm">
+          <i class="bi bi-arrow-left-right"></i> Mover Equipo
+        </a>
+        <a href="/movimientos/accesorios" class="btn-erp btn-erp-success btn-erp-sm">
+          <i class="bi bi-box-arrow-up-right"></i> Despacho Accesorio
+        </a>
+      </div>
     </div>
   </div>
 
-  <div class="mw-table-container">
-    <table class="mw-table">
-      <thead>
-        <tr>
-          <th>FECHA</th>
-          <th>TIPO</th>
-          <th>N° SERIE / MAC</th>
-          <th>EQUIPO / MODELO</th>
-          <th>DESTINO</th>
-          <th>ENCARGADO</th>
-          <th>ASUNTO</th>
-          <th class="actions-cell">ACCIONES</th>
-        </tr>
-      </thead>
-      <tbody>
-        <% if (ultimosMovimientos && ultimosMovimientos.length > 0) { %>
-          <% ultimosMovimientos.forEach(m => { %>
-            <tr>
-              <td class="col-fecha font-tabular">
-                <%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %>
-              </td>
-              <td>
-                <% if (m.tipo_movimiento === 'SALIDA') { %>
-                  <span class="badge-mw badge-wms-critico">SALIDA</span>
-                <% } else if (m.tipo_movimiento === 'ENTRADA') { %>
-                  <span class="badge-mw badge-wms-optimo">ENTRADA</span>
-                <% } else { %>
-                  <span class="badge-mw badge-wms-transito"><%= m.tipo_movimiento %></span>
-                <% } %>
-              </td>
-              <td>
-                <span class="font-mono">
-                  <%= m.numero_serie_mac %>
-                  <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
-                    <i class="bi bi-clipboard"></i>
-                  </button>
-                </span>
-              </td>
-              <td>
-                <strong><%= m.nombre_equipo || 'Equipo' %></strong>
-                <% if (m.modelo_equipo) { %>
-                  <span class="text-muted ms-1">(<%= m.modelo_equipo %>)</span>
-                <% } %>
-              </td>
-              <td>
-                <% if (m.destino) { %>
-                  <span class="badge-mw badge-neutral"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
-                <% } else { %>
-                  <span class="text-muted">-</span>
-                <% } %>
-              </td>
-              <td><%= m.encargado || '-' %></td>
-              <td class="text-truncate" style="max-width: 220px;" title="<%= m.asunto %>">
-                <%= m.asunto || '-' %>
-              </td>
-              <td class="actions-cell">
-                <a href="/movimientos/equipos" class="mw-btn mw-btn-outline mw-btn-sm" title="Ver kardex">
-                  <i class="bi bi-eye"></i>
-                </a>
-              </td>
-            </tr>
-          <% }) %>
-        <% } else { %>
-          <tr>
-            <td colspan="8" class="text-center py-4 text-muted">
-              <i class="bi bi-inbox fs-4 d-block mb-2"></i>
-              No se registran movimientos recientes en el sistema.
-            </td>
-          </tr>
-        <% } %>
-      </tbody>
-    </table>
+  <!-- Tabla Administrativa: Últimos Movimientos Estilo DataTables -->
+  <div class="col-12 col-xl-8">
+    <div class="erp-box erp-box-teal">
+      <div class="erp-box-header">
+        <div class="erp-box-title">
+          <i class="bi bi-clock-history text-success"></i> Últimos Movimientos Registrados en Kardex
+        </div>
+        <a href="/movimientos/equipos" class="btn-erp btn-erp-default btn-erp-sm">
+          Ver Kardex Completo →
+        </a>
+      </div>
+      <div class="erp-box-body">
+        
+        <!-- Controles Superiores Estilo DataTables -->
+        <div class="datatables-header-bar">
+          <div class="datatables-length-select">
+            <span>Mostrando últimos movimientos</span>
+          </div>
+          <div class="datatables-search-filter">
+            <label>Buscar en tabla:</label>
+            <input type="text" id="quickTableSearch" class="erp-input-sm" placeholder="Serie, equipo, destino..." style="width: 180px;">
+          </div>
+        </div>
+
+        <!-- Tabla Estilo DataTables / AdminLTE -->
+        <div class="table-responsive-erp">
+          <table class="table-erp">
+            <thead>
+              <tr>
+                <th>FECHA</th>
+                <th>TIPO</th>
+                <th>SERIE / MAC</th>
+                <th>EQUIPO</th>
+                <th>DESTINO</th>
+                <th>ENCARGADO</th>
+                <th class="actions-cell">ACCIONES</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% if (ultimosMovimientos && ultimosMovimientos.length > 0) { %>
+                <% ultimosMovimientos.forEach(m => { %>
+                  <tr>
+                    <td class="font-tabular">
+                      <%= m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : '-' %>
+                    </td>
+                    <td>
+                      <% if (m.tipo_movimiento === 'SALIDA') { %>
+                        <span class="badge-erp badge-erp-danger">SALIDA</span>
+                      <% } else if (m.tipo_movimiento === 'ENTRADA') { %>
+                        <span class="badge-erp badge-erp-success">ENTRADA</span>
+                      <% } else { %>
+                        <span class="badge-erp badge-erp-info"><%= m.tipo_movimiento %></span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <span class="font-mono">
+                        <%= m.numero_serie_mac %>
+                        <button type="button" class="btn-copy-inline" onclick="copyToClipboard('<%= m.numero_serie_mac %>', 'Serie/MAC')" title="Copiar serie">
+                          <i class="bi bi-clipboard"></i>
+                        </button>
+                      </span>
+                    </td>
+                    <td>
+                      <strong><%= m.nombre_equipo || 'Equipo' %></strong>
+                      <% if (m.modelo_equipo) { %>
+                        <span class="text-muted ms-1">(<%= m.modelo_equipo %>)</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (m.destino) { %>
+                        <span class="badge-erp badge-erp-gray"><i class="bi bi-geo-alt me-1 text-primary"></i><%= m.destino %></span>
+                      <% } else { %>
+                        <span class="text-muted">-</span>
+                      <% } %>
+                    </td>
+                    <td><%= m.encargado || '-' %></td>
+                    <td class="actions-cell">
+                      <a href="/movimientos/equipos" class="btn-erp btn-erp-default btn-erp-sm btn-erp-icon" title="Ver en kardex">
+                        <i class="bi bi-eye text-primary"></i>
+                      </a>
+                    </td>
+                  </tr>
+                <% }); %>
+              <% } else { %>
+                <tr>
+                  <td colspan="7" class="text-center text-muted py-4">No hay movimientos recientes registrados.</td>
+                </tr>
+              <% } %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
+
 </div>
 
 <%- include('../layouts/footer') %>

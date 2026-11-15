@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>Almacén TOI (WMS Pro)</title>
+  <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>Almacén TOI (ERP / Mikrowisp)</title>
   
-  <!-- Tipografía Limpia Clean Industrial & Icons -->
+  <!-- Tipografía Clásica & Fuentes Google -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="/css/mikrowisp-style.css" rel="stylesheet">
 </head>
@@ -17,37 +17,63 @@
     <%- include('sidebar') %>
     
     <div class="main-content">
+      <!-- TOPBAR BLANCA (#FFFFFF, ALTURA 52px) -->
       <header class="top-navbar">
-        <div class="navbar-brand-crumb">
-          <button id="sidebarToggle" class="mw-btn mw-btn-outline mw-btn-icon" title="Ocultar/Mostrar Menú (Sidebar)">
+        <div class="top-left-group">
+          <button id="sidebarToggle" class="btn-sidebar-toggle" title="Ocultar/Mostrar Menú">
             <i class="bi bi-list"></i>
           </button>
-          <span><i class="bi bi-boxes text-primary me-1"></i> <%= typeof title !== 'undefined' ? title : 'Almacén TOI' %></span>
+          <div class="topbar-page-breadcrumb">
+            <i class="bi bi-boxes text-primary"></i>
+            <span><%= typeof title !== 'undefined' ? title : 'Almacén TOI' %></span>
+          </div>
         </div>
         
-        <div class="top-navbar-actions">
-          <!-- Atajo Rápido de Búsqueda WMS UI Pro (Ctrl + K) -->
-          <div class="quick-search-box d-none d-md-flex" onclick="focusQuickSearch()" title="Búsqueda rápida en inventario">
-            <i class="bi bi-search"></i>
-            <span>Buscar en inventario</span>
+        <div class="top-right-group">
+          <!-- Buscador Rápido Topbar (Ctrl + K) -->
+          <div class="topbar-search-box d-none d-md-flex" onclick="focusQuickSearch()" title="Buscar en inventario">
+            <i class="bi bi-search text-muted"></i>
+            <input type="text" placeholder="Buscar..." readonly style="cursor: pointer;">
             <kbd>Ctrl K</kbd>
           </div>
 
-          <div class="d-flex align-items-center gap-2 border-start ps-3">
-            <span class="badge-mw badge-neutral">
-              <i class="bi bi-person-badge text-primary me-1"></i><%= user ? user.nombre_completo : 'Usuario' %> (<%= user && user.rol ? user.rol.toUpperCase() : 'USER' %>)
-            </span>
-            <a href="/auth/logout" class="mw-btn mw-btn-outline mw-btn-sm text-danger" title="Cerrar sesión">
-              <i class="bi bi-box-arrow-right"></i> Salir
-            </a>
+          <!-- Acceso Rápido / Notificación Stock Crítico -->
+          <a href="/accesorios?stock_bajo=true" class="btn-erp btn-erp-default btn-erp-sm text-decoration-none" title="Ver alertas de stock">
+            <i class="bi bi-bell-fill text-warning"></i>
+            <span class="badge-erp badge-erp-danger ms-1" style="font-size: 10px; padding: 1px 4px;">Alerta</span>
+          </a>
+
+          <!-- Usuario Dropdown Pill -->
+          <div class="user-menu-pill">
+            <i class="bi bi-person-circle text-primary"></i>
+            <span><%= user ? user.usuario.toUpperCase() : 'ADMIN' %> ▼</span>
           </div>
+
+          <!-- Salir -->
+          <a href="/auth/logout" class="btn-erp btn-erp-danger btn-erp-sm text-decoration-none" title="Cerrar sesión">
+            <i class="bi bi-box-arrow-right"></i> Salir
+          </a>
         </div>
       </header>
 
+      <!-- CONTENIDO PRINCIPAL (#ECF0F5) -->
       <main class="content-body">
+        <div class="content-header-title">
+          <h1>
+            <%= typeof title !== 'undefined' ? title : 'Panel de Control' %>
+            <small>Sistema Integrado de Gestión de Inventario</small>
+          </h1>
+          <div class="text-muted" style="font-size: 11.5px;">
+            <i class="bi bi-calendar3 me-1"></i> <%= new Date().toLocaleDateString('es-BO', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' }) %>
+          </div>
+        </div>
+
         <% if (typeof flash !== 'undefined' && flash && flash.message) { %>
-          <div class="mw-alert <%= flash.type === 'error' ? 'mw-alert-danger' : 'mw-alert-success' %>">
-            <i class="bi <%= flash.type === 'error' ? 'bi-exclamation-triangle-fill' : 'bi-check-circle-fill' %>"></i>
-            <span><%= flash.message %></span>
+          <div class="alert-erp <%= flash.type === 'error' ? 'alert-erp-danger' : 'alert-erp-success' %>">
+            <i class="bi <%= flash.type === 'error' ? 'bi-exclamation-octagon-fill fs-5' : 'bi-check-circle-fill fs-5' %>"></i>
+            <div>
+              <strong><%= flash.type === 'error' ? 'Aviso del Sistema:' : 'Operación Exitosa:' %></strong>
+              <span class="ms-1"><%= flash.message %></span>
+            </div>
           </div>
         <% } %>
