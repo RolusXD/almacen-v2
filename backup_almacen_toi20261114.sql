@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict 4W0gqcEHlNQB4R7GrnMXiMPTx8kkNJ7GdDq2064AJILQsg6KKtb63i8WJwINYMT
+-- \restrict 4W0gqcEHlNQB4R7GrnMXiMPTx8kkNJ7GdDq2064AJILQsg6KKtb63i8WJwINYMT
 
 -- Dumped from database version 14.24 (Ubuntu 14.24-0ubuntu0.22.04.1)
 -- Dumped by pg_dump version 14.24 (Ubuntu 14.24-0ubuntu0.22.04.1)
@@ -1741,5 +1741,5 @@ ALTER TABLE ONLY public.prestamos
 -- PostgreSQL database dump complete
 --
 
-\unrestrict 4W0gqcEHlNQB4R7GrnMXiMPTx8kkNJ7GdDq2064AJILQsg6KKtb63i8WJwINYMT
+-- \unrestrict 4W0gqcEHlNQB4R7GrnMXiMPTx8kkNJ7GdDq2064AJILQsg6KKtb63i8WJwINYMT
 

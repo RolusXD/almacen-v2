@@ -86,3 +86,4 @@ npm run build
 # 4. Iniciar en modo producción
 npm start
 ```
+

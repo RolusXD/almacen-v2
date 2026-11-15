@@ -36,6 +36,8 @@ services:
       - POSTGRES_DB=${DB_NAME:-almacen_toi}
       - POSTGRES_USER=${DB_USER:-almacen_toi}
       - POSTGRES_PASSWORD=${DB_PASS:-almacen_secure_password_2026}
+    ports:
+      - "${DB_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       # Si la base de datos está vacía, PostgreSQL importa automáticamente el backup
